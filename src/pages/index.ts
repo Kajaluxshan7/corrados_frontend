@@ -1,0 +1,10 @@
+export { default as Home } from './Home';
+export { default as About } from './About';
+export { default as Menus } from './Menus';
+export { default as Specials } from './Specials';
+export { default as PartyMenus } from './PartyMenus';
+export { default as FamilyMeals } from './FamilyMeals';
+export { default as GiftCards } from './GiftCards';
+export { default as Events } from './Events';
+export { default as Gallery } from './Gallery';
+export { default as Contact } from './Contact';

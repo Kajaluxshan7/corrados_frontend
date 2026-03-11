@@ -1,0 +1,18 @@
+import type { GalleryItem } from '../types';
+
+// Gallery uses placeholder images from Unsplash (free, no-auth required)
+// Replace these with actual restaurant photos when available
+export const galleryItems: GalleryItem[] = [
+  { id: 'g1', src: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600', alt: 'Fine Italian dining atmosphere', category: 'interior', type: 'image' },
+  { id: 'g2', src: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600', alt: 'Fresh pasta dish', category: 'food', type: 'image' },
+  { id: 'g3', src: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600', alt: 'Wood-fired pizza', category: 'food', type: 'image' },
+  { id: 'g4', src: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600', alt: 'Restaurant interior', category: 'interior', type: 'image' },
+  { id: 'g5', src: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600', alt: 'Italian wine selection', category: 'drinks', type: 'image' },
+  { id: 'g6', src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600', alt: 'Bar and lounge area', category: 'interior', type: 'image' },
+  { id: 'g7', src: 'https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=600', alt: 'Bruschetta appetizer', category: 'food', type: 'image' },
+  { id: 'g8', src: 'https://images.unsplash.com/photo-1529543544282-ea25407407b0?w=600', alt: 'Private dining event', category: 'events', type: 'image' },
+  { id: 'g9', src: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=600', alt: 'Tiramisu dessert', category: 'food', type: 'image' },
+  { id: 'g10', src: 'https://images.unsplash.com/photo-1574966739987-65e38db0f7ab?w=600', alt: 'Cocktail selection', category: 'drinks', type: 'image' },
+  { id: 'g11', src: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600', alt: 'Group celebration', category: 'events', type: 'image' },
+  { id: 'g12', src: 'https://images.unsplash.com/photo-1481931098730-318b6f776db0?w=600', alt: 'Fresh ingredients', category: 'food', type: 'image' },
+];

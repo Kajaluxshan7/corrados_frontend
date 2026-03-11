@@ -1,0 +1,68 @@
+import type { Event } from '../types';
+
+export const events: Event[] = [
+  {
+    id: 'live-jazz-friday',
+    title: 'Live Jazz Fridays',
+    date: 'Every Friday',
+    time: '7:00 PM – 10:00 PM',
+    description: 'Enjoy smooth jazz performances by local artists while you dine. The perfect way to start your weekend with great Italian food and live music.',
+    category: 'live-music',
+  },
+  {
+    id: 'wine-tasting',
+    title: 'Italian Wine Tasting Evening',
+    date: 'March 28, 2026',
+    time: '6:30 PM – 9:00 PM',
+    description: 'Explore the finest Italian wines hand-selected by our sommelier. Paired with a curated selection of antipasti and small bites. Limited seats available.',
+    category: 'seasonal',
+  },
+  {
+    id: 'nhl-playoffs',
+    title: 'NHL Playoff Watch Parties',
+    date: 'April – June 2026',
+    time: 'Game Time',
+    description: 'Catch every playoff game on our big screens! Special game-day wing and beer combos. Cheer on your team with fellow fans at Corrado\'s.',
+    category: 'sports',
+  },
+  {
+    id: 'mothers-day',
+    title: 'Mother\'s Day Brunch',
+    date: 'May 10, 2026',
+    time: '11:00 AM – 3:00 PM',
+    description: 'Treat Mom to a special Italian brunch featuring our exclusive Mother\'s Day menu. Reservations recommended. Complimentary dessert for all mothers.',
+    category: 'seasonal',
+  },
+  {
+    id: 'private-event',
+    title: 'Private Events & Group Dining',
+    date: 'Available Any Day',
+    time: 'By Reservation',
+    description: 'Host your next corporate dinner, birthday celebration, anniversary, or holiday party at Corrado\'s. We offer customizable menus and private/semi-private dining.',
+    category: 'private',
+  },
+  {
+    id: 'trivia-night',
+    title: 'Thursday Trivia Night',
+    date: 'Every Thursday',
+    time: '7:30 PM – 9:30 PM',
+    description: 'Test your knowledge at our weekly trivia night! Teams of up to 6 welcome. Prizes for the top 3 teams. Great food, drinks, and fun guaranteed.',
+    category: 'community',
+  },
+  {
+    id: 'euro-2026',
+    title: 'Euro 2026 Viewing Events',
+    date: 'June – July 2026',
+    time: 'Match Times',
+    description: 'As an Italian restaurant, you know we take Euro seriously! Watch all the matches — especially Azzurri games — on our screens with special Italian-themed food and drink deals.',
+    category: 'sports',
+  },
+  {
+    id: 'kids-cooking',
+    title: 'Kids Pizza Making Class',
+    date: 'Last Saturday of Each Month',
+    time: '11:00 AM – 1:00 PM',
+    description: 'A fun, hands-on pizza-making class for kids aged 5–12. Each child gets to make their own pizza, chef hat included! Great for birthday parties too.',
+    category: 'community',
+  },
+];
