@@ -33,6 +33,7 @@ import ShopIcon from '@mui/icons-material/Shop';
 import { SectionHeader } from '../components';
 import { businessInfo, menuCategories, specials, familyMeals, testimonials, events } from '../data';
 import { palette } from '../theme';
+import { formatAmpersand } from "../utils/formatAmpersand";
 
 export default function Home() {
   const featuredCategories = menuCategories.slice(0, 4);
@@ -44,27 +45,34 @@ export default function Home() {
       {/* ─── HERO SECTION ─── */}
       <Box
         sx={{
-          position: 'relative',
-          minHeight: { xs: '80vh', md: '90vh' },
-          display: 'flex',
-          alignItems: 'center',
+          position: "relative",
+          minHeight: { xs: "80vh", md: "90vh" },
+          display: "flex",
+          alignItems: "center",
           backgroundImage:
-            'url(https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          overflow: 'hidden',
+            "url(https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          overflow: "hidden",
         }}
       >
-        <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(20, 15, 12, 0.6)', zIndex: 1 }} />
-        <Container sx={{ position: 'relative', zIndex: 2, py: 8 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            bgcolor: "rgba(20, 15, 12, 0.6)",
+            zIndex: 1,
+          }}
+        />
+        <Container sx={{ position: "relative", zIndex: 2, py: 8 }}>
           <Box sx={{ maxWidth: 680 }}>
             <Typography
               variant="subtitle2"
               sx={{
                 color: palette.gold,
                 mb: 2,
-                letterSpacing: '0.2em',
-                fontSize: '0.85rem',
+                letterSpacing: "0.2em",
+                fontSize: "0.85rem",
               }}
             >
               AUTHENTIC ITALIAN DINING &bull; EST. 2010
@@ -72,15 +80,15 @@ export default function Home() {
             <Typography
               variant="h1"
               sx={{
-                color: '#fff',
+                color: "#fff",
                 fontWeight: 700,
                 mb: 3,
-                fontSize: { xs: '2.5rem', sm: '3.2rem', md: '4rem' },
+                fontSize: { xs: "2.5rem", sm: "3.2rem", md: "4rem" },
                 lineHeight: 1.1,
-                textShadow: '0 2px 40px rgba(0,0,0,0.3)',
+                textShadow: "0 2px 40px rgba(0,0,0,0.3)",
               }}
             >
-              Welcome to{' '}
+              Welcome to{" "}
               <Box component="span" sx={{ color: palette.primary.main }}>
                 Corrado's
               </Box>
@@ -88,19 +96,19 @@ export default function Home() {
             <Typography
               variant="h6"
               sx={{
-                color: '#ddd',
+                color: "#ddd",
                 fontWeight: 400,
                 mb: 4,
                 maxWidth: 520,
                 lineHeight: 1.7,
-                fontSize: { xs: '1rem', md: '1.15rem' },
+                fontSize: { xs: "1rem", md: "1.15rem" },
               }}
             >
-              Experience the warmth of Italian hospitality and the taste of homemade
-              family recipes. From fresh pasta to wood-fired pizza, every dish tells
-              a story.
+              Experience the warmth of Italian hospitality and the taste of
+              homemade family recipes. From fresh pasta to wood-fired pizza,
+              every dish tells a story.
             </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <Button
                 variant="contained"
                 color="primary"
@@ -109,7 +117,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
                 startIcon={<ShoppingBagOutlinedIcon />}
-                sx={{ px: 4, py: 1.5, fontSize: '0.9rem' }}
+                sx={{ px: 4, py: 1.5, fontSize: "0.9rem" }}
               >
                 Order Online
               </Button>
@@ -122,10 +130,13 @@ export default function Home() {
                 sx={{
                   px: 4,
                   py: 1.5,
-                  fontSize: '0.9rem',
-                  borderColor: '#fff',
-                  color: '#fff',
-                  '&:hover': { borderColor: palette.primary.main, color: palette.primary.main },
+                  fontSize: "0.9rem",
+                  borderColor: "#fff",
+                  color: "#fff",
+                  "&:hover": {
+                    borderColor: palette.primary.main,
+                    color: palette.primary.main,
+                  },
                 }}
               >
                 View Menus
@@ -139,9 +150,9 @@ export default function Home() {
                 sx={{
                   px: 3,
                   py: 1.5,
-                  fontSize: '0.9rem',
-                  color: '#ccc',
-                  '&:hover': { color: '#fff' },
+                  fontSize: "0.9rem",
+                  color: "#ccc",
+                  "&:hover": { color: "#fff" },
                 }}
               >
                 Contact Us
@@ -152,10 +163,10 @@ export default function Home() {
       </Box>
 
       {/* ─── INFO STRIP ─── */}
-      <Box sx={{ bgcolor: palette.primary.main, color: '#fff', py: 2 }}>
+      <Box sx={{ bgcolor: palette.primary.main, color: "#fff", py: 2 }}>
         <Container>
           <Stack
-            direction={{ xs: 'column', md: 'row' }}
+            direction={{ xs: "column", md: "row" }}
             spacing={{ xs: 1, md: 4 }}
             justifyContent="center"
             alignItems="center"
@@ -178,7 +189,7 @@ export default function Home() {
                 component="a"
                 href={`tel:${businessInfo.phone}`}
                 variant="body2"
-                sx={{ fontWeight: 600, color: '#fff', textDecoration: 'none' }}
+                sx={{ fontWeight: 600, color: "#fff", textDecoration: "none" }}
               >
                 {businessInfo.phone}
               </Typography>
@@ -197,9 +208,9 @@ export default function Home() {
                 src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=80"
                 alt="Corrado's Restaurant interior"
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: { xs: 300, md: 400 },
-                  objectFit: 'cover',
+                  objectFit: "cover",
                   borderRadius: 1,
                 }}
               />
@@ -207,23 +218,40 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography
                 variant="subtitle2"
-                sx={{ color: palette.primary.main, mb: 1, letterSpacing: '0.15em' }}
+                sx={{
+                  color: palette.primary.main,
+                  mb: 1,
+                  letterSpacing: "0.15em",
+                }}
               >
                 OUR STORY
               </Typography>
-              <Typography variant="h3" sx={{ mb: 3, fontWeight: 700, fontSize: { xs: '1.75rem', md: '2.25rem' } }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  fontSize: { xs: "1.75rem", md: "2.25rem" },
+                }}
+              >
                 A Taste of Italy in Whitby
               </Typography>
-              <Typography variant="body1" sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}>
-                Since 2010, Corrado's has been the neighbourhood's favourite destination
-                for authentic Italian cuisine. From our family to yours, we prepare every
-                dish with fresh ingredients, time-honoured recipes, and a genuine passion
-                for hospitality.
+              <Typography
+                variant="body1"
+                sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
+              >
+                Since 2010, Corrado's has been the neighbourhood's favourite
+                destination for authentic Italian cuisine. From our family to
+                yours, we prepare every dish with fresh ingredients,
+                time-honoured recipes, and a genuine passion for hospitality.
               </Typography>
-              <Typography variant="body1" sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
-                Whether you're here for a casual weeknight dinner, a special celebration,
-                or cheering on your team during the big game — there's always a seat at
-                our table for you.
+              <Typography
+                variant="body1"
+                sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
+              >
+                Whether you're here for a casual weeknight dinner, a special
+                celebration, or cheering on your team during the big game —
+                there's always a seat at our table for you.
               </Typography>
               <Button
                 variant="outlined"
@@ -254,12 +282,12 @@ export default function Home() {
                   component={RouterLink}
                   to="/menus"
                   sx={{
-                    textDecoration: 'none',
-                    height: '100%',
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    textDecoration: "none",
+                    height: "100%",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                     },
                   }}
                 >
@@ -267,21 +295,27 @@ export default function Home() {
                     component="img"
                     height="200"
                     image={
-                      cat.id === 'appetizers'
-                        ? 'https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=400&q=80'
-                        : cat.id === 'pasta'
-                        ? 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80'
-                        : cat.id === 'pizza'
-                        ? 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'
-                        : 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&q=80'
+                      cat.id === "appetizers"
+                        ? "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=400&q=80"
+                        : cat.id === "pasta"
+                          ? "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80"
+                          : cat.id === "pizza"
+                            ? "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80"
+                            : "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&q=80"
                     }
                     alt={cat.name}
                   />
                   <CardContent>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: palette.charcoal }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 700, color: palette.charcoal }}
+                    >
                       {cat.name}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: palette.text.secondary, mt: 0.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: palette.text.secondary, mt: 0.5 }}
+                    >
                       {cat.items.length} items
                     </Typography>
                   </CardContent>
@@ -289,7 +323,7 @@ export default function Home() {
               </Grid>
             ))}
           </Grid>
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
             <Button
               variant="contained"
               color="primary"
@@ -315,17 +349,30 @@ export default function Home() {
           <Grid container spacing={3}>
             {featuredSpecials.map((special) => (
               <Grid key={special.id} size={{ xs: 12, md: 4 }}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
                   <CardContent sx={{ flex: 1, p: 3 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 2,
+                      }}
+                    >
                       <Chip
                         label={special.day}
                         size="small"
                         sx={{
                           bgcolor: palette.primary.main,
-                          color: '#fff',
+                          color: "#fff",
                           fontWeight: 700,
-                          fontSize: '0.7rem',
+                          fontSize: "0.7rem",
                         }}
                       />
                       {special.badge && (
@@ -337,20 +384,31 @@ export default function Home() {
                             borderColor: palette.gold,
                             color: palette.gold,
                             fontWeight: 600,
-                            fontSize: '0.7rem',
+                            fontSize: "0.7rem",
                           }}
                         />
                       )}
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                      {special.title}
+                      {formatAmpersand(special.title)}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.7 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: palette.text.secondary,
+                        mb: 2,
+                        lineHeight: 1.7,
+                      }}
+                    >
                       {special.description}
                     </Typography>
                     <Typography
                       variant="h6"
-                      sx={{ color: palette.primary.main, fontWeight: 700, mt: 'auto' }}
+                      sx={{
+                        color: palette.primary.main,
+                        fontWeight: 700,
+                        mt: "auto",
+                      }}
                     >
                       {special.price}
                     </Typography>
@@ -359,7 +417,7 @@ export default function Home() {
               </Grid>
             ))}
           </Grid>
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
             <Button
               variant="outlined"
               color="primary"
@@ -378,14 +436,21 @@ export default function Home() {
         sx={{
           py: { xs: 8, md: 10 },
           bgcolor: palette.charcoal,
-          backgroundImage: 'url(https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1600&q=80)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          position: 'relative',
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1600&q=80)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          position: "relative",
         }}
       >
-        <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(30, 25, 22, 0.85)' }} />
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            bgcolor: "rgba(30, 25, 22, 0.85)",
+          }}
+        />
+        <Box sx={{ position: "relative", zIndex: 1 }}>
           <SectionHeader
             subtitle="FAMILY MEALS"
             title="Share the Table, Share the Love"
@@ -396,12 +461,17 @@ export default function Home() {
             <Grid container spacing={3}>
               {familyMeals.slice(0, 3).map((meal) => (
                 <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
-                  <Card sx={{ height: '100%', bgcolor: 'rgba(255,255,255,0.95)' }}>
+                  <Card
+                    sx={{ height: "100%", bgcolor: "rgba(255,255,255,0.95)" }}
+                  >
                     <CardContent sx={{ p: 3 }}>
                       <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                        {meal.name}
+                        {formatAmpersand(meal.name)}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: palette.text.secondary, mb: 2 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: palette.text.secondary, mb: 2 }}
+                      >
                         {meal.description}
                       </Typography>
                       <Chip
@@ -411,7 +481,11 @@ export default function Home() {
                       />
                       <Typography
                         variant="h5"
-                        sx={{ color: palette.primary.main, fontWeight: 700, mt: 2 }}
+                        sx={{
+                          color: palette.primary.main,
+                          fontWeight: 700,
+                          mt: 2,
+                        }}
                       >
                         {meal.price}
                       </Typography>
@@ -420,7 +494,7 @@ export default function Home() {
                 </Grid>
               ))}
             </Grid>
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <Box sx={{ textAlign: "center", mt: 4 }}>
               <Button
                 variant="contained"
                 color="primary"
@@ -443,21 +517,39 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography
                 variant="subtitle2"
-                sx={{ color: palette.primary.main, mb: 1, letterSpacing: '0.15em' }}
+                sx={{
+                  color: palette.primary.main,
+                  mb: 1,
+                  letterSpacing: "0.15em",
+                }}
               >
                 PRIVATE EVENTS & CATERING
               </Typography>
-              <Typography variant="h3" sx={{ mb: 3, fontWeight: 700, fontSize: { xs: '1.75rem', md: '2.25rem' } }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  fontSize: { xs: "1.75rem", md: "2.25rem" },
+                }}
+              >
                 Host Your Next Event at Corrado's
               </Typography>
-              <Typography variant="body1" sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}>
-                From intimate gatherings to large celebrations, we have the perfect
-                space and menu for your event. Birthday parties, corporate dinners,
-                sports viewing parties, and more.
+              <Typography
+                variant="body1"
+                sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
+              >
+                From intimate gatherings to large celebrations, we have the
+                perfect space and menu for your event. Birthday parties,
+                corporate dinners, sports viewing parties, and more.
               </Typography>
-              <Typography variant="body1" sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
-                Our dedicated event coordinator will work with you to customize every detail,
-                from menu selection to seating arrangement. Starting at just $25 per person.
+              <Typography
+                variant="body1"
+                sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
+              >
+                Our dedicated event coordinator will work with you to customize
+                every detail, from menu selection to seating arrangement.
+                Starting at just $25 per person.
               </Typography>
               <Stack direction="row" spacing={2}>
                 <Button
@@ -482,12 +574,12 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="https://images.unsplash.com/photo-1529543544282-ea25407407b0?w=700&q=80"
+                src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=700&q=80"
                 alt="Private event at Corrado's"
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: { xs: 300, md: 400 },
-                  objectFit: 'cover',
+                  objectFit: "cover",
                   borderRadius: 1,
                 }}
               />
@@ -507,30 +599,37 @@ export default function Home() {
           <Grid container spacing={3}>
             {featuredEvents.map((event) => (
               <Grid key={event.id} size={{ xs: 12, md: 4 }}>
-                <Card sx={{ height: '100%' }}>
+                <Card sx={{ height: "100%" }}>
                   <CardContent sx={{ p: 3 }}>
                     <Chip
-                      label={event.category.replace('-', ' ')}
+                      label={event.category.replace("-", " ")}
                       size="small"
                       sx={{
                         mb: 2,
                         bgcolor: palette.secondary.main,
-                        color: '#fff',
-                        textTransform: 'capitalize',
+                        color: "#fff",
+                        textTransform: "capitalize",
                         fontWeight: 600,
-                        fontSize: '0.7rem',
+                        fontSize: "0.7rem",
                       }}
                     />
                     <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                      {event.title}
+                      {formatAmpersand(event.title)}
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{ color: palette.primary.main, fontWeight: 600, mb: 1 }}
+                      sx={{
+                        color: palette.primary.main,
+                        fontWeight: 600,
+                        mb: 1,
+                      }}
                     >
                       {event.date} &bull; {event.time}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: palette.text.secondary, lineHeight: 1.7 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: palette.text.secondary, lineHeight: 1.7 }}
+                    >
                       {event.description}
                     </Typography>
                   </CardContent>
@@ -538,7 +637,7 @@ export default function Home() {
               </Grid>
             ))}
           </Grid>
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
             <Button
               variant="outlined"
               color="primary"
@@ -562,10 +661,10 @@ export default function Home() {
         <Container>
           <Grid container spacing={2}>
             {[
-              'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80',
-              'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80',
-              'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
-              'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80',
+              "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
+              "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+              "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
+              "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80",
             ].map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>
                 <Box
@@ -573,18 +672,18 @@ export default function Home() {
                   src={src}
                   alt={`Gallery image ${i + 1}`}
                   sx={{
-                    width: '100%',
+                    width: "100%",
                     height: { xs: 160, md: 220 },
-                    objectFit: 'cover',
+                    objectFit: "cover",
                     borderRadius: 1,
-                    transition: 'transform 0.3s',
-                    '&:hover': { transform: 'scale(1.03)' },
+                    transition: "transform 0.3s",
+                    "&:hover": { transform: "scale(1.03)" },
                   }}
                 />
               </Grid>
             ))}
           </Grid>
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
             <Button
               variant="outlined"
               color="primary"
@@ -605,17 +704,32 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography
                 variant="subtitle2"
-                sx={{ color: palette.primary.main, mb: 1, letterSpacing: '0.15em' }}
+                sx={{
+                  color: palette.primary.main,
+                  mb: 1,
+                  letterSpacing: "0.15em",
+                }}
               >
                 MOBILE APP
               </Typography>
-              <Typography variant="h3" sx={{ mb: 3, fontWeight: 700, fontSize: { xs: '1.75rem', md: '2.25rem' } }}>
+              <Typography
+                variant="h3"
+                sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  fontSize: { xs: "1.75rem", md: "2.25rem" },
+                }}
+              >
                 Order From Anywhere
               </Typography>
-              <Typography variant="body1" sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
+              <Typography
+                variant="body1"
+                sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
+              >
                 Download the Corrado's app and get your favourite Italian dishes
-                delivered right to your door. Browse our full menu, customize your
-                order, track delivery, and earn rewards with every purchase.
+                delivered right to your door. Browse our full menu, customize
+                your order, track delivery, and earn rewards with every
+                purchase.
               </Typography>
               <Stack direction="row" spacing={2}>
                 {/* TODO: Replace href with actual App Store URL when available */}
@@ -624,20 +738,32 @@ export default function Home() {
                   href="#"
                   startIcon={<AppleIcon />}
                   sx={{
-                    bgcolor: '#000',
-                    color: '#fff',
+                    bgcolor: "#000",
+                    color: "#fff",
                     px: 3,
                     py: 1.2,
-                    '&:hover': { bgcolor: '#333' },
-                    textTransform: 'none',
-                    fontSize: '0.85rem',
+                    "&:hover": { bgcolor: "#333" },
+                    textTransform: "none",
+                    fontSize: "0.85rem",
                   }}
                 >
                   <Box>
-                    <Typography sx={{ fontSize: '0.6rem', lineHeight: 1, textAlign: 'left' }}>
+                    <Typography
+                      sx={{
+                        fontSize: "0.6rem",
+                        lineHeight: 1,
+                        textAlign: "left",
+                      }}
+                    >
                       Download on the
                     </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: 700,
+                        lineHeight: 1.2,
+                      }}
+                    >
                       App Store
                     </Typography>
                   </Box>
@@ -648,20 +774,32 @@ export default function Home() {
                   href="#"
                   startIcon={<ShopIcon />}
                   sx={{
-                    bgcolor: '#000',
-                    color: '#fff',
+                    bgcolor: "#000",
+                    color: "#fff",
                     px: 3,
                     py: 1.2,
-                    '&:hover': { bgcolor: '#333' },
-                    textTransform: 'none',
-                    fontSize: '0.85rem',
+                    "&:hover": { bgcolor: "#333" },
+                    textTransform: "none",
+                    fontSize: "0.85rem",
                   }}
                 >
                   <Box>
-                    <Typography sx={{ fontSize: '0.6rem', lineHeight: 1, textAlign: 'left' }}>
+                    <Typography
+                      sx={{
+                        fontSize: "0.6rem",
+                        lineHeight: 1,
+                        textAlign: "left",
+                      }}
+                    >
                       GET IT ON
                     </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "1rem",
+                        fontWeight: 700,
+                        lineHeight: 1.2,
+                      }}
+                    >
                       Google Play
                     </Typography>
                   </Box>
@@ -671,9 +809,9 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                   height: { xs: 280, md: 400 },
                   bgcolor: palette.cream,
                   borderRadius: 1,
@@ -683,21 +821,26 @@ export default function Home() {
                   sx={{
                     width: 200,
                     height: 380,
-                    bgcolor: '#222',
-                    borderRadius: '24px',
-                    border: '4px solid #444',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    position: 'relative',
-                    overflow: 'hidden',
+                    bgcolor: "#222",
+                    borderRadius: "24px",
+                    border: "4px solid #444",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
                   <Box
                     component="img"
                     src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80"
                     alt="App preview"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px' }}
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "20px",
+                    }}
                   />
                 </Box>
               </Box>
@@ -716,25 +859,73 @@ export default function Home() {
         <Container>
           <Grid container spacing={3}>
             {[
-              { icon: <LocalDiningIcon />, title: 'Authentic Italian', text: 'Traditional recipes with the freshest ingredients' },
-              { icon: <GroupsIcon />, title: 'Family Dining', text: 'Warm, welcoming atmosphere for the whole family' },
-              { icon: <CelebrationIcon />, title: 'Private Events', text: 'Customizable party and catering packages' },
-              { icon: <LiquorIcon />, title: 'Extensive Wine List', text: 'Curated Italian and international wines' },
-              { icon: <DeckIcon />, title: 'Beautiful Patio', text: 'Enjoy outdoor dining in the warmer months' },
-              { icon: <ChildCareIcon />, title: "Kids' Menu", text: 'Child-friendly options the little ones will love' },
-              { icon: <WifiIcon />, title: 'Free WiFi', text: 'Stay connected while you dine' },
-              { icon: <LocalParkingIcon />, title: 'Free Parking', text: 'Convenient parking for all guests' },
-              { icon: <AccessibleIcon />, title: 'Wheelchair Accessible', text: 'Fully accessible dining space' },
+              {
+                icon: <LocalDiningIcon />,
+                title: "Authentic Italian",
+                text: "Traditional recipes with the freshest ingredients",
+              },
+              {
+                icon: <GroupsIcon />,
+                title: "Family Dining",
+                text: "Warm, welcoming atmosphere for the whole family",
+              },
+              {
+                icon: <CelebrationIcon />,
+                title: "Private Events",
+                text: "Customizable party and catering packages",
+              },
+              {
+                icon: <LiquorIcon />,
+                title: "Extensive Wine List",
+                text: "Curated Italian and international wines",
+              },
+              {
+                icon: <DeckIcon />,
+                title: "Beautiful Patio",
+                text: "Enjoy outdoor dining in the warmer months",
+              },
+              {
+                icon: <ChildCareIcon />,
+                title: "Kids' Menu",
+                text: "Child-friendly options the little ones will love",
+              },
+              {
+                icon: <WifiIcon />,
+                title: "Free WiFi",
+                text: "Stay connected while you dine",
+              },
+              {
+                icon: <LocalParkingIcon />,
+                title: "Free Parking",
+                text: "Convenient parking for all guests",
+              },
+              {
+                icon: <AccessibleIcon />,
+                title: "Wheelchair Accessible",
+                text: "Fully accessible dining space",
+              },
             ].map((feature, i) => (
               <Grid key={i} size={{ xs: 6, sm: 4, md: 4 }}>
-                <Box sx={{ textAlign: 'center', p: 2 }}>
-                  <Box sx={{ color: palette.primary.main, mb: 1.5, '& svg': { fontSize: 36 } }}>
+                <Box sx={{ textAlign: "center", p: 2 }}>
+                  <Box
+                    sx={{
+                      color: palette.primary.main,
+                      mb: 1.5,
+                      "& svg": { fontSize: 36 },
+                    }}
+                  >
                     {feature.icon}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem', mb: 0.5 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 700, fontSize: "1rem", mb: 0.5 }}
+                  >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: palette.text.secondary }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: palette.text.secondary }}
+                  >
                     {feature.text}
                   </Typography>
                 </Box>
@@ -754,24 +945,38 @@ export default function Home() {
           <Grid container spacing={3}>
             {testimonials.map((t) => (
               <Grid key={t.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card sx={{ height: '100%' }}>
+                <Card sx={{ height: "100%" }}>
                   <CardContent sx={{ p: 3 }}>
-                    <Rating value={t.rating} readOnly size="small" sx={{ mb: 1.5 }} />
+                    <Rating
+                      value={t.rating}
+                      readOnly
+                      size="small"
+                      sx={{ mb: 1.5 }}
+                    />
                     <Typography
                       variant="body2"
                       sx={{
                         color: palette.text.secondary,
-                        fontStyle: 'italic',
+                        fontStyle: "italic",
                         lineHeight: 1.7,
                         mb: 2,
                       }}
                     >
                       "{t.text}"
                     </Typography>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 700, fontSize: "0.85rem" }}
+                    >
                       {t.name}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: palette.text.secondary, fontSize: '0.75rem' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: palette.text.secondary,
+                        fontSize: "0.75rem",
+                      }}
+                    >
                       via {t.source}
                     </Typography>
                   </CardContent>
@@ -783,22 +988,39 @@ export default function Home() {
       </Box>
 
       {/* ─── CONTACT STRIP ─── */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.primary.main, color: '#fff' }}>
+      <Box
+        sx={{
+          py: { xs: 6, md: 8 },
+          bgcolor: palette.primary.main,
+          color: "#fff",
+        }}
+      >
         <Container>
           <Grid container spacing={4} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  mb: 1,
+                  fontSize: { xs: "1.5rem", md: "2rem" },
+                }}
+              >
                 Ready to Dine with Us?
               </Typography>
-              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', mb: 0 }}>
-                Visit us, order online, or give us a call. We'd love to serve you and your family.
+              <Typography
+                variant="body1"
+                sx={{ color: "rgba(255,255,255,0.85)", mb: 0 }}
+              >
+                Visit us, order online, or give us a call. We'd love to serve
+                you and your family.
               </Typography>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <Stack
-                direction={{ xs: 'column', sm: 'row' }}
+                direction={{ xs: "column", sm: "row" }}
                 spacing={2}
-                justifyContent={{ md: 'flex-end' }}
+                justifyContent={{ md: "flex-end" }}
               >
                 <Button
                   variant="contained"
@@ -807,10 +1029,10 @@ export default function Home() {
                   rel="noopener noreferrer"
                   startIcon={<ShoppingBagOutlinedIcon />}
                   sx={{
-                    bgcolor: '#fff',
+                    bgcolor: "#fff",
                     color: palette.primary.main,
                     fontWeight: 700,
-                    '&:hover': { bgcolor: '#f5f5f5' },
+                    "&:hover": { bgcolor: "#f5f5f5" },
                   }}
                 >
                   Order Online
@@ -821,9 +1043,12 @@ export default function Home() {
                   href={`tel:${businessInfo.phone}`}
                   startIcon={<PhoneIcon />}
                   sx={{
-                    borderColor: '#fff',
-                    color: '#fff',
-                    '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' },
+                    borderColor: "#fff",
+                    color: "#fff",
+                    "&:hover": {
+                      borderColor: "#fff",
+                      bgcolor: "rgba(255,255,255,0.1)",
+                    },
                   }}
                 >
                   {businessInfo.phone}
@@ -834,9 +1059,12 @@ export default function Home() {
                   href={`mailto:${businessInfo.email}`}
                   startIcon={<EmailIcon />}
                   sx={{
-                    borderColor: '#fff',
-                    color: '#fff',
-                    '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' },
+                    borderColor: "#fff",
+                    color: "#fff",
+                    "&:hover": {
+                      borderColor: "#fff",
+                      bgcolor: "rgba(255,255,255,0.1)",
+                    },
                   }}
                 >
                   Email Us

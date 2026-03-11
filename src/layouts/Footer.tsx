@@ -42,7 +42,7 @@ export default function Footer() {
       component="footer"
       sx={{
         bgcolor: palette.charcoal,
-        color: '#fff',
+        color: "#fff",
         pt: 8,
         pb: 3,
       }}
@@ -51,20 +51,24 @@ export default function Footer() {
         <Grid container spacing={4}>
           {/* Brand column */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontFamily: '"Playfair Display", serif',
-                fontWeight: 700,
-                color: palette.primary.main,
-                mb: 2,
-              }}
+            <Box
+              component={RouterLink}
+              to="/"
+              sx={{ display: "inline-block", mb: 2, textDecoration: "none" }}
             >
-              CORRADO'S
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#bbb', mb: 3, maxWidth: 300, lineHeight: 1.8 }}>
-              Authentic Italian cuisine in the heart of Whitby. Family-owned since 2010, 
-              we bring the warmth of Italy to every plate.
+              <Box
+                component="img"
+                src="/logos/logo-white-on-black.png"
+                alt="Corrado's Restaurant and Bar"
+                sx={{ height: 80, width: "auto" }}
+              />
+            </Box>
+            <Typography
+              variant="body2"
+              sx={{ color: "#bbb", mb: 3, maxWidth: 300, lineHeight: 1.8 }}
+            >
+              Authentic Italian cuisine in the heart of Whitby. Family-owned
+              since 2010, we bring the warmth of Italy to every plate.
             </Typography>
             <Button
               variant="contained"
@@ -79,31 +83,46 @@ export default function Footer() {
               Order Online
             </Button>
             {/* Social icons */}
-            <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-              {businessInfo.social.map((s: { name: string; url: string; icon: string }) => (
-                <IconButton
-                  key={s.name}
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.name}
-                  sx={{
-                    color: '#999',
-                    border: '1px solid #444',
-                    '&:hover': { color: palette.primary.main, borderColor: palette.primary.main },
-                  }}
-                  size="small"
-                >
-                  {s.icon === 'facebook' && <FacebookIcon fontSize="small" />}
-                  {s.icon === 'instagram' && <InstagramIcon fontSize="small" />}
-                  {s.icon === 'yelp' && (
-                    <Typography sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>Y</Typography>
-                  )}
-                  {s.icon === 'tripadvisor' && (
-                    <Typography sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>TA</Typography>
-                  )}
-                </IconButton>
-              ))}
+            <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+              {businessInfo.social.map(
+                (s: { name: string; url: string; icon: string }) => (
+                  <IconButton
+                    key={s.name}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.name}
+                    sx={{
+                      color: "#999",
+                      border: "1px solid #444",
+                      "&:hover": {
+                        color: palette.primary.main,
+                        borderColor: palette.primary.main,
+                      },
+                    }}
+                    size="small"
+                  >
+                    {s.icon === "facebook" && <FacebookIcon fontSize="small" />}
+                    {s.icon === "instagram" && (
+                      <InstagramIcon fontSize="small" />
+                    )}
+                    {s.icon === "yelp" && (
+                      <Typography
+                        sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}
+                      >
+                        Y
+                      </Typography>
+                    )}
+                    {s.icon === "tripadvisor" && (
+                      <Typography
+                        sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}
+                      >
+                        TA
+                      </Typography>
+                    )}
+                  </IconButton>
+                ),
+              )}
             </Box>
           </Grid>
 
@@ -111,7 +130,7 @@ export default function Footer() {
           <Grid size={{ xs: 6, sm: 3, md: 2 }}>
             <Typography
               variant="subtitle2"
-              sx={{ color: palette.primary.main, mb: 2, fontSize: '0.8rem' }}
+              sx={{ color: palette.primary.main, mb: 2, fontSize: "0.8rem" }}
             >
               Quick Links
             </Typography>
@@ -122,11 +141,11 @@ export default function Footer() {
                   component={RouterLink}
                   to={link.path}
                   sx={{
-                    color: '#bbb',
-                    textDecoration: 'none',
-                    fontSize: '0.875rem',
-                    '&:hover': { color: palette.primary.main },
-                    transition: 'color 0.2s',
+                    color: "#bbb",
+                    textDecoration: "none",
+                    fontSize: "0.875rem",
+                    "&:hover": { color: palette.primary.main },
+                    transition: "color 0.2s",
                   }}
                 >
                   {link.label}
@@ -139,7 +158,7 @@ export default function Footer() {
           <Grid size={{ xs: 6, sm: 3, md: 2 }}>
             <Typography
               variant="subtitle2"
-              sx={{ color: palette.primary.main, mb: 2, fontSize: '0.8rem' }}
+              sx={{ color: palette.primary.main, mb: 2, fontSize: "0.8rem" }}
             >
               Services
             </Typography>
@@ -151,11 +170,11 @@ export default function Footer() {
                     component={RouterLink}
                     to={link.path}
                     sx={{
-                      color: '#bbb',
-                      textDecoration: 'none',
-                      fontSize: '0.875rem',
-                      '&:hover': { color: palette.primary.main },
-                      transition: 'color 0.2s',
+                      color: "#bbb",
+                      textDecoration: "none",
+                      fontSize: "0.875rem",
+                      "&:hover": { color: palette.primary.main },
+                      transition: "color 0.2s",
                     }}
                   >
                     {link.label}
@@ -168,16 +187,16 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                      color: '#bbb',
-                      textDecoration: 'none',
-                      fontSize: '0.875rem',
-                      '&:hover': { color: palette.primary.main },
-                      transition: 'color 0.2s',
+                      color: "#bbb",
+                      textDecoration: "none",
+                      fontSize: "0.875rem",
+                      "&:hover": { color: palette.primary.main },
+                      transition: "color 0.2s",
                     }}
                   >
                     {link.label}
                   </Typography>
-                )
+                ),
               )}
             </Stack>
           </Grid>
@@ -186,42 +205,54 @@ export default function Footer() {
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <Typography
               variant="subtitle2"
-              sx={{ color: palette.primary.main, mb: 2, fontSize: '0.8rem' }}
+              sx={{ color: palette.primary.main, mb: 2, fontSize: "0.8rem" }}
             >
               Contact Us
             </Typography>
             <Stack spacing={1.5}>
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-                <PlaceIcon sx={{ color: palette.primary.main, fontSize: 20, mt: 0.3 }} />
-                <Typography variant="body2" sx={{ color: '#bbb' }}>
+              <Box sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
+                <PlaceIcon
+                  sx={{ color: palette.primary.main, fontSize: 20, mt: 0.3 }}
+                />
+                <Typography variant="body2" sx={{ color: "#bbb" }}>
                   {businessInfo.address}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+              <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
                 <PhoneIcon sx={{ color: palette.primary.main, fontSize: 20 }} />
                 <Typography
                   component="a"
                   href={`tel:${businessInfo.phone}`}
                   variant="body2"
-                  sx={{ color: '#bbb', textDecoration: 'none', '&:hover': { color: '#fff' } }}
+                  sx={{
+                    color: "#bbb",
+                    textDecoration: "none",
+                    "&:hover": { color: "#fff" },
+                  }}
                 >
                   {businessInfo.phone}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+              <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
                 <EmailIcon sx={{ color: palette.primary.main, fontSize: 20 }} />
                 <Typography
                   component="a"
                   href={`mailto:${businessInfo.email}`}
                   variant="body2"
-                  sx={{ color: '#bbb', textDecoration: 'none', '&:hover': { color: '#fff' } }}
+                  sx={{
+                    color: "#bbb",
+                    textDecoration: "none",
+                    "&:hover": { color: "#fff" },
+                  }}
                 >
                   {businessInfo.email}
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-                <AccessTimeIcon sx={{ color: palette.primary.main, fontSize: 20 }} />
-                <Typography variant="body2" sx={{ color: '#bbb' }}>
+              <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+                <AccessTimeIcon
+                  sx={{ color: palette.primary.main, fontSize: 20 }}
+                />
+                <Typography variant="body2" sx={{ color: "#bbb" }}>
                   {businessInfo.hours}
                 </Typography>
               </Box>
@@ -229,23 +260,31 @@ export default function Footer() {
           </Grid>
         </Grid>
 
-        <Divider sx={{ borderColor: '#444', my: 4 }} />
+        <Divider sx={{ borderColor: "#444", my: 4 }} />
 
         {/* Bottom bar */}
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: "center",
             gap: 1,
           }}
         >
-          <Typography variant="body2" sx={{ color: '#888', fontSize: '0.8rem' }}>
-            &copy; {new Date().getFullYear()} Corrado's Restaurant and Bar. All rights reserved.
+          <Typography
+            variant="body2"
+            sx={{ color: "#888", fontSize: "0.8rem" }}
+          >
+            &copy; {new Date().getFullYear()} Corrado's Restaurant and Bar. All
+            rights reserved.
           </Typography>
-          <Typography variant="body2" sx={{ color: '#666', fontSize: '0.75rem' }}>
-            38 Baldwin Street, Whitby, ON &nbsp;|&nbsp; Casual Italian Dining &nbsp;|&nbsp; Est. 2010
+          <Typography
+            variant="body2"
+            sx={{ color: "#666", fontSize: "0.75rem" }}
+          >
+            38 Baldwin Street, Whitby, ON &nbsp;|&nbsp; Casual Italian Dining
+            &nbsp;|&nbsp; Est. 2010
           </Typography>
         </Box>
       </Container>

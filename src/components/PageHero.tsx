@@ -1,6 +1,7 @@
 import { Box, Typography, Container, Button } from '@mui/material';
 import type { ReactNode } from 'react';
 import { palette } from '../theme';
+import { formatAmpersand } from "../utils/formatAmpersand";
 
 interface PageHeroProps {
   title: string;
@@ -18,59 +19,63 @@ export default function PageHero({
   backgroundImage,
   cta,
   children,
-  height = '50vh',
+  height = "50vh",
   overlay = 0.55,
 }: PageHeroProps) {
   return (
     <Box
       sx={{
-        position: 'relative',
+        position: "relative",
         minHeight: height,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: backgroundImage
+          ? `url(${backgroundImage})`
+          : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         bgcolor: backgroundImage ? undefined : palette.charcoal,
-        overflow: 'hidden',
+        overflow: "hidden",
       }}
     >
       {/* Overlay */}
       <Box
         sx={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
           bgcolor: `rgba(30, 25, 22, ${overlay})`,
           zIndex: 1,
         }}
       />
-      <Container sx={{ position: 'relative', zIndex: 2, textAlign: 'center', py: 6 }}>
+      <Container
+        sx={{ position: "relative", zIndex: 2, textAlign: "center", py: 6 }}
+      >
         <Typography
           variant="h2"
           sx={{
-            color: '#fff',
+            color: "#fff",
             fontWeight: 700,
             mb: 2,
-            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
-            textShadow: '0 2px 20px rgba(0,0,0,0.3)',
+            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+            textShadow: "0 2px 20px rgba(0,0,0,0.3)",
           }}
         >
-          {title}
+          {formatAmpersand(title)}
         </Typography>
         {subtitle && (
           <Typography
             variant="h6"
             sx={{
-              color: '#ddd',
+              color: "#ddd",
               fontWeight: 400,
               maxWidth: 600,
-              mx: 'auto',
+              mx: "auto",
               mb: 3,
-              fontSize: { xs: '1rem', md: '1.15rem' },
+              fontSize: { xs: "1rem", md: "1.15rem" },
             }}
           >
-            {subtitle}
+            {formatAmpersand(subtitle)}
           </Typography>
         )}
         {cta && cta.href && (
@@ -82,7 +87,7 @@ export default function PageHero({
             href={cta.href}
             target="_blank"
             rel="noopener noreferrer"
-            sx={{ mt: 1, px: 5, py: 1.5, fontSize: '0.9rem' }}
+            sx={{ mt: 1, px: 5, py: 1.5, fontSize: "0.9rem" }}
           >
             {cta.label}
           </Button>
@@ -92,7 +97,7 @@ export default function PageHero({
             variant="contained"
             color="primary"
             size="large"
-            sx={{ mt: 1, px: 5, py: 1.5, fontSize: '0.9rem' }}
+            sx={{ mt: 1, px: 5, py: 1.5, fontSize: "0.9rem" }}
           >
             {cta.label}
           </Button>

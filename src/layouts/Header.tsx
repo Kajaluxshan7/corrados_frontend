@@ -48,23 +48,26 @@ export default function Header() {
       <Box
         sx={{
           bgcolor: palette.charcoal,
-          color: '#fff',
+          color: "#fff",
           py: 0.5,
-          display: { xs: 'none', md: 'block' },
-          fontSize: '0.8rem',
+          display: { xs: "none", md: "block" },
+          fontSize: "0.8rem",
         }}
       >
         <Container
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <Typography variant="body2" sx={{ color: '#ccc', fontSize: '0.8rem' }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "#ccc", fontSize: "0.8rem" }}
+          >
             {businessInfo.phone} &nbsp;|&nbsp; {businessInfo.hours}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               href={businessInfo.giftCardUrl}
               target="_blank"
@@ -73,10 +76,10 @@ export default function Header() {
               startIcon={<CardGiftcardOutlinedIcon sx={{ fontSize: 16 }} />}
               sx={{
                 color: palette.gold,
-                fontSize: '0.75rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                '&:hover': { color: '#fff' },
+                fontSize: "0.75rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                "&:hover": { color: "#fff" },
               }}
             >
               Gift Cards
@@ -89,44 +92,43 @@ export default function Header() {
       <AppBar
         position="sticky"
         sx={{
-          bgcolor: scrolled ? 'rgba(255,255,255,0.97)' : '#fff',
-          backdropFilter: scrolled ? 'blur(8px)' : 'none',
-          transition: 'all 0.3s ease',
-          borderBottom: `1px solid ${palette.warmGray}`,
+          bgcolor: palette.primary.main,
+          transition: "all 0.3s ease",
+          boxShadow: scrolled ? 3 : 1,
         }}
       >
         <Container>
-          <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 72 }, gap: 1 }}>
+          <Toolbar
+            disableGutters
+            sx={{ minHeight: { xs: 64, md: 72 }, gap: 1 }}
+          >
             {/* Logo */}
             <Box
               component={RouterLink}
               to="/"
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
                 mr: 3,
               }}
             >
-              <Typography
-                variant="h5"
+              <Box
+                component="img"
+                src="/logos/logo-white-on-black.png"
+                alt="Corrado's Restaurant and Bar"
                 sx={{
-                  fontFamily: '"Playfair Display", serif',
-                  fontWeight: 700,
-                  color: palette.primary.main,
-                  fontSize: { xs: '1.2rem', md: '1.5rem' },
-                  letterSpacing: '-0.02em',
+                  height: { xs: 48, md: 56 },
+                  width: "auto",
                 }}
-              >
-                CORRADO'S
-              </Typography>
+              />
             </Box>
 
             {/* Desktop nav links */}
             <Box
               sx={{
-                display: { xs: 'none', lg: 'flex' },
-                alignItems: 'center',
+                display: { xs: "none", lg: "flex" },
+                alignItems: "center",
                 gap: 0.5,
                 flex: 1,
               }}
@@ -138,21 +140,23 @@ export default function Header() {
                   to={link.path}
                   size="small"
                   sx={{
-                    color: isActive(link.path) ? palette.primary.main : palette.charcoal,
+                    color: isActive(link.path)
+                      ? "#fff"
+                      : "rgba(255,255,255,0.85)",
                     fontWeight: isActive(link.path) ? 700 : 600,
-                    fontSize: '0.78rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
+                    fontSize: "0.78rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
                     px: 1.2,
                     py: 1,
                     borderBottom: isActive(link.path)
-                      ? `2px solid ${palette.primary.main}`
-                      : '2px solid transparent',
+                      ? "2px solid #fff"
+                      : "2px solid transparent",
                     borderRadius: 0,
-                    '&:hover': {
-                      color: palette.primary.main,
-                      bgcolor: 'transparent',
-                      borderBottom: `2px solid ${palette.primary.light}`,
+                    "&:hover": {
+                      color: "#fff",
+                      bgcolor: "rgba(255,255,255,0.1)",
+                      borderBottom: "2px solid rgba(255,255,255,0.5)",
                     },
                   }}
                 >
@@ -162,34 +166,57 @@ export default function Header() {
             </Box>
 
             {/* Desktop CTA */}
-            <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 1, ml: 'auto' }}>
+            <Box
+              sx={{ display: { xs: "none", lg: "flex" }, gap: 1, ml: "auto" }}
+            >
               <Button
                 variant="contained"
-                color="primary"
                 href={businessInfo.orderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 startIcon={<ShoppingBagOutlinedIcon />}
-                sx={{ fontWeight: 700, px: 3 }}
+                sx={{
+                  fontWeight: 700,
+                  px: 3,
+                  bgcolor: "#fff",
+                  color: palette.primary.main,
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
+                }}
               >
                 Order Online
               </Button>
             </Box>
 
             {/* Mobile menu button */}
-            <Box sx={{ display: { xs: 'flex', lg: 'none' }, ml: 'auto', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                display: { xs: "flex", lg: "none" },
+                ml: "auto",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
               <Button
                 variant="contained"
-                color="primary"
                 href={businessInfo.orderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 size="small"
-                sx={{ fontWeight: 700, fontSize: '0.7rem', px: 2 }}
+                sx={{
+                  fontWeight: 700,
+                  fontSize: "0.7rem",
+                  px: 2,
+                  bgcolor: "#fff",
+                  color: palette.primary.main,
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
+                }}
               >
                 Order
               </Button>
-              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: palette.charcoal }}>
+              <IconButton
+                onClick={() => setDrawerOpen(true)}
+                sx={{ color: "#fff" }}
+              >
                 <MenuIcon />
               </IconButton>
             </Box>
@@ -203,16 +230,23 @@ export default function Header() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         PaperProps={{
-          sx: { width: 300, bgcolor: '#fff' },
+          sx: { width: 300, bgcolor: "#fff" },
         }}
       >
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography
-            variant="h6"
-            sx={{ fontFamily: '"Playfair Display", serif', fontWeight: 700, color: palette.primary.main }}
-          >
-            CORRADO'S
-          </Typography>
+        <Box
+          sx={{
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            component="img"
+            src="/logos/logo-black.png"
+            alt="Corrado's Restaurant and Bar"
+            sx={{ height: 48, width: "auto" }}
+          />
           <IconButton onClick={() => setDrawerOpen(false)}>
             <CloseIcon />
           </IconButton>
@@ -228,7 +262,7 @@ export default function Header() {
                 selected={isActive(link.path)}
                 sx={{
                   py: 1.5,
-                  '&.Mui-selected': {
+                  "&.Mui-selected": {
                     bgcolor: `${palette.primary.main}10`,
                     borderRight: `3px solid ${palette.primary.main}`,
                     color: palette.primary.main,
@@ -239,8 +273,8 @@ export default function Header() {
                   primary={link.label}
                   primaryTypographyProps={{
                     fontWeight: isActive(link.path) ? 700 : 500,
-                    fontSize: '0.95rem',
-                    letterSpacing: '0.03em',
+                    fontSize: "0.95rem",
+                    letterSpacing: "0.03em",
                   }}
                 />
               </ListItemButton>
@@ -248,7 +282,7 @@ export default function Header() {
           ))}
         </List>
         <Divider />
-        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
           <Button
             variant="contained"
             color="primary"
@@ -267,7 +301,14 @@ export default function Header() {
             target="_blank"
             rel="noopener noreferrer"
             startIcon={<CardGiftcardOutlinedIcon />}
-            sx={{ borderColor: palette.gold, color: palette.gold, '&:hover': { borderColor: palette.gold, bgcolor: `${palette.gold}10` } }}
+            sx={{
+              borderColor: palette.gold,
+              color: palette.gold,
+              "&:hover": {
+                borderColor: palette.gold,
+                bgcolor: `${palette.gold}10`,
+              },
+            }}
           >
             Gift Cards
           </Button>

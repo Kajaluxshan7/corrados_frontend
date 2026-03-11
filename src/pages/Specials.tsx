@@ -12,6 +12,7 @@ import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import { PageHero } from '../components';
 import { specials, businessInfo } from '../data';
 import { palette } from '../theme';
+import { formatAmpersand } from "../utils/formatAmpersand";
 
 export default function Specials() {
   return (
@@ -29,22 +30,29 @@ export default function Specials() {
               <Grid key={special.id} size={{ xs: 12, sm: 6, md: 4 }}>
                 <Card
                   sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
                     },
                   }}
                 >
-                  <CardContent sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column' }}>
+                  <CardContent
+                    sx={{
+                      flex: 1,
+                      p: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
                     <Box
                       sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
                         mb: 2,
                       }}
                     >
@@ -53,9 +61,9 @@ export default function Specials() {
                         size="small"
                         sx={{
                           bgcolor: palette.primary.main,
-                          color: '#fff',
+                          color: "#fff",
                           fontWeight: 700,
-                          fontSize: '0.7rem',
+                          fontSize: "0.7rem",
                         }}
                       />
                       {special.badge && (
@@ -67,17 +75,22 @@ export default function Specials() {
                             borderColor: palette.gold,
                             color: palette.gold,
                             fontWeight: 600,
-                            fontSize: '0.7rem',
+                            fontSize: "0.7rem",
                           }}
                         />
                       )}
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                      {special.title}
+                      {formatAmpersand(special.title)}
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.7, flex: 1 }}
+                      sx={{
+                        color: palette.text.secondary,
+                        mb: 2,
+                        lineHeight: 1.7,
+                        flex: 1,
+                      }}
                     >
                       {special.description}
                     </Typography>
@@ -96,7 +109,7 @@ export default function Specials() {
           {/* Order CTA */}
           <Box
             sx={{
-              textAlign: 'center',
+              textAlign: "center",
               mt: 8,
               py: 5,
               px: 4,
@@ -104,14 +117,27 @@ export default function Specials() {
               borderRadius: 1,
             }}
           >
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                mb: 1,
+                fontSize: { xs: "1.5rem", md: "2rem" },
+              }}
+            >
               Don't Miss Out!
             </Typography>
             <Typography
               variant="body1"
-              sx={{ color: palette.text.secondary, mb: 3, maxWidth: 500, mx: 'auto' }}
+              sx={{
+                color: palette.text.secondary,
+                mb: 3,
+                maxWidth: 500,
+                mx: "auto",
+              }}
             >
-              These specials are available for dine-in, takeout, and delivery. Order now and enjoy.
+              These specials are available for dine-in, takeout, and delivery.
+              Order now and enjoy.
             </Typography>
             <Button
               variant="contained"
