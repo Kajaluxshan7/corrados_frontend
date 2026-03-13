@@ -3,8 +3,6 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
   Chip,
   Button,
 } from '@mui/material';
@@ -13,6 +11,17 @@ import { PageHero } from '../components';
 import { specials, businessInfo } from '../data';
 import { palette } from '../theme';
 import { formatAmpersand } from "../utils/formatAmpersand";
+
+const specialImages: Record<string, string> = {
+  'monday-pasta': 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80',
+  'tuesday-pizza': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
+  'wednesday-wings': 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=800&q=80',
+  'thursday-wine': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
+  'friday-seafood': 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80',
+  'weekend-brunch': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+  'lunch-combo': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
+  'happy-hour': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&q=80',
+};
 
 export default function Specials() {
   return (
@@ -28,80 +37,113 @@ export default function Specials() {
           <Grid container spacing={3}>
             {specials.map((special) => (
               <Grid key={special.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Card
+                <Box
                   sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "transform 0.3s, box-shadow 0.3s",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                    position: 'relative',
+                    height: '100%',
+                    minHeight: { xs: 320, md: 380 },
+                    borderRadius: 1,
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                    transition: 'transform 0.35s ease, box-shadow 0.35s ease',
+                    '&:hover': {
+                      transform: 'translateY(-6px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
                     },
+                    '&:hover img': { transform: 'scale(1.06)' },
                   }}
                 >
-                  <CardContent
+                  <Box
+                    component="img"
+                    src={specialImages[special.id]}
+                    alt={special.title}
                     sx={{
-                      flex: 1,
-                      p: 3,
-                      display: "flex",
-                      flexDirection: "column",
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease',
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(180deg, rgba(20,15,12,0.08) 0%, rgba(20,15,12,0.55) 45%, rgba(20,15,12,0.92) 100%)',
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      zIndex: 1,
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      p: { xs: 2, md: 2.5 },
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        mb: 2,
-                      }}
-                    >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, alignItems: 'flex-start' }}>
                       <Chip
                         label={special.day}
                         size="small"
-                        sx={{
-                          bgcolor: palette.primary.main,
-                          color: "#fff",
-                          fontWeight: 700,
-                          fontSize: "0.7rem",
-                        }}
+                        sx={{ bgcolor: palette.primary.main, color: '#fff', fontWeight: 700, fontSize: '0.7rem' }}
                       />
                       {special.badge && (
                         <Chip
                           label={special.badge}
                           size="small"
-                          variant="outlined"
                           sx={{
-                            borderColor: palette.gold,
-                            color: palette.gold,
+                            bgcolor: 'rgba(255,255,255,0.15)',
+                            color: '#fff',
+                            border: '1px solid rgba(255,255,255,0.2)',
                             fontWeight: 600,
-                            fontSize: "0.7rem",
+                            fontSize: '0.68rem',
+                            backdropFilter: 'blur(6px)',
                           }}
                         />
                       )}
                     </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                      {formatAmpersand(special.title)}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: palette.text.secondary,
-                        mb: 2,
-                        lineHeight: 1.7,
-                        flex: 1,
-                      }}
-                    >
-                      {special.description}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{ color: palette.primary.main, fontWeight: 700 }}
-                    >
-                      {special.price}
-                    </Typography>
-                  </CardContent>
-                </Card>
+                    <Box>
+                      <Typography
+                        variant="overline"
+                        sx={{ color: palette.gold, letterSpacing: '0.16em', fontSize: '0.6rem' }}
+                      >
+                        Weekly Feature
+                      </Typography>
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          color: '#fff',
+                          fontWeight: 700,
+                          mt: 0.3,
+                          lineHeight: 1.15,
+                          textShadow: '0 2px 12px rgba(0,0,0,0.3)',
+                        }}
+                      >
+                        {formatAmpersand(special.title)}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'rgba(255,255,255,0.82)',
+                          mt: 0.8,
+                          lineHeight: 1.55,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {special.description}
+                      </Typography>
+                      <Typography variant="h6" sx={{ color: palette.gold, fontWeight: 700, mt: 1.25 }}>
+                        {special.price}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
               </Grid>
             ))}
           </Grid>

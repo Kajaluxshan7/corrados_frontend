@@ -19,6 +19,13 @@ import { PageHero } from '../components';
 import { familyMeals, businessInfo } from '../data';
 import { palette } from '../theme';
 
+const mealImages: Record<string, string> = {
+  'classic-italian': 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80',
+  'pizza-party': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
+  'sunday-feast': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+  'date-night': 'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=800&q=80',
+};
+
 export default function FamilyMeals() {
   return (
     <>
@@ -38,10 +45,35 @@ export default function FamilyMeals() {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    transition: 'box-shadow 0.3s',
-                    '&:hover': { boxShadow: '0 8px 24px rgba(0,0,0,0.1)' },
+                    overflow: 'hidden',
+                    transition: 'transform 0.35s ease, box-shadow 0.35s ease',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.14)',
+                    },
+                    '&:hover img': { transform: 'scale(1.05)' },
                   }}
                 >
+                  <Box sx={{ position: 'relative', overflow: 'hidden', height: { xs: 180, md: 200 } }}>
+                    <Box
+                      component="img"
+                      src={mealImages[meal.id]}
+                      alt={meal.name}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.5s ease',
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%)',
+                      }}
+                    />
+                  </Box>
                   <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                       <Typography variant="h5" sx={{ fontWeight: 700 }}>

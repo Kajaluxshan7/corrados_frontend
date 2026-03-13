@@ -21,6 +21,13 @@ import { PageHero } from '../components';
 import { partyPackages, businessInfo } from '../data';
 import { palette } from '../theme';
 
+const partyImages: Record<string, string> = {
+  'casual-gathering': 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80',
+  'classic-dinner': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+  'premium-celebration': 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80',
+  'sports-party': 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80',
+};
+
 export default function PartyMenus() {
   return (
     <>
@@ -37,19 +44,44 @@ export default function PartyMenus() {
               <Grid key={pkg.id} size={{ xs: 12, md: 6 }}>
                 <Card
                   sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "box-shadow 0.3s",
-                    "&:hover": { boxShadow: "0 8px 24px rgba(0,0,0,0.1)" },
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    transition: 'transform 0.35s ease, box-shadow 0.35s ease',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 12px 32px rgba(0,0,0,0.14)',
+                    },
+                    '&:hover img': { transform: 'scale(1.05)' },
                   }}
                 >
+                  <Box sx={{ position: 'relative', overflow: 'hidden', height: { xs: 170, md: 190 } }}>
+                    <Box
+                      component="img"
+                      src={partyImages[pkg.id]}
+                      alt={pkg.name}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.5s ease',
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%)',
+                      }}
+                    />
+                  </Box>
                   <CardContent
                     sx={{
                       p: 3,
                       flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
+                      display: 'flex',
+                      flexDirection: 'column',
                     }}
                   >
                     <Box

@@ -18,6 +18,15 @@ import { menuCategories, businessInfo } from '../data';
 import { palette } from '../theme';
 import { formatAmpersand } from "../utils/formatAmpersand";
 
+const categoryImages: Record<string, string> = {
+  appetizers: 'https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=1200&q=80',
+  pasta: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1200&q=80',
+  pizza: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80',
+  mains: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80',
+  wings: 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=1200&q=80',
+  desserts: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=1200&q=80',
+};
+
 export default function Menus() {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -59,20 +68,50 @@ export default function Menus() {
             </Tabs>
           </Box>
 
-          {/* Active category header */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              {menuCategories[activeTab].name}
-            </Typography>
-            {menuCategories[activeTab].description && (
-              <Typography
-                variant="body1"
-                sx={{ color: palette.text.secondary }}
+          {/* Category banner + header */}
+          {categoryImages[menuCategories[activeTab].id] && (
+            <Box
+              sx={{
+                position: 'relative',
+                height: { xs: 160, md: 200 },
+                borderRadius: 1,
+                overflow: 'hidden',
+                mb: 3,
+              }}
+            >
+              <Box
+                component="img"
+                src={categoryImages[menuCategories[activeTab].id]}
+                alt={menuCategories[activeTab].name}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+              <Box
+                sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  p: { xs: 2, md: 3 },
+                }}
               >
-                {menuCategories[activeTab].description}
-              </Typography>
-            )}
-          </Box>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#fff' }}>
+                    {menuCategories[activeTab].name}
+                  </Typography>
+                  {menuCategories[activeTab].description && (
+                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', mt: 0.5 }}>
+                      {menuCategories[activeTab].description}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          )}
 
           {/* Menu items */}
           <Grid container spacing={3}>

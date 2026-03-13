@@ -11,6 +11,7 @@ import {
   Events,
   Gallery,
   Contact,
+  NotFound,
 } from '../pages';
 
 const router = createBrowserRouter([
@@ -23,10 +24,10 @@ const router = createBrowserRouter([
       { path: '/specials', element: <Specials /> },
       { path: '/party-menus', element: <PartyMenus /> },
       { path: '/family-meals', element: <FamilyMeals /> },
-      { path: '/gift-cards', element: <GiftCards /> },
       { path: '/events', element: <Events /> },
       { path: '/gallery', element: <Gallery /> },
       { path: '/contact', element: <Contact /> },
+      { path: '*', element: <NotFound /> },
     ],
   },
 ]);

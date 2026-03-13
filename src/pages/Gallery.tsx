@@ -3,17 +3,25 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Tabs,
   Tab,
   Dialog,
   IconButton,
+  Chip,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import { PageHero } from '../components';
 import { galleryItems } from '../data';
 import { palette } from '../theme';
 import type { GalleryItem } from '../types';
+
+const categoryColors: Record<string, string> = {
+  food: palette.primary.main,
+  interior: palette.navy,
+  events: palette.secondary.main,
+  drinks: palette.wine,
+};
 
 const categories = [
   { label: 'All', value: 'all' },
@@ -59,55 +67,112 @@ export default function Gallery() {
             </Tabs>
           </Box>
 
-          {/* Gallery grid */}
-          <Grid container spacing={2}>
+          {/* Masonry columns gallery */}
+          <Box
+            sx={{
+              columns: { xs: 2, sm: 3, md: 4 },
+              columnGap: { xs: '8px', sm: '10px', md: '12px' },
+            }}
+          >
             {filtered.map((item) => (
-              <Grid key={item.id} size={{ xs: 6, sm: 4, md: 3 }}>
+              <Box
+                key={item.id}
+                onClick={() => setSelectedImage(item)}
+                sx={{
+                  breakInside: 'avoid',
+                  mb: { xs: '8px', sm: '10px', md: '12px' },
+                  position: 'relative',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  borderRadius: 1.5,
+                  display: 'block',
+                  bgcolor: palette.warmGray,
+                  '&:hover img': { transform: 'scale(1.07)' },
+                  '&:hover .overlay': { opacity: 1 },
+                  '&:hover .zoom-icon': { opacity: 1, transform: 'translate(-50%, -50%) scale(1)' },
+                }}
+              >
                 <Box
-                  onClick={() => setSelectedImage(item)}
+                  component="img"
+                  src={item.src}
+                  alt={item.alt}
+                  loading="lazy"
                   sx={{
-                    position: 'relative',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    borderRadius: 1,
-                    '&:hover img': { transform: 'scale(1.08)' },
-                    '&:hover .overlay': { opacity: 1 },
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block',
+                    transition: 'transform 0.45s ease',
+                  }}
+                />
+                {/* Hover overlay */}
+                <Box
+                  className="overlay"
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    background:
+                      'linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.22) 40%, rgba(0,0,0,0.72) 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    p: { xs: 1, md: 1.5 },
+                    opacity: 0,
+                    transition: 'opacity 0.3s ease',
                   }}
                 >
-                  <Box
-                    component="img"
-                    src={item.src}
-                    alt={item.alt}
-                    loading="lazy"
+                  <Chip
+                    label={item.category}
+                    size="small"
                     sx={{
-                      width: '100%',
-                      height: { xs: 160, sm: 200, md: 240 },
-                      objectFit: 'cover',
-                      display: 'block',
-                      transition: 'transform 0.4s ease',
+                      mb: 0.6,
+                      alignSelf: 'flex-start',
+                      bgcolor: categoryColors[item.category] || palette.charcoal,
+                      color: '#fff',
+                      fontSize: '0.6rem',
+                      fontWeight: 700,
+                      textTransform: 'capitalize',
+                      height: 18,
+                      borderRadius: '4px',
                     }}
                   />
-                  <Box
-                    className="overlay"
+                  <Typography
+                    variant="body2"
                     sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      bgcolor: 'rgba(0,0,0,0.4)',
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      p: 1.5,
-                      opacity: 0,
-                      transition: 'opacity 0.3s ease',
+                      color: '#fff',
+                      fontSize: { xs: '0.72rem', md: '0.8rem' },
+                      fontWeight: 600,
+                      lineHeight: 1.3,
                     }}
                   >
-                    <Typography variant="body2" sx={{ color: '#fff', fontSize: '0.8rem' }}>
-                      {item.alt}
-                    </Typography>
-                  </Box>
+                    {item.alt}
+                  </Typography>
                 </Box>
-              </Grid>
+                {/* Zoom icon centred */}
+                <Box
+                  className="zoom-icon"
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%) scale(0.7)',
+                    opacity: 0,
+                    transition: 'opacity 0.3s ease, transform 0.3s ease',
+                    bgcolor: 'rgba(255,255,255,0.18)',
+                    backdropFilter: 'blur(6px)',
+                    borderRadius: '50%',
+                    width: 44,
+                    height: 44,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1.5px solid rgba(255,255,255,0.4)',
+                  }}
+                >
+                  <ZoomInIcon sx={{ color: '#fff', fontSize: 22 }} />
+                </Box>
+              </Box>
             ))}
-          </Grid>
+          </Box>
 
           {filtered.length === 0 && (
             <Box sx={{ textAlign: 'center', py: 6 }}>

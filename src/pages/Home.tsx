@@ -110,7 +110,7 @@ const navTiles = [
     path: "/contact",
     tagline: "Find Us & Reach Out",
     image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80",
+      "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=600&q=80",
     gridColumn: "4 / 5",
     gridRow: "3 / 4",
   },

@@ -8,3 +8,4 @@ export { default as GiftCards } from './GiftCards';
 export { default as Events } from './Events';
 export { default as Gallery } from './Gallery';
 export { default as Contact } from './Contact';
+export { default as NotFound } from './NotFound';
