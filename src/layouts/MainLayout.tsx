@@ -3,6 +3,7 @@ import { Box } from '@mui/material';
 import { useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import { ScrollProgressButton } from '../components';
 
 export default function MainLayout() {
   const { pathname } = useLocation();
@@ -19,6 +20,7 @@ export default function MainLayout() {
         <Outlet />
       </Box>
       <Footer />
+      <ScrollProgressButton />
     </Box>
   );
 }

@@ -71,6 +71,25 @@ let theme = createTheme({
     borderRadius: 2,  // Sharp corners per requirements
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        html: {
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        },
+        body: {
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        },
+        '*, *::before, *::after': {
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

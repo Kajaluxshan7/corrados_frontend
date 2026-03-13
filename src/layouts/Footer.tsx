@@ -9,13 +9,12 @@ import {
   Divider,
   Stack,
 } from '@mui/material';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
 import PlaceIcon from '@mui/icons-material/Place';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import { SocialIcon } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 
@@ -102,24 +101,7 @@ export default function Footer() {
                     }}
                     size="small"
                   >
-                    {s.icon === "facebook" && <FacebookIcon fontSize="small" />}
-                    {s.icon === "instagram" && (
-                      <InstagramIcon fontSize="small" />
-                    )}
-                    {s.icon === "yelp" && (
-                      <Typography
-                        sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}
-                      >
-                        Y
-                      </Typography>
-                    )}
-                    {s.icon === "tripadvisor" && (
-                      <Typography
-                        sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}
-                      >
-                        TA
-                      </Typography>
-                    )}
+                    <SocialIcon icon={s.icon} size={16} />
                   </IconButton>
                 ),
               )}
@@ -285,6 +267,26 @@ export default function Footer() {
           >
             38 Baldwin Street, Whitby, ON &nbsp;|&nbsp; Casual Italian Dining
             &nbsp;|&nbsp; Est. 2010
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: "#666", fontSize: "0.75rem" }}
+          >
+            Designed by{' '}
+            <Box
+              component="a"
+              href="https://www.akvisionsystems.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                color: palette.gold,
+                textDecoration: "none",
+                fontWeight: 600,
+                "&:hover": { color: "#fff" },
+              }}
+            >
+              AK Vision Systems
+            </Box>
           </Typography>
         </Box>
       </Container>

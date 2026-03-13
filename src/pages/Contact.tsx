@@ -11,24 +11,94 @@ import {
   CardContent,
   Snackbar,
   Alert,
+  MenuItem,
 } from '@mui/material';
 import PlaceIcon from '@mui/icons-material/Place';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import { PageHero } from '../components';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import { PageHero, SocialIcon } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 
+const subjectOptions = [
+  { value: 'general', label: 'General Inquiry' },
+  { value: 'reservation', label: 'Reservation Request' },
+  { value: 'private-event', label: 'Private Event / Catering' },
+  { value: 'careers', label: 'Careers' },
+  { value: 'feedback', label: 'Feedback' },
+] as const;
+
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const [subject, setSubject] = useState('general');
+  const [resumeFileName, setResumeFileName] = useState('');
+  const [resumeError, setResumeError] = useState('');
+  const [submitMessage, setSubmitMessage] = useState(
+    "Thank you for your message! We'll get back to you soon.",
+  );
+
+  const isReservation = subject === 'reservation';
+  const isCareer = subject === 'careers';
+  const isPrivateEvent = subject === 'private-event';
+
+  const handleSubjectChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const nextSubject = event.target.value;
+    setSubject(nextSubject);
+
+    if (nextSubject !== 'careers') {
+      setResumeFileName('');
+      setResumeError('');
+    }
+  };
+
+  const handleResumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setResumeFileName('');
+      setResumeError('');
+      return;
+    }
+
+    const validExtensions = ['pdf', 'doc', 'docx'];
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+
+    if (!validExtensions.includes(extension)) {
+      setResumeFileName('');
+      setResumeError('Please upload a PDF, DOC, or DOCX file.');
+      event.target.value = '';
+      return;
+    }
+
+    setResumeFileName(file.name);
+    setResumeError('');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Static form — show success message
+
+    if (isCareer && !resumeFileName) {
+      setResumeError('Please upload your CV in PDF, DOC, or DOCX format.');
+      return;
+    }
+
+    const successMessages: Record<string, string> = {
+      general: "Thank you for reaching out. We'll get back to you soon.",
+      reservation:
+        "Thanks for your reservation request. We'll confirm your table shortly.",
+      'private-event':
+        "Thank you for your event inquiry. We'll follow up with package details soon.",
+      careers:
+        "Thanks for applying to Corrado's. Our team will review your CV and contact you if there's a fit.",
+      feedback: 'Thank you for your feedback. We appreciate you taking the time to share it.',
+    };
+
+    setSubmitMessage(successMessages[subject]);
     setSubmitted(true);
   };
 
@@ -134,14 +204,7 @@ export default function Contact() {
                         '&:hover': { borderColor: palette.primary.main, color: palette.primary.main },
                       }}
                     >
-                      {s.icon === 'facebook' && <FacebookIcon fontSize="small" />}
-                      {s.icon === 'instagram' && <InstagramIcon fontSize="small" />}
-                      {s.icon === 'yelp' && (
-                        <Typography sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>Y</Typography>
-                      )}
-                      {s.icon === 'tripadvisor' && (
-                        <Typography sx={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>TA</Typography>
-                      )}
+                      <SocialIcon icon={s.icon} size={16} />
                     </Button>
                   ))}
                 </Stack>
@@ -167,12 +230,12 @@ export default function Contact() {
             {/* Contact Form */}
             <Grid size={{ xs: 12, md: 7 }}>
               <Card>
-                <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <CardContent sx={{ p: { xs: 3, md: 4 }, borderTop: `3px solid ${palette.primary.main}` }}>
                   <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
                     Send Us a Message
                   </Typography>
                   <Typography variant="body2" sx={{ color: palette.text.secondary, mb: 3 }}>
-                    Have a question or feedback? Fill out the form below and we'll get back to you.
+                    Choose the reason for your enquiry and we'll tailor the details you can send us.
                   </Typography>
                   <Box component="form" onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
@@ -213,18 +276,180 @@ export default function Contact() {
                         <TextField
                           fullWidth
                           label="Subject"
+                          select
                           required
                           variant="outlined"
-                        />
+                          value={subject}
+                          onChange={handleSubjectChange}
+                        >
+                          {subjectOptions.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
                       </Grid>
+
+                      {isReservation && (
+                        <>
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField
+                              fullWidth
+                              label="Guest Count"
+                              type="number"
+                              required
+                              variant="outlined"
+                              inputProps={{ min: 1, max: 30 }}
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField
+                              fullWidth
+                              label="Preferred Date"
+                              type="date"
+                              required
+                              variant="outlined"
+                              InputLabelProps={{ shrink: true }}
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField
+                              fullWidth
+                              label="Preferred Time"
+                              type="time"
+                              required
+                              variant="outlined"
+                              InputLabelProps={{ shrink: true }}
+                            />
+                          </Grid>
+                        </>
+                      )}
+
+                      {isPrivateEvent && (
+                        <>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                              fullWidth
+                              label="Event Type"
+                              required
+                              variant="outlined"
+                              placeholder="Birthday, corporate dinner, shower..."
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 3 }}>
+                            <TextField
+                              fullWidth
+                              label="Guest Count"
+                              type="number"
+                              required
+                              variant="outlined"
+                              inputProps={{ min: 10, max: 300 }}
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 3 }}>
+                            <TextField
+                              fullWidth
+                              label="Event Date"
+                              type="date"
+                              required
+                              variant="outlined"
+                              InputLabelProps={{ shrink: true }}
+                            />
+                          </Grid>
+                        </>
+                      )}
+
+                      {isCareer && (
+                        <>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                              fullWidth
+                              label="Position of Interest"
+                              required
+                              variant="outlined"
+                              placeholder="Server, kitchen staff, bartender..."
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                              fullWidth
+                              label="Availability"
+                              required
+                              variant="outlined"
+                              placeholder="Full-time, evenings, weekends..."
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 12 }}>
+                            <Box
+                              sx={{
+                                p: { xs: 2, sm: 2.25 },
+                                border: `1px dashed ${resumeError ? palette.primary.main : palette.warmGray}`,
+                                borderRadius: 1.5,
+                                bgcolor: palette.background.default,
+                              }}
+                            >
+                              <Stack
+                                direction={{ xs: 'column', sm: 'row' }}
+                                spacing={2}
+                                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                                justifyContent="space-between"
+                              >
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ mb: 0.35 }}>
+                                    Resume / CV
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ color: resumeFileName ? palette.text.primary : palette.text.secondary }}>
+                                    {resumeFileName || 'Upload your CV in PDF, DOC, or DOCX format.'}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: resumeError ? palette.primary.main : palette.text.secondary }}>
+                                    {resumeError || 'Accepted formats: PDF, DOC, DOCX'}
+                                  </Typography>
+                                </Box>
+                                <Button
+                                  component="label"
+                                  variant="outlined"
+                                  startIcon={<UploadFileOutlinedIcon />}
+                                  sx={{ flexShrink: 0 }}
+                                >
+                                  Choose File
+                                  <input
+                                    hidden
+                                    type="file"
+                                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    onChange={handleResumeChange}
+                                  />
+                                </Button>
+                              </Stack>
+                            </Box>
+                          </Grid>
+                        </>
+                      )}
+
                       <Grid size={{ xs: 12 }}>
                         <TextField
                           fullWidth
-                          label="Message"
+                          label={
+                            isCareer
+                              ? 'Cover Letter / Notes'
+                              : isReservation
+                                ? 'Reservation Notes'
+                                : isPrivateEvent
+                                  ? 'Event Details'
+                                  : 'Message'
+                          }
                           multiline
                           rows={5}
                           required
                           variant="outlined"
+                          helperText={
+                            isReservation
+                              ? 'Let us know about high chairs, allergies, celebrations, or seating preferences.'
+                              : isPrivateEvent
+                                ? 'Share timing, menu expectations, room setup, or any special requirements.'
+                                : isCareer
+                                  ? 'Tell us about your availability, experience, and what role you are interested in.'
+                                  : 'Have a question or feedback? Leave us a message and we will reply shortly.'
+                          }
                         />
                       </Grid>
                       <Grid size={{ xs: 12 }}>
@@ -236,7 +461,13 @@ export default function Contact() {
                           fullWidth
                           sx={{ py: 1.5 }}
                         >
-                          Send Message
+                          {isCareer
+                            ? 'Submit Application'
+                            : isReservation
+                              ? 'Request Reservation'
+                              : isPrivateEvent
+                                ? 'Send Event Inquiry'
+                                : 'Send Message'}
                         </Button>
                       </Grid>
                     </Grid>
@@ -259,14 +490,14 @@ export default function Contact() {
           position: 'relative',
         }}
       >
-        <iframe
+        <Box
+          component="iframe"
           title="Corrado's Restaurant Location"
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2870.0!2d-78.9426!3d43.8745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDUyJzI4LjIiTiA3OMKwNTYnMzMuNCJX!5e0!3m2!1sen!2sca!4v1234567890"
           width="100%"
           height="100%"
-          style={{ border: 0 }}
+          sx={{ border: 0 }}
           allowFullScreen
-          loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />
       </Box>
@@ -279,7 +510,7 @@ export default function Contact() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={() => setSubmitted(false)} severity="success" sx={{ width: '100%' }}>
-          Thank you for your message! We'll get back to you soon.
+          {submitMessage}
         </Alert>
       </Snackbar>
     </>

@@ -47,27 +47,51 @@ export default function Header() {
       {/* Top utility bar */}
       <Box
         sx={{
-          bgcolor: palette.charcoal,
+          bgcolor: palette.navy,
           color: "#fff",
-          py: 0.5,
+          py: 1.5,
           display: { xs: "none", md: "block" },
           fontSize: "0.8rem",
         }}
       >
         <Container
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
+            display: "grid",
+            gridTemplateColumns: "1fr auto 1fr",
             alignItems: "center",
+            columnGap: 2,
           }}
         >
           <Typography
             variant="body2"
-            sx={{ color: "#ccc", fontSize: "0.8rem" }}
+            sx={{ color: "#ccc", fontSize: "0.8rem", justifySelf: "start" }}
           >
             {businessInfo.phone} &nbsp;|&nbsp; {businessInfo.hours}
           </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
+
+          <Box
+            component={RouterLink}
+            to="/"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifySelf: "center",
+              textDecoration: "none",
+            }}
+          >
+            <Box
+              component="img"
+              src="/logos/logo-blue.png"
+              alt="Corrado's Restaurant and Bar"
+              sx={{
+                height: { md: 68, lg: 78 },
+                width: "auto",
+                display: "block",
+              }}
+            />
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 1, justifySelf: "end" }}>
             <Button
               href={businessInfo.giftCardUrl}
               target="_blank"
@@ -100,74 +124,88 @@ export default function Header() {
         <Container>
           <Toolbar
             disableGutters
-            sx={{ minHeight: { xs: 64, md: 72 }, gap: 1 }}
+            sx={{
+              minHeight: { xs: 64, md: 78 },
+              gap: 1,
+              position: 'relative',
+              display: { xs: 'flex', lg: 'grid' },
+              gridTemplateColumns: { lg: '1fr auto 1fr' },
+              alignItems: 'center',
+            }}
           >
-            {/* Logo */}
-            <Box
-              component={RouterLink}
-              to="/"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                textDecoration: "none",
-                mr: 3,
-              }}
-            >
-              <Box
-                component="img"
-                src="/logos/logo-white-on-black.png"
-                alt="Corrado's Restaurant and Bar"
-                sx={{
-                  height: { xs: 48, md: 56 },
-                  width: "auto",
-                }}
-              />
-            </Box>
-
             {/* Desktop nav links */}
             <Box
               sx={{
                 display: { xs: "none", lg: "flex" },
                 alignItems: "center",
-                gap: 0.5,
-                flex: 1,
+                justifyContent: 'center',
+                gridColumn: { lg: '2 / 3' },
               }}
             >
-              {navLinks.map((link) => (
-                <Button
-                  key={link.path}
-                  component={RouterLink}
-                  to={link.path}
-                  size="small"
-                  sx={{
-                    color: isActive(link.path)
-                      ? "#fff"
-                      : "rgba(255,255,255,0.85)",
-                    fontWeight: isActive(link.path) ? 700 : 600,
-                    fontSize: "0.78rem",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    px: 1.2,
-                    py: 1,
-                    borderBottom: isActive(link.path)
-                      ? "2px solid #fff"
-                      : "2px solid transparent",
-                    borderRadius: 0,
-                    "&:hover": {
-                      color: "#fff",
-                      bgcolor: "rgba(255,255,255,0.1)",
-                      borderBottom: "2px solid rgba(255,255,255,0.5)",
-                    },
-                  }}
-                >
-                  {link.label}
-                </Button>
-              ))}
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  px: 0.9,
+                  py: 0.8,
+                  borderRadius: 999,
+                  bgcolor: 'rgba(255,255,255,0.09)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                {navLinks.map((link) => (
+                  <Button
+                    key={link.path}
+                    component={RouterLink}
+                    to={link.path}
+                    size="small"
+                    sx={{
+                      color: isActive(link.path)
+                        ? palette.primary.main
+                        : 'rgba(255,255,255,0.9)',
+                      bgcolor: isActive(link.path)
+                        ? '#fff'
+                        : 'transparent',
+                      fontWeight: isActive(link.path) ? 700 : 600,
+                      fontSize: '0.78rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      px: 1.45,
+                      py: 0.9,
+                      minWidth: 'auto',
+                      borderRadius: 999,
+                      transition: 'all 0.22s ease',
+                      boxShadow: isActive(link.path)
+                        ? '0 8px 18px rgba(0,0,0,0.14)'
+                        : 'none',
+                      '&:hover': {
+                        color: isActive(link.path)
+                          ? palette.primary.main
+                          : '#fff',
+                        bgcolor: isActive(link.path)
+                          ? 'rgba(255,255,255,0.96)'
+                          : 'rgba(255,255,255,0.12)',
+                      },
+                    }}
+                  >
+                    {link.label}
+                  </Button>
+                ))}
+              </Box>
             </Box>
 
             {/* Desktop CTA */}
             <Box
-              sx={{ display: { xs: "none", lg: "flex" }, gap: 1, ml: "auto" }}
+              sx={{
+                display: { xs: 'none', lg: 'flex' },
+                gap: 1,
+                gridColumn: { lg: '3 / 4' },
+                justifySelf: 'end',
+                alignItems: 'center',
+              }}
             >
               <Button
                 variant="contained"
@@ -177,10 +215,17 @@ export default function Header() {
                 startIcon={<ShoppingBagOutlinedIcon />}
                 sx={{
                   fontWeight: 700,
-                  px: 3,
-                  bgcolor: "#fff",
+                  px: 2.5,
+                  py: 1,
+                  borderRadius: 999,
+                  bgcolor: '#fff',
                   color: palette.primary.main,
-                  "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
+                  boxShadow: '0 10px 24px rgba(0,0,0,0.14)',
+                  whiteSpace: 'nowrap',
+                  '&:hover': {
+                    bgcolor: 'rgba(255,255,255,0.92)',
+                    transform: 'translateY(-1px)',
+                  },
                 }}
               >
                 Order Online
