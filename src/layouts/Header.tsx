@@ -127,10 +127,10 @@ export default function Header() {
             sx={{
               minHeight: { xs: 64, md: 78 },
               gap: 1,
-              position: 'relative',
-              display: { xs: 'flex', lg: 'grid' },
-              gridTemplateColumns: { lg: '1fr auto 1fr' },
-              alignItems: 'center',
+              position: "relative",
+              display: { xs: "flex", lg: "grid" },
+              gridTemplateColumns: { lg: "1fr auto 1fr" },
+              alignItems: "center",
             }}
           >
             {/* Desktop nav links */}
@@ -138,22 +138,22 @@ export default function Header() {
               sx={{
                 display: { xs: "none", lg: "flex" },
                 alignItems: "center",
-                justifyContent: 'center',
-                gridColumn: { lg: '2 / 3' },
+                justifyContent: "center",
+                gridColumn: { lg: "2 / 3" },
               }}
             >
               <Box
                 sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
+                  display: "inline-flex",
+                  alignItems: "center",
                   gap: 0.5,
                   px: 0.9,
                   py: 0.8,
                   borderRadius: 999,
-                  bgcolor: 'rgba(255,255,255,0.09)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
-                  backdropFilter: 'blur(8px)',
+                  bgcolor: "rgba(255,255,255,0.09)",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  boxShadow: "0 12px 32px rgba(0,0,0,0.12)",
+                  backdropFilter: "blur(8px)",
                 }}
               >
                 {navLinks.map((link) => (
@@ -165,29 +165,27 @@ export default function Header() {
                     sx={{
                       color: isActive(link.path)
                         ? palette.primary.main
-                        : 'rgba(255,255,255,0.9)',
-                      bgcolor: isActive(link.path)
-                        ? '#fff'
-                        : 'transparent',
+                        : "rgba(255,255,255,0.9)",
+                      bgcolor: isActive(link.path) ? "#fff" : "transparent",
                       fontWeight: isActive(link.path) ? 700 : 600,
-                      fontSize: '0.78rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
+                      fontSize: "0.78rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
                       px: 1.45,
                       py: 0.9,
-                      minWidth: 'auto',
+                      minWidth: "auto",
                       borderRadius: 999,
-                      transition: 'all 0.22s ease',
+                      transition: "all 0.22s ease",
                       boxShadow: isActive(link.path)
-                        ? '0 8px 18px rgba(0,0,0,0.14)'
-                        : 'none',
-                      '&:hover': {
+                        ? "0 8px 18px rgba(0,0,0,0.14)"
+                        : "none",
+                      "&:hover": {
                         color: isActive(link.path)
                           ? palette.primary.main
-                          : '#fff',
+                          : "#fff",
                         bgcolor: isActive(link.path)
-                          ? 'rgba(255,255,255,0.96)'
-                          : 'rgba(255,255,255,0.12)',
+                          ? "rgba(255,255,255,0.96)"
+                          : "rgba(255,255,255,0.12)",
                       },
                     }}
                   >
@@ -200,11 +198,11 @@ export default function Header() {
             {/* Desktop CTA */}
             <Box
               sx={{
-                display: { xs: 'none', lg: 'flex' },
+                display: { xs: "none", lg: "flex" },
                 gap: 1,
-                gridColumn: { lg: '3 / 4' },
-                justifySelf: 'end',
-                alignItems: 'center',
+                gridColumn: { lg: "3 / 4" },
+                justifySelf: "end",
+                alignItems: "center",
               }}
             >
               <Button
@@ -218,13 +216,13 @@ export default function Header() {
                   px: 2.5,
                   py: 1,
                   borderRadius: 999,
-                  bgcolor: '#fff',
+                  bgcolor: "#fff",
                   color: palette.primary.main,
-                  boxShadow: '0 10px 24px rgba(0,0,0,0.14)',
-                  whiteSpace: 'nowrap',
-                  '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.92)',
-                    transform: 'translateY(-1px)',
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.14)",
+                  whiteSpace: "nowrap",
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.92)",
+                    transform: "translateY(-1px)",
                   },
                 }}
               >
@@ -232,11 +230,59 @@ export default function Header() {
               </Button>
             </Box>
 
+            {/* Mobile logo — visible only on xs–md */}
+            <Box
+              component={RouterLink}
+              to="/"
+              sx={{
+                display: { xs: "flex", lg: "none" },
+                alignItems: "center",
+                gap: 1.25,
+                textDecoration: "none",
+                flexGrow: 1,
+              }}
+            >
+              <Box
+                component="img"
+              src="/logos/logo-black.png"
+                alt="Corrado's Restaurant and Bar"
+                sx={{
+                  height: { xs: 38, sm: 44 },
+                  width: "auto",
+                }}
+              />
+              <Box>
+                <Typography
+                  sx={{
+                    color: "#fff",
+                    fontFamily: '"Playfair Display", Georgia, serif',
+                    fontWeight: 700,
+                    fontSize: { xs: "1.05rem", sm: "1.2rem" },
+                    lineHeight: 1,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  Corrado's
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "rgba(255,255,255,0.72)",
+                    fontSize: { xs: "0.6rem", sm: "0.66rem" },
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    lineHeight: 1.3,
+                    mt: 0.25,
+                  }}
+                >
+                  Restaurant &amp; Bar
+                </Typography>
+              </Box>
+            </Box>
+
             {/* Mobile menu button */}
             <Box
               sx={{
                 display: { xs: "flex", lg: "none" },
-                ml: "auto",
                 alignItems: "center",
                 gap: 1,
               }}

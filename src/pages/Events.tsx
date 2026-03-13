@@ -4,14 +4,12 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
   Chip,
   Button,
   Tabs,
   Tab,
   Stack,
-} from '@mui/material';
+} from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
 import { PageHero } from '../components';
 import { events } from '../data';
