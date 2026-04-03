@@ -5,7 +5,7 @@ export const businessInfo: BusinessInfo = {
   address: '38 Baldwin Street, Whitby, ON, L1M 1A2',
   email: 'corradosrestaurant@rogers.com',
   phone: '(905) 655-3100',
-  hours: 'Mon–Sun: 12pm – 10:30pm',
+  hours: 'Mon - Sun: 12pm - 10:30pm',
   orderUrl:
     'https://corradorestaurantandbar.orderingclub.com/en/whitby?menu=645bd7d1abbd6851c5f999c2_2',
   giftCardUrl: 'https://giftcards.bluestreakpos.net/Home/Purchase?UCID=78',

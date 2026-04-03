@@ -84,7 +84,7 @@ export default function Header() {
               src="/logos/logo-blue.png"
               alt="Corrado's Restaurant and Bar"
               sx={{
-                height: { md: 68, lg: 78 },
+                height: { md: 84, lg: 96 },
                 width: "auto",
                 display: "block",
               }}
@@ -320,9 +320,7 @@ export default function Header() {
         anchor="right"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        PaperProps={{
-          sx: { width: 300, bgcolor: "#fff" },
-        }}
+        slotProps={{ paper: { sx: { width: 300, bgcolor: "#fff" } } }}
       >
         <Box
           sx={{
@@ -361,12 +359,17 @@ export default function Header() {
                 }}
               >
                 <ListItemText
-                  primary={link.label}
-                  primaryTypographyProps={{
-                    fontWeight: isActive(link.path) ? 700 : 500,
-                    fontSize: "0.95rem",
-                    letterSpacing: "0.03em",
-                  }}
+                  primary={
+                    <Typography
+                      sx={{
+                        fontWeight: isActive(link.path) ? 700 : 500,
+                        fontSize: "0.95rem",
+                        letterSpacing: "0.03em",
+                      }}
+                    >
+                      {link.label}
+                    </Typography>
+                  }
                 />
               </ListItemButton>
             </ListItem>

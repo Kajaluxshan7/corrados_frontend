@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Container,
@@ -9,12 +9,34 @@ import {
   Tabs,
   Tab,
   Stack,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { Link as RouterLink } from 'react-router-dom';
-import { PageHero } from '../components';
-import { events } from '../data';
-import { palette } from '../theme';
+import { Link as RouterLink } from "react-router-dom";
+import { PageHero } from "../components";
+import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
+import { fetchEvents, type ApiEvent } from "../services/api";
+import { resolveImageUrl } from "../config/api";
+import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+
+// Map backend EventType enum values to display categories
+const TYPE_TO_CATEGORY: Record<string, string> = {
+  live_music: "live-music",
+  sports_viewing: "sports",
+  trivia_night: "community",
+  karaoke: "community",
+  private_party: "private",
+  special_event: "seasonal",
+};
+
+const categoryColors: Record<string, string> = {
+  sports: "#1565C0",
+  "live-music": "#6A1B9A",
+  seasonal: palette.primary.main,
+  private: palette.gold,
+  community: palette.secondary.main,
+};
 
 const categories = [
   { label: "All Events", value: "all" },
@@ -25,27 +47,87 @@ const categories = [
   { label: "Community", value: "community" },
 ];
 
-const categoryColors: Record<string, string> = {
-  sports: "#1565C0",
-  "live-music": "#6A1B9A",
-  seasonal: palette.primary.main,
-  private: palette.gold,
-  community: palette.secondary.main,
+// Fallback images per category
+const fallbackByCategory: Record<string, string> = {
+  "live-music":
+    "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80",
+  sports:
+    "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80",
+  seasonal:
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
+  private:
+    "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80",
+  community:
+    "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&q=80",
 };
+const fallbackDefault =
+  "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80";
 
-const eventImages: Record<string, string> = {
-  'live-jazz-friday': 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80',
-  'wine-tasting': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
-  'nhl-playoffs': 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80',
-  'mothers-day': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
-  'private-event': 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80',
-  'trivia-night': 'https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&q=80',
-  'euro-2026': 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80',
-  'kids-cooking': 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&q=80',
-};
+function formatDateRange(start: string, end: string): string {
+  const s = new Date(start);
+  const e = new Date(end);
+  const dateStr = s.toLocaleDateString("en-CA", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const timeStr = `${s.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" })} – ${e.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" })}`;
+  return `${dateStr} · ${timeStr}`;
+}
+
+interface NormalizedEvent {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  dateLabel: string;
+  imageUrl: string;
+  ticketLink: string | null;
+}
+
+function normalizeEvent(ev: ApiEvent): NormalizedEvent {
+  const category = TYPE_TO_CATEGORY[ev.type] ?? "seasonal";
+  const imageUrl = ev.imageUrls?.length
+    ? resolveImageUrl(ev.imageUrls[0])
+    : (fallbackByCategory[category] ?? fallbackDefault);
+  return {
+    id: ev.id,
+    title: ev.title,
+    description: ev.description,
+    category,
+    dateLabel: formatDateRange(ev.eventStartDate, ev.eventEndDate),
+    imageUrl,
+    ticketLink: ev.ticketLink,
+  };
+}
 
 export default function Events() {
+  const [events, setEvents] = useState<NormalizedEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("all");
+
+  const loadEvents = useCallback(() => {
+    fetchEvents()
+      .then((data) => {
+        setEvents(data.map(normalizeEvent));
+        setError(null);
+      })
+      .catch(() => {
+        setError("Unable to load events. Please try again later.");
+        setEvents([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
+
+  // Real-time updates via WebSocket
+  useWsRefresh(WsEvent.EVENT_CREATED, loadEvents);
+  useWsRefresh(WsEvent.EVENT_UPDATED, loadEvents);
+  useWsRefresh(WsEvent.EVENT_DELETED, loadEvents);
 
   const filtered =
     activeTab === "all"
@@ -62,122 +144,177 @@ export default function Events() {
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
         <Container>
-          {/* Category filter */}
-          <Box sx={{ mb: 5, borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={activeTab}
-              onChange={(_, v) => setActiveTab(v)}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                "& .MuiTab-root": {
-                  fontSize: "0.8rem",
-                  minWidth: "auto",
-                  px: 2,
-                },
-                "& .Mui-selected": {
-                  color: `${palette.primary.main} !important`,
-                },
-                "& .MuiTabs-indicator": {
-                  backgroundColor: palette.primary.main,
-                },
-              }}
-            >
-              {categories.map((cat) => (
-                <Tab key={cat.value} label={cat.label} value={cat.value} />
-              ))}
-            </Tabs>
-          </Box>
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+              <CircularProgress color="primary" />
+            </Box>
+          )}
 
-          <Grid container spacing={3}>
-            {filtered.map((event) => (
-              <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                <Box
+          {error && (
+            <Alert severity="error" sx={{ mb: 4 }}>
+              {error}
+            </Alert>
+          )}
+
+          {!loading && (
+            <>
+              {/* Category filter */}
+              <Box sx={{ mb: 5, borderBottom: 1, borderColor: "divider" }}>
+                <Tabs
+                  value={activeTab}
+                  onChange={(_, v) => setActiveTab(v)}
+                  variant="scrollable"
+                  scrollButtons="auto"
                   sx={{
-                    height: '100%',
-                    borderRadius: 1,
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                    transition: 'transform 0.35s ease, box-shadow 0.35s ease',
-                    '&:hover': {
-                      transform: 'translateY(-6px)',
-                      boxShadow: '0 12px 32px rgba(0,0,0,0.16)',
+                    "& .MuiTab-root": {
+                      fontSize: "0.8rem",
+                      minWidth: "auto",
+                      px: 2,
                     },
-                    '&:hover img': { transform: 'scale(1.06)' },
-                    bgcolor: '#fff',
+                    "& .Mui-selected": {
+                      color: `${palette.primary.main} !important`,
+                    },
+                    "& .MuiTabs-indicator": {
+                      backgroundColor: palette.primary.main,
+                    },
                   }}
                 >
-                  {/* Image */}
-                  <Box sx={{ position: 'relative', overflow: 'hidden', height: { xs: 180, md: 200 } }}>
-                    <Box
-                      component="img"
-                      src={eventImages[event.id]}
-                      alt={event.title}
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.5s ease',
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.4) 100%)',
-                      }}
-                    />
-                    <Chip
-                      label={event.category.replace("-", " ")}
-                      size="small"
-                      sx={{
-                        position: 'absolute',
-                        top: 12,
-                        left: 12,
-                        bgcolor: categoryColors[event.category] || palette.charcoal,
-                        color: '#fff',
-                        textTransform: 'capitalize',
-                        fontWeight: 600,
-                        fontSize: '0.7rem',
-                      }}
-                    />
-                  </Box>
-                  {/* Content */}
-                  <Box sx={{ p: 2.5 }}>
-                    <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, lineHeight: 1.2 }}>
-                      {formatAmpersand(event.title)}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: palette.primary.main, fontWeight: 600, mb: 1.5, fontSize: '0.82rem' }}
-                    >
-                      {event.date} &bull; {event.time}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: palette.text.secondary,
-                        lineHeight: 1.7,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {event.description}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
+                  {categories.map((cat) => (
+                    <Tab key={cat.value} label={cat.label} value={cat.value} />
+                  ))}
+                </Tabs>
+              </Box>
 
-          {filtered.length === 0 && (
-            <Box sx={{ textAlign: "center", py: 6 }}>
-              <Typography variant="h6" sx={{ color: palette.text.secondary }}>
-                No events in this category right now. Check back soon!
-              </Typography>
-            </Box>
+              <Grid container spacing={3}>
+                {filtered.map((event) => (
+                  <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <Box
+                      sx={{
+                        height: "100%",
+                        borderRadius: 1,
+                        overflow: "hidden",
+                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                        transition:
+                          "transform 0.35s ease, box-shadow 0.35s ease",
+                        "&:hover": {
+                          transform: "translateY(-6px)",
+                          boxShadow: "0 12px 32px rgba(0,0,0,0.16)",
+                        },
+                        "&:hover img": { transform: "scale(1.06)" },
+                        bgcolor: "#fff",
+                      }}
+                    >
+                      {/* Image */}
+                      <Box
+                        sx={{
+                          position: "relative",
+                          overflow: "hidden",
+                          height: { xs: 180, md: 200 },
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={event.imageUrl}
+                          alt={event.title}
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transition: "transform 0.5s ease",
+                          }}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src =
+                              fallbackDefault;
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            background:
+                              "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.4) 100%)",
+                          }}
+                        />
+                        <Chip
+                          label={event.category.replace("-", " ")}
+                          size="small"
+                          sx={{
+                            position: "absolute",
+                            top: 12,
+                            left: 12,
+                            bgcolor:
+                              categoryColors[event.category] ||
+                              palette.charcoal,
+                            color: "#fff",
+                            textTransform: "capitalize",
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                          }}
+                        />
+                      </Box>
+
+                      {/* Content */}
+                      <Box sx={{ p: 2.5 }}>
+                        <Typography
+                          variant="h6"
+                          fontWeight={700}
+                          sx={{ mb: 0.5, lineHeight: 1.2 }}
+                        >
+                          {formatAmpersand(event.title)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: palette.primary.main,
+                            fontWeight: 600,
+                            mb: 1.5,
+                            fontSize: "0.82rem",
+                          }}
+                        >
+                          {event.dateLabel}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: palette.text.secondary,
+                            lineHeight: 1.7,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {event.description}
+                        </Typography>
+                        {event.ticketLink && (
+                          <Button
+                            href={event.ticketLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="outlined"
+                            size="small"
+                            sx={{ mt: 1.5 }}
+                          >
+                            Get Tickets
+                          </Button>
+                        )}
+                      </Box>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+
+              {filtered.length === 0 && !loading && (
+                <Box sx={{ textAlign: "center", py: 6 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ color: palette.text.secondary }}
+                  >
+                    No events in this category right now. Check back soon!
+                  </Typography>
+                </Box>
+              )}
+            </>
           )}
 
           {/* Private event CTA */}

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { ScrollProgressButton } from '../components';
+import { WebSocketProvider } from "../contexts/WebSocketContext";
 
 export default function MainLayout() {
   const { pathname } = useLocation();
@@ -14,13 +15,17 @@ export default function MainLayout() {
   }, [pathname]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Header />
-      <Box component="main" sx={{ flex: 1 }}>
-        <Outlet />
+    <WebSocketProvider>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <Header />
+        <Box component="main" sx={{ flex: 1 }}>
+          <Outlet />
+        </Box>
+        <Footer />
+        <ScrollProgressButton />
       </Box>
-      <Footer />
-      <ScrollProgressButton />
-    </Box>
+    </WebSocketProvider>
   );
 }
