@@ -170,32 +170,38 @@ export default function GiftCards() {
               {
                 title: "Birthdays",
                 text: "Celebrate another year with a special Italian dinner on the house.",
-                image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=400&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=400&q=80",
               },
               {
                 title: "Anniversaries",
                 text: "Mark the occasion with a romantic dinner at Corrado's.",
-                image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&q=80",
               },
               {
                 title: "Holidays",
                 text: "The perfect stocking stuffer or holiday gift for food lovers.",
-                image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80",
               },
               {
                 title: "Corporate Gifts",
                 text: "Show appreciation to clients and employees with the gift of great food.",
-                image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
               },
               {
                 title: "Thank You",
                 text: "A delicious way to say thanks to someone special.",
-                image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
               },
               {
                 title: "Just Because",
                 text: "Sometimes the best gifts come for no reason at all.",
-                image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
               },
             ].map((item, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -207,13 +213,15 @@ export default function GiftCards() {
                     height: "100%",
                     transition: "transform 0.35s ease, box-shadow 0.35s ease",
                     "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                      transform: "translateY(-6px)",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
                     },
                     "&:hover img": { transform: "scale(1.06)" },
                   }}
                 >
-                  <Box sx={{ overflow: "hidden", height: { xs: 130, md: 150 } }}>
+                  <Box
+                    sx={{ overflow: "hidden", height: { xs: 130, md: 150 } }}
+                  >
                     <Box
                       component="img"
                       src={item.image}

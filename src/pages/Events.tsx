@@ -20,59 +20,86 @@ import { fetchEvents, type ApiEvent } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 
-// Map backend EventType enum values to display categories
-const TYPE_TO_CATEGORY: Record<string, string> = {
-  live_music: "live-music",
-  sports_viewing: "sports",
-  trivia_night: "community",
-  karaoke: "community",
-  private_party: "private",
-  special_event: "seasonal",
+// Map backend EventType enum values to display labels and colors
+const EVENT_TYPE_LABELS: Record<string, string> = {
+  live_music: "Live Music",
+  sports_viewing: "Sports Viewing",
+  trivia_night: "Trivia Night",
+  karaoke: "Karaoke",
+  private_party: "Private Party",
+  special_event: "Special Event",
 };
 
 const categoryColors: Record<string, string> = {
-  sports: "#1565C0",
-  "live-music": "#6A1B9A",
-  seasonal: palette.primary.main,
-  private: palette.gold,
-  community: palette.secondary.main,
+  live_music: "#6A1B9A",
+  sports_viewing: "#1565C0",
+  trivia_night: palette.secondary.main,
+  karaoke: palette.wine,
+  private_party: palette.gold,
+  special_event: palette.primary.main,
 };
 
 const categories = [
   { label: "All Events", value: "all" },
-  { label: "Sports", value: "sports" },
-  { label: "Live Music", value: "live-music" },
-  { label: "Seasonal", value: "seasonal" },
-  { label: "Private", value: "private" },
-  { label: "Community", value: "community" },
+  { label: "Live Music", value: "live_music" },
+  { label: "Sports Viewing", value: "sports_viewing" },
+  { label: "Trivia Night", value: "trivia_night" },
+  { label: "Karaoke", value: "karaoke" },
+  { label: "Private Party", value: "private_party" },
+  { label: "Special Event", value: "special_event" },
 ];
 
 // Fallback images per category
 const fallbackByCategory: Record<string, string> = {
-  "live-music":
+  live_music:
     "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80",
-  sports:
+  sports_viewing:
     "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80",
-  seasonal:
+  special_event:
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-  private:
+  private_party:
     "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80",
-  community:
+  trivia_night:
     "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&q=80",
+  karaoke:
+    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80",
 };
 const fallbackDefault =
   "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80";
 
+const TZ = "America/Toronto";
+
+function isSameDay(s: Date, e: Date): boolean {
+  const fmt = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TZ });
+  return fmt(s) === fmt(e);
+}
+
 function formatDateRange(start: string, end: string): string {
   const s = new Date(start);
   const e = new Date(end);
-  const dateStr = s.toLocaleDateString("en-CA", {
+
+  const dateOpts: Intl.DateTimeFormatOptions = {
+    timeZone: TZ,
     month: "long",
     day: "numeric",
     year: "numeric",
-  });
-  const timeStr = `${s.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" })} – ${e.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" })}`;
-  return `${dateStr} · ${timeStr}`;
+  };
+  const timeOpts: Intl.DateTimeFormatOptions = {
+    timeZone: TZ,
+    hour: "numeric",
+    minute: "2-digit",
+  };
+
+  const startDate = s.toLocaleDateString("en-CA", dateOpts);
+  const startTime = s.toLocaleTimeString("en-CA", timeOpts);
+  const endTime = e.toLocaleTimeString("en-CA", timeOpts);
+
+  if (isSameDay(s, e)) {
+    return `${startDate} · ${startTime} – ${endTime}`;
+  }
+
+  const endDate = e.toLocaleDateString("en-CA", dateOpts);
+  return `${startDate} ${startTime} – ${endDate} ${endTime}`;
 }
 
 interface NormalizedEvent {
@@ -86,7 +113,7 @@ interface NormalizedEvent {
 }
 
 function normalizeEvent(ev: ApiEvent): NormalizedEvent {
-  const category = TYPE_TO_CATEGORY[ev.type] ?? "seasonal";
+  const category = ev.type;
   const imageUrl = ev.imageUrls?.length
     ? resolveImageUrl(ev.imageUrls[0])
     : (fallbackByCategory[category] ?? fallbackDefault);
@@ -130,9 +157,7 @@ export default function Events() {
   useWsRefresh(WsEvent.EVENT_DELETED, loadEvents);
 
   const filtered =
-    activeTab === "all"
-      ? events
-      : events.filter((e) => e.category === activeTab);
+    activeTab === "all" ? events : events.filter((e) => e.category === activeTab);
 
   return (
     <>
@@ -198,7 +223,7 @@ export default function Events() {
                           "transform 0.35s ease, box-shadow 0.35s ease",
                         "&:hover": {
                           transform: "translateY(-6px)",
-                          boxShadow: "0 12px 32px rgba(0,0,0,0.16)",
+                          boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
                         },
                         "&:hover img": { transform: "scale(1.06)" },
                         bgcolor: "#fff",
@@ -236,7 +261,9 @@ export default function Events() {
                           }}
                         />
                         <Chip
-                          label={event.category.replace("-", " ")}
+                          label={
+                            EVENT_TYPE_LABELS[event.category] || event.category
+                          }
                           size="small"
                           sx={{
                             position: "absolute",

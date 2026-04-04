@@ -143,25 +143,29 @@ export default function About() {
                 icon: <RestaurantIcon sx={{ fontSize: 36 }} />,
                 title: "Authentic Italian Cuisine",
                 text: "From handmade pasta and wood-fired pizza to classic Italian entrées — our menu celebrates the rich culinary traditions of Italy with a modern Canadian touch.",
-                image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&q=80",
               },
               {
                 icon: <FamilyRestroomIcon sx={{ fontSize: 36 }} />,
                 title: "Family-Friendly Atmosphere",
                 text: "A warm and casual dining space where families feel at home. With a dedicated kids' menu, spacious seating, and a welcoming vibe, every visit is an occasion.",
-                image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80",
               },
               {
                 icon: <LocalBarIcon sx={{ fontSize: 36 }} />,
                 title: "Curated Bar & Wine",
                 text: "Our bar features an extensive selection of Italian wines, craft cocktails, and Canadian beers on tap. The perfect complement to any meal or a great reason to visit on its own.",
-                image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80",
               },
               {
                 icon: <EmojiEventsIcon sx={{ fontSize: 36 }} />,
                 title: "Events & Entertainment",
                 text: "From live jazz nights and trivia to NHL playoffs and private celebrations — Corrado's is the hub for community events, sports viewings, and good times.",
-                image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&q=80",
+                image:
+                  "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&q=80",
               },
             ].map((item, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6 }}>
@@ -171,13 +175,15 @@ export default function About() {
                     overflow: "hidden",
                     transition: "transform 0.35s ease, box-shadow 0.35s ease",
                     "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 12px 28px rgba(0,0,0,0.12)",
+                      transform: "translateY(-6px)",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
                     },
-                    "&:hover img": { transform: "scale(1.05)" },
+                    "&:hover img": { transform: "scale(1.06)" },
                   }}
                 >
-                  <Box sx={{ overflow: "hidden", height: { xs: 160, md: 180 } }}>
+                  <Box
+                    sx={{ overflow: "hidden", height: { xs: 160, md: 180 } }}
+                  >
                     <Box
                       component="img"
                       src={item.image}
@@ -191,8 +197,17 @@ export default function About() {
                     />
                   </Box>
                   <CardContent sx={{ p: 2.5 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
-                      <Box sx={{ color: palette.primary.main }}>{item.icon}</Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.5,
+                        mb: 1.5,
+                      }}
+                    >
+                      <Box sx={{ color: palette.primary.main }}>
+                        {item.icon}
+                      </Box>
                       <Typography variant="h6" sx={{ fontWeight: 700 }}>
                         {formatAmpersand(item.title)}
                       </Typography>

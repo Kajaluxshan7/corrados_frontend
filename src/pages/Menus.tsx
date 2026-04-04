@@ -1,114 +1,112 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Box,
   Container,
   Typography,
-  Tabs,
-  Tab,
-  Grid,
-  Card,
-  CardContent,
   Chip,
   Divider,
   Button,
   CircularProgress,
   Alert,
+  Fade,
+  Tabs,
+  Tab,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import { PageHero } from "../components";
 import { businessInfo } from "../data";
 import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
 import {
   fetchPrimaryCategories,
+  fetchItemsByCategory,
   type ApiPrimaryCategory,
+  type ApiMenuCategory, // used in useMemo return type
   type ApiMenuItem,
+  type ApiMeasurement,
 } from "../services/api";
-import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { resolveImageUrl } from "../config/api";
 
-// Fallback banner images keyed by lower-cased category name keywords
-const fallbackBanners: [string, string][] = [
-  [
-    "appetizer",
-    "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=1200&q=80",
-  ],
-  [
-    "pasta",
-    "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1200&q=80",
-  ],
-  [
-    "pizza",
-    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=80",
-  ],
-  [
-    "main",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80",
-  ],
-  [
-    "wing",
-    "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=1200&q=80",
-  ],
-  [
-    "dessert",
-    "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=1200&q=80",
-  ],
-  [
-    "salad",
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1200&q=80",
-  ],
-  [
-    "drink",
-    "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=1200&q=80",
-  ],
-  [
-    "soup",
-    "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=1200&q=80",
-  ],
-];
-
-function getCategoryBanner(name: string, imageUrl: string | null): string {
-  if (imageUrl) return resolveImageUrl(imageUrl);
-  const lower = name.toLowerCase();
-  for (const [keyword, url] of fallbackBanners) {
-    if (lower.includes(keyword)) return url;
-  }
-  return "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80";
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatPrice(item: ApiMenuItem): string {
+  if (item.hasMeasurements && item.measurements?.length) {
+    const available = item.measurements
+      .filter((m) => m.isAvailable)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    if (available.length === 0) return "";
+    if (available.length === 1)
+      return `$${Number(available[0].price).toFixed(2)}`;
+    const min = Math.min(...available.map((m) => m.price));
+    const max = Math.max(...available.map((m) => m.price));
+    return min === max
+      ? `$${min.toFixed(2)}`
+      : `$${min.toFixed(2)} – $${max.toFixed(2)}`;
+  }
   if (item.price !== null && item.price !== undefined) {
     return `$${Number(item.price).toFixed(2)}`;
-  }
-  if (item.hasMeasurements && item.measurements?.length) {
-    const prices = item.measurements.map((m) => m.price).sort((a, b) => a - b);
-    return prices.length > 1
-      ? `$${prices[0].toFixed(2)} – $${prices[prices.length - 1].toFixed(2)}`
-      : `$${prices[0].toFixed(2)}`;
   }
   return "";
 }
 
-// Flatten all sub-categories from all primary categories into one list for tabs
-function flattenCategories(primaries: ApiPrimaryCategory[]) {
-  return primaries.flatMap((pc) =>
-    (pc.categories ?? []).filter((c) => c.isActive),
+function getMeasurementName(m: ApiMeasurement, index: number): string {
+  return m.measurementTypeEntity?.name ?? `Option ${index + 1}`;
+}
+
+// ── Decorative ornament ───────────────────────────────────────────────────────
+
+function OrnamentDivider({ color = palette.gold }: { color?: string }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        my: 0.5,
+      }}
+    >
+      <Box sx={{ flex: 1, height: "1px", bgcolor: `${color}44` }} />
+      <Box
+        component="span"
+        sx={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          bgcolor: color,
+          opacity: 0.7,
+          flexShrink: 0,
+        }}
+      />
+      <Box sx={{ flex: 1, height: "1px", bgcolor: `${color}44` }} />
+    </Box>
   );
 }
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function Menus() {
   const [primaries, setPrimaries] = useState<ApiPrimaryCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [activePrimaryId, setActivePrimaryId] = useState<string | null>(null);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [menuItems, setMenuItems] = useState<ApiMenuItem[]>([]);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [itemsVisible, setItemsVisible] = useState(true);
 
-  const loadMenu = useCallback(() => {
+  const loadPrimaries = useCallback(() => {
     setLoading(true);
     fetchPrimaryCategories()
       .then((data) => {
-        const active = data.filter((pc) => pc.isActive);
+        const active = data
+          .filter((pc) => pc.isActive)
+          .sort((a, b) => a.sortOrder - b.sortOrder);
         setPrimaries(active);
+        setActivePrimaryId((prev) => prev ?? (active[0]?.id ?? null));
         setError(null);
       })
       .catch(() => {
@@ -119,17 +117,76 @@ export default function Menus() {
   }, []);
 
   useEffect(() => {
-    loadMenu();
-  }, [loadMenu]);
+    loadPrimaries();
+  }, [loadPrimaries]);
 
-  // Real-time updates via WebSocket
-  useWsRefresh(WsEvent.MENU_UPDATED, loadMenu);
-  useWsRefresh(WsEvent.MENU_ITEM_CREATED, loadMenu);
-  useWsRefresh(WsEvent.MENU_ITEM_UPDATED, loadMenu);
-  useWsRefresh(WsEvent.MENU_ITEM_DELETED, loadMenu);
+  useWsRefresh(WsEvent.MENU_UPDATED, loadPrimaries);
+  useWsRefresh(WsEvent.MENU_ITEM_CREATED, loadPrimaries);
+  useWsRefresh(WsEvent.MENU_ITEM_UPDATED, loadPrimaries);
+  useWsRefresh(WsEvent.MENU_ITEM_DELETED, loadPrimaries);
 
-  const allCategories = flattenCategories(primaries);
-  const activeCategory = allCategories[activeTab] ?? null;
+  // Derive subcategories directly from the already-loaded primaries data
+  const subCategories = useMemo((): ApiMenuCategory[] => {
+    const primary = primaries.find((p) => p.id === activePrimaryId);
+    if (!primary) return [];
+    return [...(primary.categories ?? [])]
+      .filter((c) => c.isActive)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }, [primaries, activePrimaryId]);
+
+  // Auto-select first subcategory when subCategories list changes
+  useEffect(() => {
+    setActiveCategoryId((prev) => {
+      const stillExists = subCategories.some((c) => c.id === prev);
+      return stillExists ? prev : (subCategories[0]?.id ?? null);
+    });
+  }, [subCategories]);
+
+  // Fetch items when subcategory changes
+  useEffect(() => {
+    if (!activeCategoryId) {
+      setMenuItems([]);
+      return;
+    }
+    setItemsVisible(false);
+    setItemsLoading(true);
+    fetchItemsByCategory(activeCategoryId)
+      .then((items) => {
+        setMenuItems(
+          items
+            .filter((i) => i.isAvailable)
+            .sort((a, b) => a.sortOrder - b.sortOrder),
+        );
+        setTimeout(() => setItemsVisible(true), 80);
+      })
+      .catch(() => setMenuItems([]))
+      .finally(() => setItemsLoading(false));
+  }, [activeCategoryId]);
+
+  const activeCategory = useMemo(
+    () => subCategories.find((c) => c.id === activeCategoryId) ?? null,
+    [subCategories, activeCategoryId],
+  );
+
+  const activePrimary = useMemo(
+    () => primaries.find((p) => p.id === activePrimaryId) ?? null,
+    [primaries, activePrimaryId],
+  );
+
+  function handlePrimarySelect(id: string) {
+    if (id === activePrimaryId) return;
+    setActivePrimaryId(id);
+    setActiveCategoryId(null);
+    setMenuItems([]);
+  }
+
+  function handleCategorySelect(id: string) {
+    if (id === activeCategoryId) return;
+    setActiveCategoryId(id);
+  }
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <>
@@ -140,11 +197,17 @@ export default function Menus() {
         cta={{ label: "Order Online", href: businessInfo.orderUrl }}
       />
 
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
+      <Box
+        sx={{
+          py: { xs: 6, md: 8 },
+          bgcolor: palette.background.default,
+          minHeight: 500,
+        }}
+      >
         <Container>
           {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-              <CircularProgress color="primary" />
+            <Box sx={{ display: "flex", justifyContent: "center", py: 12 }}>
+              <CircularProgress sx={{ color: palette.primary.main }} />
             </Box>
           )}
 
@@ -154,26 +217,27 @@ export default function Menus() {
             </Alert>
           )}
 
-          {!loading && !error && allCategories.length === 0 && (
-            <Typography
-              variant="body1"
-              sx={{
-                textAlign: "center",
-                py: 10,
-                color: palette.text.secondary,
-              }}
-            >
-              No menu items available yet. Check back soon!
-            </Typography>
+          {!loading && !error && primaries.length === 0 && (
+            <Box sx={{ textAlign: "center", py: 12 }}>
+              <RestaurantMenuIcon
+                sx={{ fontSize: 56, color: palette.warmGray, mb: 2 }}
+              />
+              <Typography
+                variant="body1"
+                sx={{ color: palette.text.secondary }}
+              >
+                No menu items available yet. Check back soon!
+              </Typography>
+            </Box>
           )}
 
-          {!loading && allCategories.length > 0 && (
+          {!loading && primaries.length > 0 && (
             <>
-              {/* Category Tabs */}
+              {/* Primary category tabs — consistent with Specials / Events */}
               <Box sx={{ mb: 5, borderBottom: 1, borderColor: "divider" }}>
                 <Tabs
-                  value={activeTab}
-                  onChange={(_, v) => setActiveTab(v)}
+                  value={activePrimaryId ?? false}
+                  onChange={(_, v) => handlePrimarySelect(v)}
                   variant="scrollable"
                   scrollButtons="auto"
                   sx={{
@@ -190,264 +254,486 @@ export default function Menus() {
                     },
                   }}
                 >
-                  {allCategories.map((cat) => (
-                    <Tab key={cat.id} label={cat.name} />
+                  {primaries.map((pc) => (
+                    <Tab key={pc.id} label={pc.name} value={pc.id} />
                   ))}
                 </Tabs>
               </Box>
 
-              {/* Category banner */}
-              {activeCategory && (
-                <Box
-                  sx={{
-                    position: "relative",
-                    height: { xs: 160, md: 200 },
-                    borderRadius: 1,
-                    overflow: "hidden",
-                    mb: 3,
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={getCategoryBanner(
-                      activeCategory.name,
-                      activeCategory.imageUrl,
-                    )}
-                    alt={activeCategory.name}
-                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                  <Box
+              {/* Active primary section title */}
+              {activePrimary && (
+                <Box sx={{ mb: { xs: 4, md: 5 }, textAlign: "center" }}>
+                  <Typography
+                    variant="h3"
                     sx={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%)",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      p: { xs: 2, md: 3 },
+                      fontFamily: "'Playfair Display', serif",
+                      fontWeight: 700,
+                      color: palette.charcoal,
+                      fontSize: { xs: "1.8rem", md: "2.4rem" },
+                      mb: 0.5,
                     }}
                   >
-                    <Box>
-                      <Typography
-                        variant="h4"
-                        sx={{ fontWeight: 700, color: "#fff" }}
-                      >
-                        {activeCategory.name}
-                      </Typography>
-                      {activeCategory.description && (
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "rgba(255,255,255,0.85)", mt: 0.5 }}
-                        >
-                          {activeCategory.description}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
+                    {activePrimary.name}
+                  </Typography>
+                  {activePrimary.description && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: palette.text.secondary,
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {activePrimary.description}
+                    </Typography>
+                  )}
+                  <OrnamentDivider color={palette.gold} />
                 </Box>
               )}
 
-              {/* Menu items */}
-              {activeCategory && (
-                <Grid container spacing={3}>
-                  {(activeCategory.menuItems ?? [])
-                    .filter((item) => item.isAvailable)
-                    .sort((a, b) => a.sortOrder - b.sortOrder)
-                    .map((item) => {
-                      const imgSrc = item.imageUrls?.[0]
-                        ? resolveImageUrl(item.imageUrls[0])
-                        : null;
-                      const priceLabel = formatPrice(item);
-
-                      return (
-                        <Grid key={item.id} size={{ xs: 12, sm: 6 }}>
-                          <Card
+              {subCategories.length > 0 ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: { xs: 3, md: 5 },
+                    alignItems: { xs: "stretch", md: "center" },
+                    minHeight: 400,
+                  }}
+                >
+                  {/* ── Left: Category sidebar ── */}
+                  {isMobile ? (
+                    /* Mobile: horizontal scrollable chips */
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 1,
+                        flexWrap: "wrap",
+                        width: "100%",
+                      }}
+                    >
+                      {subCategories.map((cat) => {
+                        const isActive = activeCategoryId === cat.id;
+                        return (
+                          <Chip
+                            key={cat.id}
+                            label={cat.name}
+                            onClick={() => handleCategorySelect(cat.id)}
                             sx={{
-                              height: "100%",
-                              display: "flex",
-                              flexDirection: "column",
-                              transition: "box-shadow 0.3s",
+                              fontFamily: isActive
+                                ? "'Playfair Display', serif"
+                                : "inherit",
+                              fontWeight: isActive ? 700 : 500,
+                              fontSize: "0.82rem",
+                              height: 34,
+                              borderRadius: "2px",
+                              bgcolor: isActive ? palette.charcoal : palette.cream,
+                              color: isActive ? "#fff" : palette.charcoal,
+                              border: `1px solid ${isActive ? palette.charcoal : palette.warmGray}`,
                               "&:hover": {
-                                boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                                bgcolor: isActive
+                                  ? palette.charcoal
+                                  : palette.warmGray,
                               },
                             }}
-                          >
-                            {/* Item image or restaurant logo fallback */}
+                          />
+                        );
+                      })}
+                    </Box>
+                  ) : (
+                    /* Desktop: vertical sidebar */
+                    <Box
+                      sx={{
+                        width: 220,
+                        flexShrink: 0,
+                        position: "sticky",
+                        top: 80,
+                        py: 1,
+                      }}
+                    >
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+                        {subCategories.map((cat) => {
+                          const isActive = activeCategoryId === cat.id;
+                          return (
                             <Box
+                              key={cat.id}
+                              onClick={() => handleCategorySelect(cat.id)}
                               sx={{
-                                height: 140,
-                                overflow: "hidden",
-                                position: "relative",
-                                bgcolor: palette.cream,
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
+                                gap: 1.5,
+                                px: 1,
+                                py: 0.8,
+                                cursor: "pointer",
+                                transition: "all 0.15s ease",
+                                "&:hover": {
+                                  "& .cat-label": {
+                                    color: palette.primary.main,
+                                  },
+                                },
                               }}
                             >
-                              {imgSrc ? (
-                                <Box
-                                  component="img"
-                                  src={
-                                    failedImages.has(item.id)
-                                      ? "/logos/logo-blue.png"
-                                      : imgSrc
-                                  }
-                                  alt={
-                                    failedImages.has(item.id)
-                                      ? "Corrado's"
-                                      : item.name
-                                  }
-                                  sx={
-                                    failedImages.has(item.id)
-                                      ? {
-                                          height: 64,
-                                          width: "auto",
-                                          objectFit: "contain",
-                                        }
-                                      : {
-                                          width: "100%",
-                                          height: "100%",
-                                          objectFit: "cover",
-                                          display: "block",
-                                        }
-                                  }
-                                  onError={() => {
-                                    setFailedImages((prev) =>
-                                      new Set(prev).add(item.id),
-                                    );
-                                  }}
-                                />
-                              ) : (
-                                <Box
-                                  component="img"
-                                  src="/logos/logo-blue.png"
-                                  alt="Corrado's Restaurant"
-                                  sx={{
-                                    height: 64,
-                                    width: "auto",
-                                    objectFit: "contain",
-                                  }}
-                                />
-                              )}
-                            </Box>
-
-                            <CardContent sx={{ p: 3, flex: 1 }}>
+                              {/* Bullet */}
                               <Box
                                 sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "flex-start",
-                                  mb: 1,
+                                  width: 7,
+                                  height: 7,
+                                  borderRadius: "50%",
+                                  flexShrink: 0,
+                                  bgcolor: isActive
+                                    ? palette.primary.main
+                                    : palette.warmGray,
+                                  transition: "background-color 0.15s ease",
+                                }}
+                              />
+                              <Typography
+                                className="cat-label"
+                                sx={{
+                                  fontSize: "0.875rem",
+                                  fontWeight: isActive ? 700 : 400,
+                                  color: isActive
+                                    ? palette.primary.main
+                                    : palette.text.primary,
+                                  transition: "all 0.15s ease",
                                 }}
                               >
-                                <Typography
-                                  variant="h6"
-                                  sx={{
-                                    fontWeight: 700,
-                                    fontSize: "1.05rem",
-                                    flex: 1,
-                                  }}
-                                >
-                                  {formatAmpersand(item.name)}
-                                </Typography>
-                                {priceLabel && (
-                                  <Typography
-                                    variant="h6"
-                                    sx={{
-                                      color: palette.primary.main,
-                                      fontWeight: 700,
-                                      fontSize: "1.05rem",
-                                      ml: 2,
-                                      whiteSpace: "nowrap",
-                                    }}
-                                  >
-                                    {priceLabel}
-                                  </Typography>
-                                )}
-                              </Box>
-                              <Divider sx={{ mb: 1.5 }} />
-                              {item.description && (
-                                <Typography
-                                  variant="body2"
-                                  sx={{
-                                    color: palette.text.secondary,
-                                    lineHeight: 1.7,
-                                    mb: 1.5,
-                                  }}
-                                >
-                                  {item.description}
-                                </Typography>
-                              )}
-                              {item.dietaryInfo &&
-                                item.dietaryInfo.length > 0 && (
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 0.5,
-                                      flexWrap: "wrap",
-                                    }}
-                                  >
-                                    {item.dietaryInfo.map((tag) => (
-                                      <Chip
-                                        key={tag}
-                                        label={tag}
-                                        size="small"
-                                        variant="outlined"
-                                        sx={{
-                                          fontSize: "0.65rem",
-                                          height: 22,
-                                          borderColor: palette.sage,
-                                          color: palette.secondary.main,
-                                          textTransform: "capitalize",
-                                        }}
-                                      />
-                                    ))}
-                                  </Box>
-                                )}
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      );
-                    })}
-                </Grid>
-              )}
+                                {cat.name}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {/* ── Right: Items list with images ── */}
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    {activeCategory && (
+                      <Box sx={{ mb: 3 }}>
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontWeight: 700,
+                            color: palette.charcoal,
+                            fontSize: { xs: "1.5rem", md: "1.9rem" },
+                            mb: 0.25,
+                          }}
+                        >
+                          {activeCategory.name}
+                        </Typography>
+                        {activeCategory.description && (
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: palette.text.secondary,
+                              fontStyle: "italic",
+                              mt: 0.5,
+                            }}
+                          >
+                            {activeCategory.description}
+                          </Typography>
+                        )}
+                        <Box
+                          sx={{
+                            mt: 1.5,
+                            height: "1px",
+                            background: `linear-gradient(90deg, ${palette.primary.main}, ${palette.gold}66, transparent)`,
+                          }}
+                        />
+                      </Box>
+                    )}
+
+                    {itemsLoading ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          py: 10,
+                        }}
+                      >
+                        <CircularProgress
+                          sx={{ color: palette.primary.main }}
+                          size={28}
+                        />
+                      </Box>
+                    ) : (
+                      <Fade in={itemsVisible} timeout={300}>
+                        <Box>
+                          <MenuItemList items={menuItems} />
+                        </Box>
+                      </Fade>
+                    )}
+                  </Box>
+                </Box>
+              ) : null}
             </>
           )}
 
           {/* Order CTA */}
-          <Box
-            sx={{
-              textAlign: "center",
-              mt: 6,
-              p: 4,
-              bgcolor: palette.cream,
-              borderRadius: 1,
-            }}
-          >
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-              Ready to Order?
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: palette.text.secondary, mb: 3 }}
+          {!loading && (
+            <Box
+              sx={{
+                mt: 8,
+                py: 5,
+                px: 4,
+                bgcolor: palette.cream,
+                borderRadius: 1,
+                textAlign: "center",
+              }}
             >
-              Place your order online for pickup or delivery.
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              href={businessInfo.orderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              startIcon={<ShoppingBagOutlinedIcon />}
-              sx={{ px: 5 }}
-            >
-              Order Now
-            </Button>
-          </Box>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  mb: 1,
+                  fontSize: { xs: "1.5rem", md: "2rem" },
+                }}
+              >
+                Ready to Order?
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: palette.text.secondary,
+                  mb: 3,
+                  maxWidth: 550,
+                  mx: "auto",
+                }}
+              >
+                Place your order online for pickup or delivery.
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                href={businessInfo.orderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                startIcon={<ShoppingBagOutlinedIcon />}
+              >
+                Order Now
+              </Button>
+            </Box>
+          )}
         </Container>
       </Box>
     </>
+  );
+}
+
+// ── Menu Item List ────────────────────────────────────────────────────────────
+
+function MenuItemList({ items }: { items: ApiMenuItem[] }) {
+  if (items.length === 0) {
+    return (
+      <Box sx={{ py: 8, textAlign: "center" }}>
+        <Typography
+          variant="body1"
+          sx={{ color: palette.text.secondary, fontStyle: "italic" }}
+        >
+          No items in this category yet.
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box>
+      {items.map((item, idx) => (
+        <Box key={item.id}>
+          <MenuItemRow item={item} />
+          {idx < items.length - 1 && (
+            <Divider sx={{ borderColor: `${palette.warmGray}88` }} />
+          )}
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
+// ── Menu Item Row ─────────────────────────────────────────────────────────────
+
+function MenuItemRow({ item }: { item: ApiMenuItem }) {
+  const hasMeasurements =
+    item.hasMeasurements &&
+    (item.measurements?.length ?? 0) > 0 &&
+    item.measurements != null;
+  const availableMeasurements = hasMeasurements
+    ? item
+        .measurements!.filter((m) => m.isAvailable)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+    : [];
+  const imgSrc =
+    item.imageUrls?.length > 0 ? resolveImageUrl(item.imageUrls[0]) : null;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: { xs: 2, md: 3 },
+        py: { xs: 2, md: 2.5 },
+        "&:hover": {
+          "& .item-name": { color: palette.primary.main },
+          "& .item-img": { transform: "scale(1.05)" },
+        },
+        transition: "all 0.15s ease",
+      }}
+    >
+      {/* Image thumbnail */}
+      {imgSrc && (
+        <Box
+          sx={{
+            width: { xs: 72, md: 90 },
+            height: { xs: 72, md: 90 },
+            flexShrink: 0,
+            borderRadius: "2px",
+            overflow: "hidden",
+            border: `1px solid ${palette.warmGray}`,
+          }}
+        >
+          <Box
+            className="item-img"
+            component="img"
+            src={imgSrc}
+            alt={item.name}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.35s ease",
+            }}
+          />
+        </Box>
+      )}
+      {/* Name + description + tags + price */}
+      <Box sx={{ flex: 1, minWidth: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography
+          className="item-name"
+          sx={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 600,
+            fontSize: { xs: "1rem", md: "1.05rem" },
+            color: palette.charcoal,
+            mb: 0.4,
+            transition: "color 0.15s ease",
+          }}
+        >
+          {formatAmpersand(item.name)}
+        </Typography>
+
+        {item.description && (
+          <Typography
+            variant="body2"
+            sx={{
+              color: palette.text.secondary,
+              lineHeight: 1.7,
+              mb: 0.75,
+              fontStyle: "italic",
+              fontSize: "0.87rem",
+            }}
+          >
+            {item.description}
+          </Typography>
+        )}
+
+        {(item.dietaryInfo?.length > 0 || item.allergens?.length > 0) && (
+          <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", mt: 0.75 }}>
+            {item.dietaryInfo?.map((tag) => (
+              <Chip
+                key={tag}
+                label={tag}
+                size="small"
+                sx={{
+                  fontSize: "0.6rem",
+                  height: 18,
+                  borderRadius: "2px",
+                  bgcolor: `${palette.sage}1a`,
+                  color: palette.secondary.dark,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  border: `1px solid ${palette.sage}44`,
+                }}
+              />
+            ))}
+            {item.allergens?.map((tag) => (
+              <Chip
+                key={tag}
+                label={tag}
+                size="small"
+                sx={{
+                  fontSize: "0.6rem",
+                  height: 18,
+                  borderRadius: "2px",
+                  bgcolor: "rgba(190,89,83,0.08)",
+                  color: palette.primary.dark,
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  border: `1px solid ${palette.primary.main}33`,
+                }}
+              />
+            ))}
+          </Box>
+        )}
+      </Box>
+
+      {/* Right: price or measurements */}
+      <Box sx={{ flexShrink: 0, textAlign: "right" }}>
+        {hasMeasurements ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.3,
+              alignItems: "flex-end",
+            }}
+          >
+            {availableMeasurements.map((m, idx) => (
+              <Box
+                key={m.id}
+                sx={{ display: "flex", alignItems: "baseline", gap: 1 }}
+              >
+                <Typography
+                  sx={{
+                    color: palette.text.secondary,
+                    fontSize: "0.7rem",
+                    fontWeight: 500,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  {getMeasurementName(m, idx)}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontWeight: 700,
+                    color: palette.primary.main,
+                    fontSize: "0.95rem",
+                    fontFamily: "'Playfair Display', serif",
+                  }}
+                >
+                  ${Number(m.price).toFixed(2)}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          <Typography
+            sx={{
+              fontFamily: "'Playfair Display', serif",
+              fontWeight: 700,
+              color: palette.primary.main,
+              fontSize: "1.05rem",
+            }}
+          >
+            {formatPrice(item)}
+          </Typography>
+        )}
+      </Box>
+      </Box>
+    </Box>
   );
 }

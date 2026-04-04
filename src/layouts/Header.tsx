@@ -84,7 +84,7 @@ export default function Header() {
               src="/logos/logo-blue.png"
               alt="Corrado's Restaurant and Bar"
               sx={{
-                height: { md: 84, lg: 96 },
+                height: { md: 110, lg: 130 },
                 width: "auto",
                 display: "block",
               }}

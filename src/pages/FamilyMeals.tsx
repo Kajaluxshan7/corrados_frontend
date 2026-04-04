@@ -42,40 +42,61 @@ export default function FamilyMeals() {
               <Grid key={meal.id} size={{ xs: 12, md: 6 }}>
                 <Card
                   sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    transition: 'transform 0.35s ease, box-shadow 0.35s ease',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 12px 32px rgba(0,0,0,0.14)',
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden",
+                    transition: "transform 0.35s ease, box-shadow 0.35s ease",
+                    "&:hover": {
+                      transform: "translateY(-6px)",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
                     },
-                    '&:hover img': { transform: 'scale(1.05)' },
+                    "&:hover img": { transform: "scale(1.06)" },
                   }}
                 >
-                  <Box sx={{ position: 'relative', overflow: 'hidden', height: { xs: 180, md: 200 } }}>
+                  <Box
+                    sx={{
+                      position: "relative",
+                      overflow: "hidden",
+                      height: { xs: 180, md: 200 },
+                    }}
+                  >
                     <Box
                       component="img"
                       src={mealImages[meal.id]}
                       alt={meal.name}
                       sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.5s ease',
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "transform 0.5s ease",
                       }}
                     />
                     <Box
                       sx={{
-                        position: 'absolute',
+                        position: "absolute",
                         inset: 0,
-                        background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%)',
+                        background:
+                          "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%)",
                       }}
                     />
                   </Box>
-                  <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                  <CardContent
+                    sx={{
+                      p: 3,
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 1,
+                      }}
+                    >
                       <Typography variant="h5" sx={{ fontWeight: 700 }}>
                         {meal.name}
                       </Typography>
@@ -84,9 +105,9 @@ export default function FamilyMeals() {
                         size="small"
                         sx={{
                           bgcolor: palette.secondary.main,
-                          color: '#fff',
+                          color: "#fff",
                           fontWeight: 600,
-                          fontSize: '0.7rem',
+                          fontSize: "0.7rem",
                           ml: 1,
                           flexShrink: 0,
                         }}
@@ -94,28 +115,51 @@ export default function FamilyMeals() {
                     </Box>
                     <Typography
                       variant="h4"
-                      sx={{ color: palette.primary.main, fontWeight: 700, mb: 2 }}
+                      sx={{
+                        color: palette.primary.main,
+                        fontWeight: 700,
+                        mb: 2,
+                      }}
                     >
                       {meal.price}
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.7 }}
+                      sx={{
+                        color: palette.text.secondary,
+                        mb: 2,
+                        lineHeight: 1.7,
+                      }}
                     >
                       {meal.description}
                     </Typography>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontSize: '0.8rem', color: palette.charcoal }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        mb: 1,
+                        fontSize: "0.8rem",
+                        color: palette.charcoal,
+                      }}
+                    >
                       INCLUDES:
                     </Typography>
                     <List dense sx={{ flex: 1 }}>
                       {meal.items.map((item, idx) => (
                         <ListItem key={idx} disableGutters sx={{ py: 0.3 }}>
                           <ListItemIcon sx={{ minWidth: 28 }}>
-                            <CheckCircleIcon sx={{ fontSize: 16, color: palette.secondary.main }} />
+                            <CheckCircleIcon
+                              sx={{
+                                fontSize: 16,
+                                color: palette.secondary.main,
+                              }}
+                            />
                           </ListItemIcon>
                           <ListItemText
                             primary={item}
-                            primaryTypographyProps={{ variant: 'body2', color: palette.text.secondary }}
+                            primaryTypographyProps={{
+                              variant: "body2",
+                              color: palette.text.secondary,
+                            }}
                           />
                         </ListItem>
                       ))}
@@ -134,22 +178,36 @@ export default function FamilyMeals() {
               px: 4,
               bgcolor: palette.cream,
               borderRadius: 1,
-              textAlign: 'center',
+              textAlign: "center",
             }}
           >
             <Typography
               variant="h4"
-              sx={{ fontWeight: 700, mb: 1, fontSize: { xs: '1.5rem', md: '2rem' } }}
+              sx={{
+                fontWeight: 700,
+                mb: 1,
+                fontSize: { xs: "1.5rem", md: "2rem" },
+              }}
             >
               Order Your Family Meal Today
             </Typography>
             <Typography
               variant="body1"
-              sx={{ color: palette.text.secondary, mb: 3, maxWidth: 500, mx: 'auto' }}
+              sx={{
+                color: palette.text.secondary,
+                mb: 3,
+                maxWidth: 500,
+                mx: "auto",
+              }}
             >
-              Available for dine-in, takeout, and delivery. Order online or call us to place your order.
+              Available for dine-in, takeout, and delivery. Order online or call
+              us to place your order.
             </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              justifyContent="center"
+            >
               <Button
                 variant="contained"
                 color="primary"

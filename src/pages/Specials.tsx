@@ -6,6 +6,8 @@ import {
   Grid,
   Chip,
   Button,
+  Tabs,
+  Tab,
   CircularProgress,
   Alert,
 } from "@mui/material";
@@ -17,6 +19,31 @@ import { formatAmpersand } from "../utils/formatAmpersand";
 import { fetchSpecials, type ApiSpecial } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+
+// Display labels for backend SpecialType enum
+const SPECIAL_TYPE_LABELS: Record<string, string> = {
+  daily: "Daily",
+  game_time: "Game Time",
+  day_time: "Daytime",
+  chef: "Chef's Special",
+  seasonal: "Seasonal",
+};
+
+const categoryColors: Record<string, string> = {
+  daily: palette.primary.main,
+  game_time: "#1565C0",
+  day_time: palette.gold,
+  chef: palette.wine,
+  seasonal: palette.secondary.main,
+};
+
+const categories = [
+  { label: "Daily", value: "daily" },
+  { label: "Game Time", value: "game_time" },
+  { label: "Daytime", value: "day_time" },
+  { label: "Chef's Special", value: "chef" },
+  { label: "Seasonal", value: "seasonal" },
+];
 
 // Fallback images by special type / day
 const fallbackByDay: Record<string, string> = {
@@ -66,6 +93,7 @@ export default function Specials() {
   const [specials, setSpecials] = useState<ApiSpecial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("daily");
 
   const loadSpecials = useCallback(() => {
     fetchSpecials()
@@ -89,6 +117,8 @@ export default function Specials() {
   useWsRefresh(WsEvent.SPECIAL_UPDATED, loadSpecials);
   useWsRefresh(WsEvent.SPECIAL_DELETED, loadSpecials);
 
+  const filtered = specials.filter((s) => s.type === activeTab);
+
   return (
     <>
       <PageHero
@@ -111,24 +141,53 @@ export default function Specials() {
             </Alert>
           )}
 
-          {!loading && !error && specials.length === 0 && (
-            <Typography
-              variant="body1"
-              sx={{
-                textAlign: "center",
-                py: 10,
-                color: palette.text.secondary,
-              }}
-            >
-              No active specials right now. Check back soon!
-            </Typography>
-          )}
+          {!loading && !error && (
+            <>
+              {/* Category filter */}
+              <Box sx={{ mb: 5, borderBottom: 1, borderColor: "divider" }}>
+                <Tabs
+                  value={activeTab}
+                  onChange={(_, v) => setActiveTab(v)}
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  sx={{
+                    "& .MuiTab-root": {
+                      fontSize: "0.8rem",
+                      minWidth: "auto",
+                      px: 2,
+                    },
+                    "& .Mui-selected": {
+                      color: `${palette.primary.main} !important`,
+                    },
+                    "& .MuiTabs-indicator": {
+                      backgroundColor: palette.primary.main,
+                    },
+                  }}
+                >
+                  {categories.map((cat) => (
+                    <Tab key={cat.value} label={cat.label} value={cat.value} />
+                  ))}
+                </Tabs>
+              </Box>
 
-          {!loading && specials.length > 0 && (
-            <Grid container spacing={3}>
-              {specials.map((special) => (
-                <Grid key={special.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                  <Box
+              {filtered.length === 0 && (
+                <Typography
+                  variant="body1"
+                  sx={{
+                    textAlign: "center",
+                    py: 10,
+                    color: palette.text.secondary,
+                  }}
+                >
+                  No active specials in this category. Check back soon!
+                </Typography>
+              )}
+
+              {filtered.length > 0 && (
+                <Grid container spacing={3}>
+                  {filtered.map((special) => (
+                    <Grid key={special.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                      <Box
                     sx={{
                       position: "relative",
                       height: "100%",
@@ -189,10 +248,10 @@ export default function Specials() {
                         }}
                       >
                         <Chip
-                          label={getSpecialDayLabel(special)}
+                          label={SPECIAL_TYPE_LABELS[special.type] || getSpecialDayLabel(special)}
                           size="small"
                           sx={{
-                            bgcolor: palette.primary.main,
+                            bgcolor: categoryColors[special.type] || palette.primary.main,
                             color: "#fff",
                             fontWeight: 700,
                             fontSize: "0.7rem",
@@ -244,6 +303,8 @@ export default function Specials() {
                 </Grid>
               ))}
             </Grid>
+              )}
+            </>
           )}
 
           {/* Order CTA */}

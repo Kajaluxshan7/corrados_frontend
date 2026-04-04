@@ -31,15 +31,19 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AppleIcon from "@mui/icons-material/Apple";
 import ShopIcon from "@mui/icons-material/Shop";
 import { SectionHeader } from "../components";
-import {
-  menuCategories,
-  specials,
-  familyMeals,
-  testimonials,
-  events,
-} from "../data";
+import { familyMeals, testimonials } from "../data";
 import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
+import {
+  fetchSpecials,
+  fetchEvents,
+  fetchStoryCategories,
+  type ApiSpecial,
+  type ApiEvent,
+  type ApiStoryCategory,
+} from "../services/api";
+import { resolveImageUrl } from "../config/api";
+import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 
 const navTiles = [
   {
@@ -116,25 +120,109 @@ const navTiles = [
   },
 ];
 
-const specialPosterImages: Record<string, string> = {
-  'monday-pasta': 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=900&q=80',
-  'tuesday-pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900&q=80',
-  'wednesday-wings': 'https://images.unsplash.com/photo-1562967914-608f82629710?w=900&q=80',
-  'thursday-wine': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=80',
-  'friday-seafood': 'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=900&q=80',
-  'weekend-brunch': 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&q=80',
-  'lunch-combo': 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=900&q=80',
-  'happy-hour': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=900&q=80',
+const specialFallbackImages: string[] = [
+  "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=900&q=80",
+  "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900&q=80",
+  "https://images.unsplash.com/photo-1562967914-608f82629710?w=900&q=80",
+  "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=80",
+  "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=900&q=80",
+  "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&q=80",
+];
+
+const EVENT_TYPE_LABELS: Record<string, string> = {
+  live_music: "Live Music",
+  sports_viewing: "Sports Viewing",
+  trivia_night: "Trivia Night",
+  karaoke: "Karaoke",
+  private_party: "Private Party",
+  special_event: "Special Event",
 };
+
+const SPECIAL_TYPE_LABELS: Record<string, string> = {
+  daily: "Daily",
+  game_time: "Game Time",
+  day_time: "Daytime",
+  chef: "Chef's Special",
+  seasonal: "Seasonal",
+};
+
+function getSpecialPopupImage(special: ApiSpecial, index: number): string {
+  if (special.imageUrls?.length) return resolveImageUrl(special.imageUrls[0]);
+  return specialFallbackImages[index % specialFallbackImages.length];
+}
+
+function getSpecialLabel(special: ApiSpecial): string {
+  if (special.dayOfWeek) {
+    return (
+      special.dayOfWeek.charAt(0).toUpperCase() + special.dayOfWeek.slice(1)
+    );
+  }
+  return SPECIAL_TYPE_LABELS[special.type] ?? "Special";
+}
+
+function formatEventDateRange(start: string): string {
+  const s = new Date(start);
+  const dateStr = s.toLocaleDateString("en-CA", {
+    month: "short",
+    day: "numeric",
+  });
+  const timeStr = s.toLocaleTimeString("en-CA", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${dateStr} · ${timeStr}`;
+}
 
 export default function Home() {
   const [specialsPopupOpen, setSpecialsPopupOpen] = useState(false);
   const [activeSpecial, setActiveSpecial] = useState(0);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const featuredCategories = menuCategories.slice(0, 4);
-  const featuredSpecials = specials.slice(0, 3);
-  const featuredEvents = events.slice(0, 3);
-  const popupSpecials = specials.slice(0, 4);
+
+  // Live data state
+  const [liveSpecials, setLiveSpecials] = useState<ApiSpecial[]>([]);
+  const [liveEvents, setLiveEvents] = useState<ApiEvent[]>([]);
+  const [galleryCategories, setGalleryCategories] = useState<
+    ApiStoryCategory[]
+  >([]);
+
+  const loadLiveData = useCallback(() => {
+    fetchSpecials()
+      .then((data) =>
+        setLiveSpecials(data.sort((a, b) => a.sortOrder - b.sortOrder)),
+      )
+      .catch(() => {});
+    fetchEvents()
+      .then((data) => setLiveEvents(data))
+      .catch(() => {});
+    fetchStoryCategories()
+      .then((data) => setGalleryCategories(data.filter((c) => c.isActive)))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    loadLiveData();
+  }, [loadLiveData]);
+
+  useWsRefresh(WsEvent.SPECIAL_CREATED, loadLiveData);
+  useWsRefresh(WsEvent.SPECIAL_UPDATED, loadLiveData);
+  useWsRefresh(WsEvent.SPECIAL_DELETED, loadLiveData);
+  useWsRefresh(WsEvent.EVENT_CREATED, loadLiveData);
+  useWsRefresh(WsEvent.EVENT_UPDATED, loadLiveData);
+  useWsRefresh(WsEvent.EVENT_DELETED, loadLiveData);
+  useWsRefresh(WsEvent.STORY_UPDATED, loadLiveData);
+
+  const popupSpecials = liveSpecials.slice(0, 4);
+  const featuredSpecials = liveSpecials.slice(0, 3);
+  const featuredEvents = liveEvents.slice(0, 3);
+
+  // Collect gallery images from stories
+  const galleryImages = galleryCategories
+    .flatMap((cat) =>
+      (cat.stories ?? [])
+        .filter((s) => s.isActive)
+        .flatMap((s) => (s.imageUrls ?? []).map((url) => resolveImageUrl(url))),
+    )
+    .slice(0, 4);
 
   const stopAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
@@ -145,6 +233,7 @@ export default function Home() {
 
   const startAutoPlay = useCallback(() => {
     stopAutoPlay();
+    if (popupSpecials.length === 0) return;
     autoPlayRef.current = setInterval(() => {
       setActiveSpecial((prev) => (prev + 1) % popupSpecials.length);
     }, 4000);
@@ -159,7 +248,9 @@ export default function Home() {
   );
 
   const goPrev = useCallback(() => {
-    goToSpecial((activeSpecial - 1 + popupSpecials.length) % popupSpecials.length);
+    goToSpecial(
+      (activeSpecial - 1 + popupSpecials.length) % popupSpecials.length,
+    );
   }, [activeSpecial, popupSpecials.length, goToSpecial]);
 
   const goNext = useCallback(() => {
@@ -167,14 +258,14 @@ export default function Home() {
   }, [activeSpecial, popupSpecials.length, goToSpecial]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
-    const storageKey = 'corrados-specials-popup-seen';
-    if (window.sessionStorage.getItem(storageKey) === 'true') return;
+    const storageKey = "corrados-specials-popup-seen";
+    if (window.sessionStorage.getItem(storageKey) === "true") return;
 
     const timer = window.setTimeout(() => {
       setSpecialsPopupOpen(true);
-      window.sessionStorage.setItem(storageKey, 'true');
+      window.sessionStorage.setItem(storageKey, "true");
     }, 700);
 
     return () => window.clearTimeout(timer);
@@ -193,220 +284,279 @@ export default function Home() {
   return (
     <>
       <Dialog
-        open={specialsPopupOpen}
+        open={
+          specialsPopupOpen &&
+          popupSpecials.length > 0 &&
+          activeSpecial < popupSpecials.length
+        }
         onClose={() => setSpecialsPopupOpen(false)}
         maxWidth="sm"
         fullWidth
         PaperProps={{
           sx: {
-            overflow: 'hidden',
+            overflow: "hidden",
             borderRadius: 2.5,
             bgcolor: palette.charcoal,
             border: `1px solid ${palette.warmGray}`,
-            boxShadow: '0 28px 70px rgba(45, 41, 38, 0.28)',
+            boxShadow: "0 28px 70px rgba(45, 41, 38, 0.28)",
           },
         }}
       >
-        {/* Header */}
-        <Box
-          sx={{
-            position: 'relative',
-            px: { xs: 2.5, md: 3.5 },
-            pt: { xs: 4, md: 4.5 },
-            pb: { xs: 2, md: 2.5 },
-            background: `linear-gradient(135deg, ${palette.navy} 0%, ${palette.charcoal} 100%)`,
-          }}
-        >
-          <IconButton
-            onClick={() => setSpecialsPopupOpen(false)}
-            sx={{ position: 'absolute', top: 12, right: 12, color: '#fff' }}
-          >
-            <CloseIcon />
-          </IconButton>
-          <Typography
-            variant="overline"
-            sx={{ color: palette.gold, letterSpacing: '0.18em', fontSize: '0.68rem' }}
-          >
-            THIS WEEK AT CORRADO&apos;S
-          </Typography>
-          <Typography
-            variant="h3"
-            sx={{
-              color: '#fff',
-              mt: 0.5,
-              fontSize: { xs: '1.6rem', md: '2rem' },
-              lineHeight: 1.1,
-            }}
-          >
-            House Specials
-          </Typography>
-        </Box>
-
-        {/* Carousel */}
-        <Box sx={{ position: 'relative', px: { xs: 2.5, md: 3.5 }, pt: { xs: 2.5, md: 3 }, pb: 0 }}>
-          {/* Special card — single item */}
-          <Box
-            sx={{
-              position: 'relative',
-              minHeight: { xs: 300, md: 360 },
-              borderRadius: 2,
-              overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.14)',
-              boxShadow: '0 16px 36px rgba(0,0,0,0.2)',
-              backgroundImage: `linear-gradient(180deg, rgba(20,15,12,0.06) 0%, rgba(20,15,12,0.65) 60%, rgba(20,15,12,0.92) 100%), url(${specialPosterImages[popupSpecials[activeSpecial].id]})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              transition: 'background-image 0.4s ease',
-            }}
-          >
+        {popupSpecials.length > 0 && activeSpecial < popupSpecials.length && (
+          <>
+            {/* Header */}
             <Box
               sx={{
-                position: 'absolute',
-                inset: 0,
-                p: { xs: 2, md: 2.5 },
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
+                position: "relative",
+                px: { xs: 2.5, md: 3.5 },
+                pt: { xs: 4, md: 4.5 },
+                pb: { xs: 2, md: 2.5 },
+                background: `linear-gradient(135deg, ${palette.navy} 0%, ${palette.charcoal} 100%)`,
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, alignItems: 'flex-start' }}>
-                <Chip
-                  label={popupSpecials[activeSpecial].day}
-                  size="small"
-                  sx={{ bgcolor: palette.primary.main, color: '#fff', fontWeight: 700, fontSize: '0.68rem' }}
-                />
-                {popupSpecials[activeSpecial].badge && (
-                  <Chip
-                    label={popupSpecials[activeSpecial].badge}
-                    size="small"
+              <IconButton
+                onClick={() => setSpecialsPopupOpen(false)}
+                sx={{ position: "absolute", top: 12, right: 12, color: "#fff" }}
+              >
+                <CloseIcon />
+              </IconButton>
+              <Typography
+                variant="overline"
+                sx={{
+                  color: palette.gold,
+                  letterSpacing: "0.18em",
+                  fontSize: "0.68rem",
+                }}
+              >
+                THIS WEEK AT CORRADO&apos;S
+              </Typography>
+              <Typography
+                variant="h3"
+                sx={{
+                  color: "#fff",
+                  mt: 0.5,
+                  fontSize: { xs: "1.6rem", md: "2rem" },
+                  lineHeight: 1.1,
+                }}
+              >
+                House Specials
+              </Typography>
+            </Box>
+
+            {/* Carousel */}
+            <Box
+              sx={{
+                position: "relative",
+                px: { xs: 2.5, md: 3.5 },
+                pt: { xs: 2.5, md: 3 },
+                pb: 0,
+              }}
+            >
+              {/* Special card — single item */}
+              <Box
+                sx={{
+                  position: "relative",
+                  minHeight: { xs: 300, md: 360 },
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  boxShadow: "0 16px 36px rgba(0,0,0,0.2)",
+                  backgroundImage: `linear-gradient(180deg, rgba(20,15,12,0.06) 0%, rgba(20,15,12,0.65) 60%, rgba(20,15,12,0.92) 100%), url(${getSpecialPopupImage(popupSpecials[activeSpecial], activeSpecial)})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  transition: "background-image 0.4s ease",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    p: { xs: 2, md: 2.5 },
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box
                     sx={{
-                      bgcolor: 'rgba(255,255,255,0.14)',
-                      color: '#fff',
-                      border: '1px solid rgba(255,255,255,0.18)',
-                      fontWeight: 600,
-                      fontSize: '0.68rem',
-                      backdropFilter: 'blur(6px)',
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 1,
+                      alignItems: "flex-start",
                     }}
-                  />
-                )}
+                  >
+                    <Chip
+                      label={getSpecialLabel(popupSpecials[activeSpecial])}
+                      size="small"
+                      sx={{
+                        bgcolor: palette.primary.main,
+                        color: "#fff",
+                        fontWeight: 700,
+                        fontSize: "0.68rem",
+                      }}
+                    />
+                    <Chip
+                      label={
+                        SPECIAL_TYPE_LABELS[
+                          popupSpecials[activeSpecial].type
+                        ] ?? popupSpecials[activeSpecial].type
+                      }
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(255,255,255,0.14)",
+                        color: "#fff",
+                        border: "1px solid rgba(255,255,255,0.18)",
+                        fontWeight: 600,
+                        fontSize: "0.68rem",
+                        backdropFilter: "blur(6px)",
+                      }}
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      variant="overline"
+                      sx={{
+                        color: palette.gold,
+                        letterSpacing: "0.18em",
+                        fontSize: "0.62rem",
+                      }}
+                    >
+                      Weekly Feature
+                    </Typography>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        color: "#fff",
+                        fontWeight: 700,
+                        mt: 0.35,
+                        lineHeight: 1.15,
+                        textShadow: "0 4px 20px rgba(0,0,0,0.35)",
+                      }}
+                    >
+                      {formatAmpersand(popupSpecials[activeSpecial].title)}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "rgba(255,255,255,0.85)",
+                        mt: 0.8,
+                        lineHeight: 1.55,
+                        maxWidth: 400,
+                      }}
+                    >
+                      {popupSpecials[activeSpecial].description}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: palette.gold, fontWeight: 700, mt: 1.25 }}
+                    >
+                      {SPECIAL_TYPE_LABELS[popupSpecials[activeSpecial].type] ??
+                        "Special"}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Prev / Next buttons */}
+                <IconButton
+                  onClick={goPrev}
+                  sx={{
+                    position: "absolute",
+                    left: 8,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    bgcolor: "rgba(0,0,0,0.45)",
+                    color: "#fff",
+                    "&:hover": { bgcolor: "rgba(0,0,0,0.65)" },
+                    width: 36,
+                    height: 36,
+                  }}
+                >
+                  <ChevronLeftIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  onClick={goNext}
+                  sx={{
+                    position: "absolute",
+                    right: 8,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    bgcolor: "rgba(0,0,0,0.45)",
+                    color: "#fff",
+                    "&:hover": { bgcolor: "rgba(0,0,0,0.65)" },
+                    width: 36,
+                    height: 36,
+                  }}
+                >
+                  <ChevronRightIcon fontSize="small" />
+                </IconButton>
               </Box>
 
-              <Box>
-                <Typography
-                  variant="overline"
-                  sx={{ color: palette.gold, letterSpacing: '0.18em', fontSize: '0.62rem' }}
-                >
-                  Weekly Feature
-                </Typography>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    color: '#fff',
-                    fontWeight: 700,
-                    mt: 0.35,
-                    lineHeight: 1.15,
-                    textShadow: '0 4px 20px rgba(0,0,0,0.35)',
-                  }}
-                >
-                  {formatAmpersand(popupSpecials[activeSpecial].title)}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: 'rgba(255,255,255,0.85)',
-                    mt: 0.8,
-                    lineHeight: 1.55,
-                    maxWidth: 400,
-                  }}
-                >
-                  {popupSpecials[activeSpecial].description}
-                </Typography>
-                <Typography variant="h6" sx={{ color: palette.gold, fontWeight: 700, mt: 1.25 }}>
-                  {popupSpecials[activeSpecial].price}
-                </Typography>
+              {/* Dot indicators */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 1,
+                  mt: 2,
+                }}
+              >
+                {popupSpecials.map((_, i) => (
+                  <Box
+                    key={i}
+                    onClick={() => goToSpecial(i)}
+                    sx={{
+                      width: activeSpecial === i ? 24 : 8,
+                      height: 8,
+                      borderRadius: 999,
+                      bgcolor:
+                        activeSpecial === i
+                          ? palette.gold
+                          : "rgba(255,255,255,0.25)",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        bgcolor:
+                          activeSpecial === i
+                            ? palette.gold
+                            : "rgba(255,255,255,0.4)",
+                      },
+                    }}
+                  />
+                ))}
               </Box>
             </Box>
 
-            {/* Prev / Next buttons */}
-            <IconButton
-              onClick={goPrev}
+            {/* Footer */}
+            <Box
               sx={{
-                position: 'absolute',
-                left: 8,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                bgcolor: 'rgba(0,0,0,0.45)',
-                color: '#fff',
-                '&:hover': { bgcolor: 'rgba(0,0,0,0.65)' },
-                width: 36,
-                height: 36,
+                px: { xs: 2.5, md: 3.5 },
+                py: { xs: 2, md: 2.5 },
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
               }}
             >
-              <ChevronLeftIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              onClick={goNext}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                bgcolor: 'rgba(0,0,0,0.45)',
-                color: '#fff',
-                '&:hover': { bgcolor: 'rgba(0,0,0,0.65)' },
-                width: 36,
-                height: 36,
-              }}
-            >
-              <ChevronRightIcon fontSize="small" />
-            </IconButton>
-          </Box>
-
-          {/* Dot indicators */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
-            {popupSpecials.map((_, i) => (
-              <Box
-                key={i}
-                onClick={() => goToSpecial(i)}
-                sx={{
-                  width: activeSpecial === i ? 24 : 8,
-                  height: 8,
-                  borderRadius: 999,
-                  bgcolor: activeSpecial === i ? palette.gold : 'rgba(255,255,255,0.25)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  '&:hover': { bgcolor: activeSpecial === i ? palette.gold : 'rgba(255,255,255,0.4)' },
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-
-        {/* Footer */}
-        <Box
-          sx={{
-            px: { xs: 2.5, md: 3.5 },
-            py: { xs: 2, md: 2.5 },
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
-            flexWrap: 'wrap',
-          }}
-        >
-          <Typography variant="body2" sx={{ color: palette.text.secondary, fontSize: '0.78rem' }}>
-            {activeSpecial + 1} / {popupSpecials.length}
-          </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="/specials"
-            endIcon={<ArrowForwardIcon />}
-            onClick={() => setSpecialsPopupOpen(false)}
-          >
-            View All Specials
-          </Button>
-        </Box>
+              <Typography
+                variant="body2"
+                sx={{ color: palette.text.secondary, fontSize: "0.78rem" }}
+              >
+                {activeSpecial + 1} / {popupSpecials.length}
+              </Typography>
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to="/specials"
+                endIcon={<ArrowForwardIcon />}
+                onClick={() => setSpecialsPopupOpen(false)}
+              >
+                View All Specials
+              </Button>
+            </Box>
+          </>
+        )}
       </Dialog>
 
       {/* Navigation tile bento grid */}
@@ -649,8 +799,29 @@ export default function Home() {
         />
         <Container>
           <Grid container spacing={3}>
-            {featuredCategories.map((cat) => (
-              <Grid key={cat.id} size={{ xs: 12, sm: 6, md: 3 }}>
+            {[
+              {
+                label: "Appetizers",
+                image:
+                  "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=400&q=80",
+              },
+              {
+                label: "Pasta",
+                image:
+                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+              },
+              {
+                label: "Pizza",
+                image:
+                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
+              },
+              {
+                label: "Mains",
+                image:
+                  "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&q=80",
+              },
+            ].map((cat) => (
+              <Grid key={cat.label} size={{ xs: 12, sm: 6, md: 3 }}>
                 <Card
                   component={RouterLink}
                   to="/menus"
@@ -659,37 +830,23 @@ export default function Home() {
                     height: "100%",
                     transition: "transform 0.3s, box-shadow 0.3s",
                     "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                      transform: "translateY(-6px)",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
                     },
                   }}
                 >
                   <CardMedia
                     component="img"
                     height="200"
-                    image={
-                      cat.id === "appetizers"
-                        ? "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=400&q=80"
-                        : cat.id === "pasta"
-                          ? "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80"
-                          : cat.id === "pizza"
-                            ? "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80"
-                            : "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&q=80"
-                    }
-                    alt={cat.name}
+                    image={cat.image}
+                    alt={cat.label}
                   />
                   <CardContent>
                     <Typography
                       variant="h6"
                       sx={{ fontWeight: 700, color: palette.charcoal }}
                     >
-                      {cat.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: palette.text.secondary, mt: 0.5 }}
-                    >
-                      {cat.items.length} items
+                      {cat.label}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -729,6 +886,14 @@ export default function Home() {
                     flexDirection: "column",
                   }}
                 >
+                  {special.imageUrls?.length > 0 && (
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={resolveImageUrl(special.imageUrls[0])}
+                      alt={special.title}
+                    />
+                  )}
                   <CardContent sx={{ flex: 1, p: 3 }}>
                     <Box
                       sx={{
@@ -739,7 +904,7 @@ export default function Home() {
                       }}
                     >
                       <Chip
-                        label={special.day}
+                        label={getSpecialLabel(special)}
                         size="small"
                         sx={{
                           bgcolor: palette.primary.main,
@@ -748,19 +913,19 @@ export default function Home() {
                           fontSize: "0.7rem",
                         }}
                       />
-                      {special.badge && (
-                        <Chip
-                          label={special.badge}
-                          size="small"
-                          variant="outlined"
-                          sx={{
-                            borderColor: palette.gold,
-                            color: palette.gold,
-                            fontWeight: 600,
-                            fontSize: "0.7rem",
-                          }}
-                        />
-                      )}
+                      <Chip
+                        label={
+                          SPECIAL_TYPE_LABELS[special.type] ?? special.type
+                        }
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          borderColor: palette.gold,
+                          color: palette.gold,
+                          fontWeight: 600,
+                          fontSize: "0.7rem",
+                        }}
+                      />
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
                       {formatAmpersand(special.title)}
@@ -774,16 +939,6 @@ export default function Home() {
                       }}
                     >
                       {special.description}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: palette.primary.main,
-                        fontWeight: 700,
-                        mt: "auto",
-                      }}
-                    >
-                      {special.price}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -973,9 +1128,17 @@ export default function Home() {
             {featuredEvents.map((event) => (
               <Grid key={event.id} size={{ xs: 12, md: 4 }}>
                 <Card sx={{ height: "100%" }}>
+                  {event.imageUrls?.length > 0 && (
+                    <CardMedia
+                      component="img"
+                      height="180"
+                      image={resolveImageUrl(event.imageUrls[0])}
+                      alt={event.title}
+                    />
+                  )}
                   <CardContent sx={{ p: 3 }}>
                     <Chip
-                      label={event.category.replace("-", " ")}
+                      label={EVENT_TYPE_LABELS[event.type] ?? event.type}
                       size="small"
                       sx={{
                         mb: 2,
@@ -997,7 +1160,9 @@ export default function Home() {
                         mb: 1,
                       }}
                     >
-                      {event.date} &bull; {event.time}
+                      {formatEventDateRange(
+                        event.eventStartDate,
+                      )}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -1033,12 +1198,15 @@ export default function Home() {
         />
         <Container>
           <Grid container spacing={2}>
-            {[
-              "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
-              "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
-              "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
-              "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80",
-            ].map((src, i) => (
+            {(galleryImages.length > 0
+              ? galleryImages
+              : [
+                  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
+                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
+                  "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80",
+                ]
+            ).map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>
                 <Box
                   component="img"

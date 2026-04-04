@@ -4,19 +4,13 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
   Chip,
   Button,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+  Divider,
   Stack,
   CircularProgress,
   Alert,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import { Link as RouterLink } from "react-router-dom";
@@ -27,43 +21,15 @@ import { fetchPartyMenus, type ApiPartyMenu } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 
-// Fallback image map: shown when the backend provides no image
-const FALLBACK_IMAGES: [string[], string][] = [
-  [
-    ["cocktail"],
-    "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&q=80",
-  ],
-  [
-    ["premium", "celebration"],
-    "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80",
-  ],
-  [
-    ["classic", "dinner"],
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-  ],
-  [
-    ["sport", "game"],
-    "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80",
-  ],
-  [
-    ["casual", "gathering"],
-    "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80",
-  ],
-];
-
 const RESTAURANT_LOGO = "/logos/logo-blue.png";
 
 function getMenuImage(menu: ApiPartyMenu): string | null {
   if (menu.imageUrls?.length) return resolveImageUrl(menu.imageUrls[0]);
-  const lower = (menu.name + " " + menu.menuType).toLowerCase();
-  for (const [keywords, url] of FALLBACK_IMAGES) {
-    if (keywords.some((k) => lower.includes(k))) return url;
-  }
-  return null; // will use logo
+  return null;
 }
 
-function formatSectionType(type: string): string {
-  return type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+function titleColor(menuType: string) {
+  return menuType === "cocktail" ? "#0D3B6E" : "#8B2020";
 }
 
 export default function PartyMenus() {
@@ -93,7 +59,6 @@ export default function PartyMenus() {
     loadPartyMenus();
   }, [loadPartyMenus]);
 
-  // Real-time updates via WebSocket
   useWsRefresh(WsEvent.PARTY_MENU_UPDATED, loadPartyMenus);
 
   return (
@@ -121,14 +86,10 @@ export default function PartyMenus() {
           {!loading && !error && menus.length === 0 && (
             <Typography
               variant="body1"
-              sx={{
-                textAlign: "center",
-                py: 10,
-                color: palette.text.secondary,
-              }}
+              sx={{ textAlign: "center", py: 10, color: palette.text.secondary }}
             >
-              No party packages available right now. Please contact us to
-              discuss your event.
+              No party packages available right now. Please contact us to discuss
+              your event.
             </Typography>
           )}
 
@@ -136,31 +97,33 @@ export default function PartyMenus() {
             <Grid container spacing={3}>
               {menus.map((menu) => {
                 const imgSrc = getMenuImage(menu);
+                const tc = titleColor(menu.menuType);
+                const sortedSections = [...(menu.sections ?? [])].sort(
+                  (a, b) => a.sortOrder - b.sortOrder,
+                );
 
                 return (
                   <Grid key={menu.id} size={{ xs: 12, md: 6 }}>
-                    <Card
+                    <Box
                       sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
+                        borderRadius: "4px",
                         overflow: "hidden",
-                        transition:
-                          "transform 0.35s ease, box-shadow 0.35s ease",
+                        border: "1px solid #DDD9C4",
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
                         "&:hover": {
                           transform: "translateY(-4px)",
-                          boxShadow: "0 12px 32px rgba(0,0,0,0.14)",
+                          boxShadow: "0 8px 28px rgba(0,0,0,0.13)",
                         },
-                        "&:hover img": { transform: "scale(1.05)" },
                       }}
                     >
-                      {/* Image or logo fallback */}
+                      {/* Hero image */}
                       <Box
                         sx={{
                           position: "relative",
                           overflow: "hidden",
-                          height: { xs: 170, md: 190 },
-                          bgcolor: palette.cream,
+                          height: { xs: 160, md: 180 },
+                          bgcolor: "#FAF8E8",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -177,19 +140,18 @@ export default function PartyMenus() {
                                 height: "100%",
                                 objectFit: "cover",
                                 transition: "transform 0.5s ease",
+                                "&:hover": { transform: "scale(1.04)" },
                               }}
-                              onError={() => {
-                                setFailedImages((prev) =>
-                                  new Set(prev).add(menu.id),
-                                );
-                              }}
+                              onError={() =>
+                                setFailedImages((p) => new Set(p).add(menu.id))
+                              }
                             />
                             <Box
                               sx={{
                                 position: "absolute",
                                 inset: 0,
                                 background:
-                                  "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3) 100%)",
+                                  "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.25) 100%)",
                               }}
                             />
                           </>
@@ -197,96 +159,116 @@ export default function PartyMenus() {
                           <Box
                             component="img"
                             src={RESTAURANT_LOGO}
-                            alt="Corrado's Restaurant"
-                            sx={{
-                              height: 80,
-                              width: "auto",
-                              objectFit: "contain",
-                            }}
+                            alt="Corrado's"
+                            sx={{ height: 72, width: "auto", objectFit: "contain" }}
                           />
                         )}
-
-                        {/* Menu type badge */}
                         <Chip
-                          label={
-                            menu.menuType === "cocktail" ? "Cocktail" : "Party"
-                          }
+                          label={menu.menuType === "cocktail" ? "Cocktail" : "Party"}
                           size="small"
                           sx={{
                             position: "absolute",
                             top: 10,
                             left: 10,
-                            bgcolor:
-                              menu.menuType === "cocktail"
-                                ? palette.gold
-                                : palette.primary.main,
+                            bgcolor: menu.menuType === "cocktail" ? "#0D3B6E" : "#8B2020",
                             color: "#fff",
                             fontWeight: 700,
-                            fontSize: "0.7rem",
+                            fontSize: "0.68rem",
+                            letterSpacing: "0.04em",
                           }}
                         />
                       </Box>
 
-                      <CardContent
+                      {/* Printed menu body */}
+                      <Box
                         sx={{
-                          p: 3,
-                          flex: 1,
-                          display: "flex",
-                          flexDirection: "column",
+                          bgcolor: "#FFFEF5",
+                          backgroundImage:
+                            "linear-gradient(135deg, #FAF8E8 0%, #FFFEF5 65%)",
+                          px: { xs: 2.5, md: 3 },
+                          pt: 2.25,
+                          pb: 2.5,
                         }}
                       >
+                        {/* Name + Price */}
                         <Box
                           sx={{
                             display: "flex",
-                            justifyContent: "space-between",
                             alignItems: "flex-start",
-                            mb: 1,
+                            justifyContent: "space-between",
+                            gap: 1,
+                            mb: 0.75,
                           }}
                         >
-                          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                          <Typography
+                            sx={{
+                              fontWeight: 900,
+                              fontSize: { xs: "1rem", md: "1.1rem" },
+                              lineHeight: 1.15,
+                              color: tc,
+                              textTransform: "uppercase",
+                              fontStyle: "italic",
+                              letterSpacing: "0.015em",
+                              flex: 1,
+                            }}
+                          >
                             {menu.name}
                           </Typography>
-                          {menu.minimumGuests && (
-                            <Chip
-                              label={`Min ${menu.minimumGuests} guests`}
-                              size="small"
-                              variant="outlined"
+                          <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                            <Typography
                               sx={{
-                                borderColor: palette.sage,
-                                color: palette.secondary.main,
-                                fontWeight: 600,
-                                ml: 1,
-                                flexShrink: 0,
+                                fontWeight: 900,
+                                fontSize: "1.5rem",
+                                color: tc,
+                                lineHeight: 1,
                               }}
-                            />
-                          )}
+                            >
+                              ${Number(menu.pricePerPerson).toFixed(2)}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontSize: "0.62rem",
+                                color: "#8A7F6A",
+                                lineHeight: 1.3,
+                                mt: 0.25,
+                              }}
+                            >
+                              per person
+                            </Typography>
+                          </Box>
                         </Box>
 
-                        <Typography
-                          variant="h4"
-                          sx={{
-                            color: palette.primary.main,
-                            fontWeight: 700,
-                            mb: 2,
-                          }}
-                        >
-                          ${Number(menu.pricePerPerson).toFixed(2)}
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            sx={{ color: palette.text.secondary, ml: 0.5 }}
-                          >
-                            / person
-                          </Typography>
-                        </Typography>
+                        <Divider sx={{ borderColor: "#B8B09A", mb: 1 }} />
 
+                        {/* Guest count */}
+                        {(menu.minimumGuests || menu.maximumGuests) && (
+                          <Typography
+                            sx={{
+                              fontSize: "0.68rem",
+                              color: "#5C5345",
+                              fontWeight: 700,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                              mb: 0.75,
+                            }}
+                          >
+                            {menu.minimumGuests && menu.maximumGuests
+                              ? `${menu.minimumGuests}–${menu.maximumGuests} guests min`
+                              : menu.minimumGuests
+                                ? `${menu.minimumGuests} guests min`
+                                : `Up to ${menu.maximumGuests} guests`}
+                          </Typography>
+                        )}
+
+                        {/* Description */}
                         {menu.description && (
                           <Typography
-                            variant="body2"
                             sx={{
-                              color: palette.text.secondary,
-                              mb: 2,
-                              lineHeight: 1.7,
+                              fontSize: "0.75rem",
+                              color: "#6B5F4E",
+                              fontStyle: "italic",
+                              mb: 1.25,
+                              lineHeight: 1.5,
                             }}
                           >
                             {menu.description}
@@ -294,98 +276,105 @@ export default function PartyMenus() {
                         )}
 
                         {/* Sections */}
-                        {menu.sections
-                          ?.sort((a, b) => a.sortOrder - b.sortOrder)
-                          .map((section) => (
-                            <Box key={section.id} sx={{ mb: 2 }}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  mb: 1,
-                                }}
-                              >
+                        {sortedSections.map((sec, sIdx) => {
+                          const availItems = [...sec.items]
+                            .filter((i) => i.isAvailable)
+                            .sort((a, b) => a.sortOrder - b.sortOrder);
+                          return (
+                            <Box
+                              key={sec.id}
+                              sx={{ mb: sIdx < sortedSections.length - 1 ? 1.5 : 0.5 }}
+                            >
+                              {sec.title && (
                                 <Typography
-                                  variant="subtitle2"
                                   sx={{
-                                    fontSize: "0.78rem",
-                                    color: palette.charcoal,
-                                    fontWeight: 700,
+                                    fontSize: "0.72rem",
+                                    fontWeight: 900,
+                                    color: tc,
                                     textTransform: "uppercase",
-                                    letterSpacing: "0.05em",
+                                    letterSpacing: "0.06em",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: "2px",
+                                    lineHeight: 1.4,
                                   }}
                                 >
-                                  {section.title}
-                                </Typography>
-                                <Chip
-                                  label={formatSectionType(section.sectionType)}
-                                  size="small"
-                                  variant="outlined"
-                                  sx={{
-                                    height: 18,
-                                    fontSize: "0.6rem",
-                                    borderColor: palette.warmGray,
-                                    color: palette.text.secondary,
-                                  }}
-                                />
-                              </Box>
-                              {section.instruction && (
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: palette.text.secondary,
-                                    display: "block",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  {section.instruction}
+                                  {sec.title}
                                 </Typography>
                               )}
-                              <List dense disablePadding>
-                                {section.items
-                                  ?.filter((it) => it.isAvailable)
-                                  .sort((a, b) => a.sortOrder - b.sortOrder)
-                                  .map((it) => (
-                                    <ListItem
-                                      key={it.id}
-                                      disableGutters
-                                      sx={{ py: 0.2 }}
+                              {sec.instruction && (
+                                <Typography
+                                  sx={{
+                                    fontSize: "0.63rem",
+                                    color: "#5C5345",
+                                    fontWeight: 700,
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.04em",
+                                    lineHeight: 1.4,
+                                    mb: 0.25,
+                                  }}
+                                >
+                                  {sec.instruction}
+                                </Typography>
+                              )}
+                              {availItems.map((item) => (
+                                <Box
+                                  key={item.id}
+                                  sx={{ display: "flex", gap: 0.5, pl: 0.5, alignItems: "center" }}
+                                >
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.72rem",
+                                      color: "#2C2118",
+                                      flexShrink: 0,
+                                      lineHeight: 1.6,
+                                    }}
+                                  >
+                                    –
+                                  </Typography>
+                                  <Box>
+                                    <Typography
+                                      component="span"
+                                      sx={{
+                                        fontSize: "0.72rem",
+                                        color: "#2C2118",
+                                        lineHeight: 1.6,
+                                      }}
                                     >
-                                      <ListItemIcon sx={{ minWidth: 24 }}>
-                                        <CheckCircleIcon
-                                          sx={{
-                                            fontSize: 14,
-                                            color: palette.secondary.main,
-                                          }}
-                                        />
-                                      </ListItemIcon>
-                                      <ListItemText
-                                        primary={
-                                          <Typography
-                                            variant="body2"
-                                            sx={{
-                                              color: palette.text.secondary,
-                                            }}
-                                          >
-                                            {it.name}
-                                          </Typography>
-                                        }
-                                        secondary={
-                                          it.description ? (
-                                            <Typography variant="caption">
-                                              {it.description}
-                                            </Typography>
-                                          ) : undefined
-                                        }
-                                      />
-                                    </ListItem>
-                                  ))}
-                              </List>
+                                      {item.name}
+                                    </Typography>
+                                    {item.notes && (
+                                      <Typography
+                                        component="span"
+                                        sx={{
+                                          fontSize: "0.65rem",
+                                          color: "#8A7F6A",
+                                          fontStyle: "italic",
+                                          ml: 0.5,
+                                        }}
+                                      >
+                                        ({item.notes})
+                                      </Typography>
+                                    )}
+                                    {item.description && (
+                                      <Typography
+                                        sx={{
+                                          fontSize: "0.65rem",
+                                          color: "#6B5F4E",
+                                          fontStyle: "italic",
+                                          lineHeight: 1.3,
+                                        }}
+                                      >
+                                        {item.description}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                </Box>
+                              ))}
                             </Box>
-                          ))}
-                      </CardContent>
-                    </Card>
+                          );
+                        })}
+                      </Box>
+                    </Box>
                   </Grid>
                 );
               })}
@@ -405,31 +394,18 @@ export default function PartyMenus() {
           >
             <Typography
               variant="h4"
-              sx={{
-                fontWeight: 700,
-                mb: 1,
-                fontSize: { xs: "1.5rem", md: "2rem" },
-              }}
+              sx={{ fontWeight: 700, mb: 1, fontSize: { xs: "1.5rem", md: "2rem" } }}
             >
               Ready to Plan Your Event?
             </Typography>
             <Typography
               variant="body1"
-              sx={{
-                color: palette.text.secondary,
-                mb: 3,
-                maxWidth: 550,
-                mx: "auto",
-              }}
+              sx={{ color: palette.text.secondary, mb: 3, maxWidth: 550, mx: "auto" }}
             >
-              Contact our event coordinator to customize any package to your
-              needs. We'll make your event unforgettable.
+              Contact our event coordinator to customize any package to your needs.
+              We'll make your event unforgettable.
             </Typography>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              justifyContent="center"
-            >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
               <Button
                 variant="contained"
                 color="primary"

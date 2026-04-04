@@ -49,7 +49,9 @@ export interface ApiMenuItem {
 export interface ApiMeasurement {
   id: string;
   price: number;
-  measurementType: { id: string; name: string; unit: string };
+  isAvailable: boolean;
+  sortOrder: number;
+  measurementTypeEntity: { id: string; name: string; description: string | null } | null;
 }
 
 export interface ApiMenuCategory {
@@ -131,18 +133,45 @@ export interface ApiPartyMenu {
   sections: ApiPartySection[];
 }
 
+// ─── Stories (Gallery) ────────────────────────────────────────────────────────
+
+export interface ApiStory {
+  id: string;
+  categoryId: string;
+  imageUrls: string[];
+  isActive: boolean;
+  sortOrder: number;
+  category?: ApiStoryCategory;
+}
+
+export interface ApiStoryCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  sortOrder: number;
+  stories: ApiStory[];
+}
+
 // ─── API calls ────────────────────────────────────────────────────────────────
 
 export const fetchPrimaryCategories = () =>
   get<ApiPrimaryCategory[]>('/menu/primary-categories');
 
-export const fetchCategoriesWithItems = (primaryCategoryId: string) =>
+export const fetchCategoriesWithItems = (primaryCategoryId: string, signal?: AbortSignal) =>
   get<ApiMenuCategory[]>(
     `/menu/categories?primaryCategoryId=${primaryCategoryId}`,
+    signal,
   );
+
+export const fetchItemsByCategory = (categoryId: string) =>
+  get<ApiMenuItem[]>(`/menu/categories/${categoryId}/items`);
 
 export const fetchSpecials = () => get<ApiSpecial[]>('/specials/active');
 
 export const fetchEvents = () => get<ApiEvent[]>('/events/active');
 
 export const fetchPartyMenus = () => get<ApiPartyMenu[]>('/party-menu');
+
+export const fetchStoryCategories = () =>
+  get<ApiStoryCategory[]>('/stories/categories');
