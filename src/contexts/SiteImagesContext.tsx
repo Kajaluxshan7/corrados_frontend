@@ -18,6 +18,7 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import { fetchSiteImages } from "../services/api";
+import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "./WebSocketContext";
 
 interface SiteImagesContextType {
@@ -57,7 +58,7 @@ export function SiteImagesProvider({ children }: { children: ReactNode }) {
   const getImage = useCallback(
     (key: string, defaultUrl: string): string => {
       const stored = map[key];
-      return stored && stored.trim() ? stored : defaultUrl;
+      return stored && stored.trim() ? resolveImageUrl(stored) : defaultUrl;
     },
     [map],
   );
