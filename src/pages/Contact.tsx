@@ -24,6 +24,8 @@ import { PageHero, SocialIcon } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 import { API_BASE_URL } from '../config/api';
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 // ─── Subject options ──────────────────────────────────────────────────────────
 // `value` is what the backend DTO accepts; `label` is what the user sees.
@@ -86,6 +88,12 @@ const INITIAL_FORM: FormState = {
 };
 
 export default function Contact() {
+  usePageMeta({
+    title: "Contact Us | Corrado's Restaurant Whitby",
+    description: "Get in touch with Corrado's Restaurant & Bar — 38 Baldwin Street, Whitby, ON. Call (905) 655-3100, email us, or send a message. Open 7 days, 12 pm–10:30 pm. Reservations, catering enquiries & career opportunities welcome.",
+    ogImage: "/orrdos/exterior-sign-flags.jpg",
+  });
+  const { getImage } = useSiteImages();
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeFileName, setResumeFileName] = useState('');
@@ -248,77 +256,149 @@ export default function Contact() {
       <PageHero
         title="Contact Us"
         subtitle="We'd love to hear from you. Get in touch with us for reservations, inquiries, or feedback."
-        backgroundImage="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_contact",
+          "/restaurant/antipasto-platter.jpeg",
+        )}
       />
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
         <Container>
           <Grid container spacing={5}>
-
             {/* ─── Contact Info ─────────────────────────────────────────── */}
             <Grid size={{ xs: 12, md: 5 }}>
               <Typography
                 variant="subtitle2"
-                sx={{ color: palette.primary.main, mb: 1, letterSpacing: '0.15em' }}
+                sx={{
+                  color: palette.primary.main,
+                  mb: 1,
+                  letterSpacing: "0.15em",
+                }}
               >
                 GET IN TOUCH
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 3, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  mb: 3,
+                  fontSize: { xs: "1.5rem", md: "2rem" },
+                }}
+              >
                 Visit Us Today
               </Typography>
 
               <Stack spacing={3}>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
                   <PlaceIcon sx={{ color: palette.primary.main, mt: 0.3 }} />
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontSize: '0.8rem', mb: 0.3 }}>ADDRESS</Typography>
-                    <Typography variant="body2" sx={{ color: palette.text.secondary }}>{businessInfo.address}</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontSize: "0.8rem", mb: 0.3 }}
+                    >
+                      ADDRESS
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: palette.text.secondary }}
+                    >
+                      {businessInfo.address}
+                    </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
                   <PhoneIcon sx={{ color: palette.primary.main, mt: 0.3 }} />
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontSize: '0.8rem', mb: 0.3 }}>PHONE</Typography>
                     <Typography
-                      component="a" href={`tel:${businessInfo.phone}`} variant="body2"
-                      sx={{ color: palette.text.secondary, textDecoration: 'none', '&:hover': { color: palette.primary.main } }}
+                      variant="subtitle2"
+                      sx={{ fontSize: "0.8rem", mb: 0.3 }}
+                    >
+                      PHONE
+                    </Typography>
+                    <Typography
+                      component="a"
+                      href={`tel:${businessInfo.phone}`}
+                      variant="body2"
+                      sx={{
+                        color: palette.text.secondary,
+                        textDecoration: "none",
+                        "&:hover": { color: palette.primary.main },
+                      }}
                     >
                       {businessInfo.phone}
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
                   <EmailIcon sx={{ color: palette.primary.main, mt: 0.3 }} />
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontSize: '0.8rem', mb: 0.3 }}>EMAIL</Typography>
                     <Typography
-                      component="a" href={`mailto:${businessInfo.email}`} variant="body2"
-                      sx={{ color: palette.text.secondary, textDecoration: 'none', '&:hover': { color: palette.primary.main } }}
+                      variant="subtitle2"
+                      sx={{ fontSize: "0.8rem", mb: 0.3 }}
+                    >
+                      EMAIL
+                    </Typography>
+                    <Typography
+                      component="a"
+                      href={`mailto:${businessInfo.email}`}
+                      variant="body2"
+                      sx={{
+                        color: palette.text.secondary,
+                        textDecoration: "none",
+                        "&:hover": { color: palette.primary.main },
+                      }}
                     >
                       {businessInfo.email}
                     </Typography>
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <AccessTimeIcon sx={{ color: palette.primary.main, mt: 0.3 }} />
+                <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+                  <AccessTimeIcon
+                    sx={{ color: palette.primary.main, mt: 0.3 }}
+                  />
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontSize: '0.8rem', mb: 0.3 }}>HOURS</Typography>
-                    <Typography variant="body2" sx={{ color: palette.text.secondary }}>{businessInfo.hours}</Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontSize: "0.8rem", mb: 0.3 }}
+                    >
+                      HOURS
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: palette.text.secondary }}
+                    >
+                      {businessInfo.hours}
+                    </Typography>
                   </Box>
                 </Box>
               </Stack>
 
               {/* Social */}
               <Box sx={{ mt: 4 }}>
-                <Typography variant="subtitle2" sx={{ fontSize: '0.8rem', mb: 1.5 }}>FOLLOW US</Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontSize: "0.8rem", mb: 1.5 }}
+                >
+                  FOLLOW US
+                </Typography>
                 <Stack direction="row" spacing={1}>
                   {businessInfo.social.map((s) => (
                     <Button
-                      key={s.name} variant="outlined" size="small"
-                      href={s.url} target="_blank" rel="noopener noreferrer"
+                      key={s.name}
+                      variant="outlined"
+                      size="small"
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       sx={{
-                        minWidth: 'auto', p: 1, borderColor: palette.warmGray, color: palette.text.secondary,
-                        '&:hover': { borderColor: palette.primary.main, color: palette.primary.main },
+                        minWidth: "auto",
+                        p: 1,
+                        borderColor: palette.warmGray,
+                        color: palette.text.secondary,
+                        "&:hover": {
+                          borderColor: palette.primary.main,
+                          color: palette.primary.main,
+                        },
                       }}
                     >
                       <SocialIcon icon={s.icon} size={16} />
@@ -330,9 +410,14 @@ export default function Contact() {
               {/* Order CTA */}
               <Box sx={{ mt: 4 }}>
                 <Button
-                  variant="contained" color="primary" size="large"
-                  href={businessInfo.orderUrl} target="_blank" rel="noopener noreferrer"
-                  startIcon={<ShoppingBagOutlinedIcon />} fullWidth
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  href={businessInfo.orderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  startIcon={<ShoppingBagOutlinedIcon />}
+                  fullWidth
                 >
                   Order Online
                 </Button>
@@ -342,43 +427,85 @@ export default function Contact() {
             {/* ─── Contact Form ─────────────────────────────────────────── */}
             <Grid size={{ xs: 12, md: 7 }}>
               <Card>
-                <CardContent sx={{ p: { xs: 3, md: 4 }, borderTop: `3px solid ${palette.primary.main}` }}>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Send Us a Message</Typography>
-                  <Typography variant="body2" sx={{ color: palette.text.secondary, mb: 3 }}>
-                    Choose the reason for your enquiry and we'll tailor the details you can send us.
+                <CardContent
+                  sx={{
+                    p: { xs: 3, md: 4 },
+                    borderTop: `3px solid ${palette.primary.main}`,
+                  }}
+                >
+                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                    Send Us a Message
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: palette.text.secondary, mb: 3 }}
+                  >
+                    Choose the reason for your enquiry and we'll tailor the
+                    details you can send us.
                   </Typography>
 
                   <Box component="form" onSubmit={handleSubmit} noValidate>
                     <Grid container spacing={2}>
-
                       {/* Name */}
                       <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="First Name" required variant="outlined"
-                          value={form.firstName} onChange={set('firstName')} />
+                        <TextField
+                          fullWidth
+                          label="First Name"
+                          required
+                          variant="outlined"
+                          value={form.firstName}
+                          onChange={set("firstName")}
+                        />
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Last Name" required variant="outlined"
-                          value={form.lastName} onChange={set('lastName')} />
+                        <TextField
+                          fullWidth
+                          label="Last Name"
+                          required
+                          variant="outlined"
+                          value={form.lastName}
+                          onChange={set("lastName")}
+                        />
                       </Grid>
 
                       {/* Contact */}
                       <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Email" type="email" required variant="outlined"
-                          value={form.email} onChange={set('email')} />
+                        <TextField
+                          fullWidth
+                          label="Email"
+                          type="email"
+                          required
+                          variant="outlined"
+                          value={form.email}
+                          onChange={set("email")}
+                        />
                       </Grid>
                       <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField fullWidth label="Phone" type="tel" variant="outlined"
-                          value={form.phone} onChange={set('phone')} />
+                        <TextField
+                          fullWidth
+                          label="Phone"
+                          type="tel"
+                          variant="outlined"
+                          value={form.phone}
+                          onChange={set("phone")}
+                        />
                       </Grid>
 
                       {/* Subject */}
                       <Grid size={{ xs: 12 }}>
                         <TextField
-                          fullWidth label="Subject" select required variant="outlined"
-                          value={form.subject} onChange={handleSubjectChange}
+                          fullWidth
+                          label="Subject"
+                          select
+                          required
+                          variant="outlined"
+                          value={form.subject}
+                          onChange={handleSubjectChange}
                         >
                           {subjectOptions.map((opt) => (
-                            <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                            <MenuItem key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </MenuItem>
                           ))}
                         </TextField>
                       </Grid>
@@ -387,19 +514,40 @@ export default function Contact() {
                       {isReservation && (
                         <>
                           <Grid size={{ xs: 12, sm: 4 }}>
-                            <TextField fullWidth label="Guest Count" type="number" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Guest Count"
+                              type="number"
+                              required
+                              variant="outlined"
                               slotProps={{ htmlInput: { min: 1, max: 30 } }}
-                              value={form.guestCount} onChange={set('guestCount')} />
+                              value={form.guestCount}
+                              onChange={set("guestCount")}
+                            />
                           </Grid>
                           <Grid size={{ xs: 12, sm: 4 }}>
-                            <TextField fullWidth label="Preferred Date" type="date" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Preferred Date"
+                              type="date"
+                              required
+                              variant="outlined"
                               slotProps={{ inputLabel: { shrink: true } }}
-                              value={form.reservationDate} onChange={set('reservationDate')} />
+                              value={form.reservationDate}
+                              onChange={set("reservationDate")}
+                            />
                           </Grid>
                           <Grid size={{ xs: 12, sm: 4 }}>
-                            <TextField fullWidth label="Preferred Time" type="time" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Preferred Time"
+                              type="time"
+                              required
+                              variant="outlined"
                               slotProps={{ inputLabel: { shrink: true } }}
-                              value={form.reservationTime} onChange={set('reservationTime')} />
+                              value={form.reservationTime}
+                              onChange={set("reservationTime")}
+                            />
                           </Grid>
                         </>
                       )}
@@ -408,19 +556,39 @@ export default function Contact() {
                       {isPrivateEvent && (
                         <>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField fullWidth label="Event Type" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Event Type"
+                              required
+                              variant="outlined"
                               placeholder="Birthday, corporate dinner, shower…"
-                              value={form.eventType} onChange={set('eventType')} />
+                              value={form.eventType}
+                              onChange={set("eventType")}
+                            />
                           </Grid>
                           <Grid size={{ xs: 12, sm: 3 }}>
-                            <TextField fullWidth label="Guest Count" type="number" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Guest Count"
+                              type="number"
+                              required
+                              variant="outlined"
                               slotProps={{ htmlInput: { min: 10, max: 300 } }}
-                              value={form.eventGuestCount} onChange={set('eventGuestCount')} />
+                              value={form.eventGuestCount}
+                              onChange={set("eventGuestCount")}
+                            />
                           </Grid>
                           <Grid size={{ xs: 12, sm: 3 }}>
-                            <TextField fullWidth label="Event Date" type="date" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Event Date"
+                              type="date"
+                              required
+                              variant="outlined"
                               slotProps={{ inputLabel: { shrink: true } }}
-                              value={form.eventDate} onChange={set('eventDate')} />
+                              value={form.eventDate}
+                              onChange={set("eventDate")}
+                            />
                           </Grid>
                         </>
                       )}
@@ -429,14 +597,26 @@ export default function Contact() {
                       {isCareer && (
                         <>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField fullWidth label="Position of Interest" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Position of Interest"
+                              required
+                              variant="outlined"
                               placeholder="Server, kitchen staff, bartender…"
-                              value={form.position} onChange={set('position')} />
+                              value={form.position}
+                              onChange={set("position")}
+                            />
                           </Grid>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField fullWidth label="Availability" required variant="outlined"
+                            <TextField
+                              fullWidth
+                              label="Availability"
+                              required
+                              variant="outlined"
                               placeholder="Full-time, evenings, weekends…"
-                              value={form.availability} onChange={set('availability')} />
+                              value={form.availability}
+                              onChange={set("availability")}
+                            />
                           </Grid>
 
                           {/* CV upload */}
@@ -450,25 +630,52 @@ export default function Contact() {
                               }}
                             >
                               <Stack
-                                direction={{ xs: 'column', sm: 'row' }} spacing={2}
-                                alignItems={{ xs: 'flex-start', sm: 'center' }} justifyContent="space-between"
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={2}
+                                alignItems={{ xs: "flex-start", sm: "center" }}
+                                justifyContent="space-between"
                               >
                                 <Box>
-                                  <Typography variant="subtitle2" sx={{ mb: 0.35 }}>Resume / CV</Typography>
-                                  <Typography variant="body2" sx={{ color: resumeFileName ? palette.text.primary : palette.text.secondary }}>
-                                    {resumeFileName || 'Upload your CV in PDF, DOC, or DOCX format.'}
+                                  <Typography
+                                    variant="subtitle2"
+                                    sx={{ mb: 0.35 }}
+                                  >
+                                    Resume / CV
                                   </Typography>
-                                  <Typography variant="caption" sx={{ color: resumeError ? palette.primary.main : palette.text.secondary }}>
-                                    {resumeError || 'Accepted formats: PDF, DOC, DOCX · Max 5 MB'}
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      color: resumeFileName
+                                        ? palette.text.primary
+                                        : palette.text.secondary,
+                                    }}
+                                  >
+                                    {resumeFileName ||
+                                      "Upload your CV in PDF, DOC, or DOCX format."}
+                                  </Typography>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: resumeError
+                                        ? palette.primary.main
+                                        : palette.text.secondary,
+                                    }}
+                                  >
+                                    {resumeError ||
+                                      "Accepted formats: PDF, DOC, DOCX · Max 5 MB"}
                                   </Typography>
                                 </Box>
                                 <Button
-                                  component="label" variant="outlined"
-                                  startIcon={<UploadFileOutlinedIcon />} sx={{ flexShrink: 0 }}
+                                  component="label"
+                                  variant="outlined"
+                                  startIcon={<UploadFileOutlinedIcon />}
+                                  sx={{ flexShrink: 0 }}
                                 >
                                   Choose File
                                   <input
-                                    hidden ref={fileInputRef} type="file"
+                                    hidden
+                                    ref={fileInputRef}
+                                    type="file"
                                     accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                     onChange={handleResumeChange}
                                   />
@@ -482,40 +689,64 @@ export default function Contact() {
                       {/* Message */}
                       <Grid size={{ xs: 12 }}>
                         <TextField
-                          fullWidth multiline rows={5} required variant="outlined"
+                          fullWidth
+                          multiline
+                          rows={5}
+                          required
+                          variant="outlined"
                           label={
-                            isCareer        ? 'Cover Letter / Notes'
-                            : isReservation  ? 'Reservation Notes'
-                            : isPrivateEvent ? 'Event Details'
-                            : 'Message'
+                            isCareer
+                              ? "Cover Letter / Notes"
+                              : isReservation
+                                ? "Reservation Notes"
+                                : isPrivateEvent
+                                  ? "Event Details"
+                                  : "Message"
                           }
                           helperText={
-                            isReservation  ? 'Let us know about high chairs, allergies, celebrations, or seating preferences.'
-                            : isPrivateEvent ? 'Share timing, menu expectations, room setup, or any special requirements.'
-                            : isCareer      ? 'Tell us about your availability, experience, and what role you are interested in.'
-                            : 'Have a question or feedback? Leave us a message and we will reply shortly.'
+                            isReservation
+                              ? "Let us know about high chairs, allergies, celebrations, or seating preferences."
+                              : isPrivateEvent
+                                ? "Share timing, menu expectations, room setup, or any special requirements."
+                                : isCareer
+                                  ? "Tell us about your availability, experience, and what role you are interested in."
+                                  : "Have a question or feedback? Leave us a message and we will reply shortly."
                           }
-                          slotProps={{ htmlInput: { minLength: 10, maxLength: 2000 } }}
-                          value={form.message} onChange={set('message')}
+                          slotProps={{
+                            htmlInput: { minLength: 10, maxLength: 2000 },
+                          }}
+                          value={form.message}
+                          onChange={set("message")}
                         />
                       </Grid>
 
                       {/* Submit */}
                       <Grid size={{ xs: 12 }}>
                         <Button
-                          type="submit" variant="contained" color="primary" size="large"
-                          fullWidth sx={{ py: 1.5 }} disabled={submitting}
-                          startIcon={submitting ? <CircularProgress size={18} color="inherit" /> : undefined}
+                          type="submit"
+                          variant="contained"
+                          color="primary"
+                          size="large"
+                          fullWidth
+                          sx={{ py: 1.5 }}
+                          disabled={submitting}
+                          startIcon={
+                            submitting ? (
+                              <CircularProgress size={18} color="inherit" />
+                            ) : undefined
+                          }
                         >
                           {submitting
-                            ? 'Sending…'
-                            : isCareer        ? 'Submit Application'
-                            : isReservation   ? 'Request Reservation'
-                            : isPrivateEvent  ? 'Send Event Inquiry'
-                            : 'Send Message'}
+                            ? "Sending…"
+                            : isCareer
+                              ? "Submit Application"
+                              : isReservation
+                                ? "Request Reservation"
+                                : isPrivateEvent
+                                  ? "Send Event Inquiry"
+                                  : "Send Message"}
                         </Button>
                       </Grid>
-
                     </Grid>
                   </Box>
                 </CardContent>
@@ -533,7 +764,7 @@ export default function Contact() {
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2870.0!2d-78.9426!3d43.8745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDUyJzI4LjIiTiA3OMKwNTYnMzMuNCJX!5e0!3m2!1sen!2sca!4v1234567890"
           width="100%"
           height="100%"
-          sx={{ border: 0, display: 'block' }}
+          sx={{ border: 0, display: "block" }}
           allowFullScreen
           referrerPolicy="no-referrer-when-downgrade"
         />
@@ -544,12 +775,12 @@ export default function Contact() {
         open={toast.open}
         autoHideDuration={6000}
         onClose={() => setToast((t) => ({ ...t, open: false }))}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           onClose={() => setToast((t) => ({ ...t, open: false }))}
           severity={toast.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {toast.message}
         </Alert>

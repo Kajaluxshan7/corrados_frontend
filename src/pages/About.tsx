@@ -18,14 +18,25 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { PageHero } from "../components";
 import { palette } from "../theme";
 import { businessInfo } from "../data";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 export default function About() {
+  usePageMeta({
+    title: "Our Story | About Corrado's Restaurant",
+    description: "Corrado's Restaurant & Bar has been Whitby's cornerstone Italian dining destination since 2010. Discover the family story, our passion for authentic Italian cuisine, and what makes us a community favourite.",
+    ogImage: "/restaurant/owner_and_logo.jpg",
+  });
+  const { getImage } = useSiteImages();
   return (
     <>
       <PageHero
         title="Our Story"
         subtitle="Authentic Italian cuisine, family warmth, and a passion for hospitality — since 2010."
-        backgroundImage="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_about",
+          "/restaurant/owner_and_logo.jpg",
+        )}
       />
 
       {/* Heritage / Story */}
@@ -98,8 +109,8 @@ export default function About() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=80"
-                alt="Corrado's dining atmosphere"
+                src={getImage("about_heritage", "/restaurant/menu-spread.jpeg")}
+                alt="Corrado's signature dishes — pizzas and mains on the table"
                 sx={{
                   width: "100%",
                   height: { xs: 300, md: 450 },
@@ -143,29 +154,25 @@ export default function About() {
                 icon: <RestaurantIcon sx={{ fontSize: 36 }} />,
                 title: "Authentic Italian Cuisine",
                 text: "From handmade pasta and wood-fired pizza to classic Italian entrées — our menu celebrates the rich culinary traditions of Italy with a modern Canadian touch.",
-                image:
-                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&q=80",
+                image: "/restaurant/gnocchi-tomato-cream.jpeg",
               },
               {
                 icon: <FamilyRestroomIcon sx={{ fontSize: 36 }} />,
                 title: "Family-Friendly Atmosphere",
                 text: "A warm and casual dining space where families feel at home. With a dedicated kids' menu, spacious seating, and a welcoming vibe, every visit is an occasion.",
-                image:
-                  "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80",
+                image: "/restaurant/family-meal-takeout.jpeg",
               },
               {
                 icon: <LocalBarIcon sx={{ fontSize: 36 }} />,
                 title: "Curated Bar & Wine",
                 text: "Our bar features an extensive selection of Italian wines, craft cocktails, and Canadian beers on tap. The perfect complement to any meal or a great reason to visit on its own.",
-                image:
-                  "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80",
+                image: "/restaurant/valentine-martini.jpeg",
               },
               {
                 icon: <EmojiEventsIcon sx={{ fontSize: 36 }} />,
                 title: "Events & Entertainment",
                 text: "From live jazz nights and trivia to NHL playoffs and private celebrations — Corrado's is the hub for community events, sports viewings, and good times.",
-                image:
-                  "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=600&q=80",
+                image: "/restaurant/catering-dessert-display.jpeg",
               },
             ].map((item, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6 }}>
@@ -270,8 +277,8 @@ export default function About() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=80"
-                alt="Fine Italian dining"
+                src={getImage("about_cta", "/restaurant/pork-roll-jus.jpeg")}
+                alt="Corrado's signature Italian entrée — slow-roasted pork with jus"
                 sx={{
                   width: "100%",
                   height: { xs: 300, md: 400 },

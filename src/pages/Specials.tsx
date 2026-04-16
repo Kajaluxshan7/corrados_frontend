@@ -19,6 +19,8 @@ import { formatAmpersand } from "../utils/formatAmpersand";
 import { fetchSpecials, type ApiSpecial } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 // Display labels for backend SpecialType enum
 const SPECIAL_TYPE_LABELS: Record<string, string> = {
@@ -47,23 +49,15 @@ const categories = [
 
 // Fallback images by special type / day
 const fallbackByDay: Record<string, string> = {
-  monday:
-    "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80",
-  tuesday:
-    "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80",
-  wednesday:
-    "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=800&q=80",
-  thursday:
-    "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80",
-  friday:
-    "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80",
-  saturday:
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-  sunday:
-    "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=800&q=80",
+  monday: "/restaurant/ravioli-mushroom-spinach.jpeg",
+  tuesday: "/restaurant/pizza-margherita.jpeg",
+  wednesday: "/restaurant/chicken-marsala.jpeg",
+  thursday: "/restaurant/seafood-mussels.jpeg",
+  friday: "/restaurant/spaghetti-bolognese.jpeg",
+  saturday: "/restaurant/penne-primavera.jpeg",
+  sunday: "/restaurant/beef-short-rib.jpeg",
 };
-const fallbackDefault =
-  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80";
+const fallbackDefault = "/restaurant/gnocchi-tomato-cream.jpeg";
 
 function getSpecialImage(special: ApiSpecial): string {
   if (special.imageUrls?.length) return resolveImageUrl(special.imageUrls[0]);
@@ -90,6 +84,12 @@ function getSpecialDayLabel(special: ApiSpecial): string {
 }
 
 export default function Specials() {
+  usePageMeta({
+    title: "Daily Specials | Deals at Corrado's Whitby",
+    description: "Don't miss Corrado's rotating daily specials — chef's features, game-time deals, daytime offers, and seasonal highlights. Great Italian food at even better prices, every day of the week.",
+    ogImage: "/restaurant/ravioli-mushroom-spinach.jpeg",
+  });
+  const { getImage } = useSiteImages();
   const [specials, setSpecials] = useState<ApiSpecial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,7 +124,10 @@ export default function Specials() {
       <PageHero
         title="Daily Specials"
         subtitle="Great food at even better prices — something new every day of the week."
-        backgroundImage="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_specials",
+          "/restaurant/penne-primavera.jpeg",
+        )}
       />
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
@@ -188,121 +191,127 @@ export default function Specials() {
                   {filtered.map((special) => (
                     <Grid key={special.id} size={{ xs: 12, sm: 6, md: 4 }}>
                       <Box
-                    sx={{
-                      position: "relative",
-                      height: "100%",
-                      minHeight: { xs: 320, md: 380 },
-                      borderRadius: 1,
-                      overflow: "hidden",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-                      transition: "transform 0.35s ease, box-shadow 0.35s ease",
-                      "&:hover": {
-                        transform: "translateY(-6px)",
-                        boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
-                      },
-                      "&:hover img": { transform: "scale(1.06)" },
-                    }}
-                  >
-                    <Box
-                      component="img"
-                      src={getSpecialImage(special)}
-                      alt={special.title}
-                      sx={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        transition: "transform 0.5s ease",
-                      }}
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src =
-                          fallbackDefault;
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        inset: 0,
-                        background:
-                          "linear-gradient(180deg, rgba(20,15,12,0.08) 0%, rgba(20,15,12,0.55) 45%, rgba(20,15,12,0.92) 100%)",
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: "relative",
-                        zIndex: 1,
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        p: { xs: 2, md: 2.5 },
-                      }}
-                    >
-                      <Box
                         sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 1,
-                          alignItems: "flex-start",
+                          position: "relative",
+                          height: "100%",
+                          minHeight: { xs: 320, md: 380 },
+                          borderRadius: 1,
+                          overflow: "hidden",
+                          boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+                          transition:
+                            "transform 0.35s ease, box-shadow 0.35s ease",
+                          "&:hover": {
+                            transform: "translateY(-6px)",
+                            boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+                          },
+                          "&:hover img": { transform: "scale(1.06)" },
                         }}
                       >
-                        <Chip
-                          label={SPECIAL_TYPE_LABELS[special.type] || getSpecialDayLabel(special)}
-                          size="small"
+                        <Box
+                          component="img"
+                          src={getSpecialImage(special)}
+                          alt={special.title}
                           sx={{
-                            bgcolor: categoryColors[special.type] || palette.primary.main,
-                            color: "#fff",
-                            fontWeight: 700,
-                            fontSize: "0.7rem",
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transition: "transform 0.5s ease",
+                          }}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src =
+                              fallbackDefault;
                           }}
                         />
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            background:
+                              "linear-gradient(180deg, rgba(20,15,12,0.08) 0%, rgba(20,15,12,0.55) 45%, rgba(20,15,12,0.92) 100%)",
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            position: "relative",
+                            zIndex: 1,
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            p: { xs: 2, md: 2.5 },
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              gap: 1,
+                              alignItems: "flex-start",
+                            }}
+                          >
+                            <Chip
+                              label={
+                                SPECIAL_TYPE_LABELS[special.type] ||
+                                getSpecialDayLabel(special)
+                              }
+                              size="small"
+                              sx={{
+                                bgcolor:
+                                  categoryColors[special.type] ||
+                                  palette.primary.main,
+                                color: "#fff",
+                                fontWeight: 700,
+                                fontSize: "0.7rem",
+                              }}
+                            />
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="overline"
+                              sx={{
+                                color: palette.gold,
+                                letterSpacing: "0.16em",
+                                fontSize: "0.6rem",
+                              }}
+                            >
+                              {special.type === "seasonal"
+                                ? "Seasonal Special"
+                                : "Weekly Feature"}
+                            </Typography>
+                            <Typography
+                              variant="h5"
+                              sx={{
+                                color: "#fff",
+                                fontWeight: 700,
+                                mt: 0.3,
+                                lineHeight: 1.15,
+                                textShadow: "0 2px 12px rgba(0,0,0,0.3)",
+                              }}
+                            >
+                              {formatAmpersand(special.title)}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "rgba(255,255,255,0.82)",
+                                mt: 0.8,
+                                lineHeight: 1.55,
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                              }}
+                            >
+                              {special.description}
+                            </Typography>
+                          </Box>
+                        </Box>
                       </Box>
-                      <Box>
-                        <Typography
-                          variant="overline"
-                          sx={{
-                            color: palette.gold,
-                            letterSpacing: "0.16em",
-                            fontSize: "0.6rem",
-                          }}
-                        >
-                          {special.type === "seasonal"
-                            ? "Seasonal Special"
-                            : "Weekly Feature"}
-                        </Typography>
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            color: "#fff",
-                            fontWeight: 700,
-                            mt: 0.3,
-                            lineHeight: 1.15,
-                            textShadow: "0 2px 12px rgba(0,0,0,0.3)",
-                          }}
-                        >
-                          {formatAmpersand(special.title)}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "rgba(255,255,255,0.82)",
-                            mt: 0.8,
-                            lineHeight: 1.55,
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {special.description}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
               )}
             </>
           )}

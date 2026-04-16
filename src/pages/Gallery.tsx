@@ -18,6 +18,8 @@ import { palette } from "../theme";
 import { fetchStoryCategories, type ApiStoryCategory } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 interface GalleryImage {
   id: string;
@@ -37,6 +39,12 @@ const categoryColorPool = [
 ];
 
 export default function Gallery() {
+  usePageMeta({
+    title: "Gallery | Inside Corrado's Restaurant Whitby",
+    description: "Take a visual tour of Corrado's Restaurant & Bar in Whitby — our charming exterior, cosy booths, upstairs dining room, beautiful patio, full bar, and the Italian dishes our guests love.",
+    ogImage: "/orrdos/interior-upstairs.jpg",
+  });
+  const { getImage } = useSiteImages();
   const [categories, setCategories] = useState<ApiStoryCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +58,7 @@ export default function Gallery() {
           .filter((c) => c.isActive)
           .sort((a, b) => a.sortOrder - b.sortOrder);
         setCategories(active);
-        setActiveTab((prev) => prev ?? (active[0]?.id ?? null));
+        setActiveTab((prev) => prev ?? active[0]?.id ?? null);
         setError(null);
       })
       .catch(() => {
@@ -110,7 +118,10 @@ export default function Gallery() {
       <PageHero
         title="Gallery"
         subtitle="A glimpse into the Corrado's experience — our food, our space, our events."
-        backgroundImage="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_gallery",
+          "/restaurant/seafood-linguine.jpeg",
+        )}
       />
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>

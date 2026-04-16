@@ -1,14 +1,352 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-CA">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logos/logo-white-on-blue.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Corrado's Restaurant and Bar - Authentic Italian dining in Whitby, Ontario. Family meals, party menus, daily specials, and more." />
-    <title>Corrado's Restaurant and Bar | Italian Dining in Whitby</title>
+
+    <!-- ── Favicons & App Icons ─────────────────────────────────────────── -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logos/logo-white-on-blue.png" />
+    <link rel="apple-touch-icon" href="/logos/logo-white-on-blue.png" />
+    <meta name="theme-color" content="#243A7D" />
+    <meta name="msapplication-TileColor" content="#243A7D" />
+
+    <!-- ── Primary SEO ──────────────────────────────────────────────────── -->
+    <title>Corrado's Restaurant &amp; Bar | Authentic Italian Dining in Whitby, ON</title>
+    <meta name="description" content="Corrado's Restaurant &amp; Bar — Whitby's favourite Italian dining destination since 2010. Handmade pasta, stone-oven pizza, curated wines, family meals, daily specials, private events &amp; live sports. Open 7 days, 12 pm – 10:30 pm." />
+    <meta name="keywords" content="Italian restaurant Whitby, Corrado's restaurant Whitby, pasta Whitby Ontario, pizza Whitby, Italian food Durham Region, family restaurant Whitby, private event venue Whitby, catering Whitby, restaurant bar Whitby, Italian dining Ontario, Corrados, Whitby dining, Baldwin Street restaurant" />
+    <meta name="author" content="Corrado's Restaurant and Bar" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://www.corradosrestaurant.com/" />
+
+    <!-- ── Geo / Local ──────────────────────────────────────────────────── -->
+    <meta name="geo.region" content="CA-ON" />
+    <meta name="geo.placename" content="Whitby, Ontario" />
+    <meta name="geo.position" content="43.9341;-78.9426" />
+    <meta name="ICBM" content="43.9341, -78.9426" />
+
+    <!-- ── Open Graph (Facebook / LinkedIn / WhatsApp) ─────────────────── -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:site_name" content="Corrado's Restaurant &amp; Bar" />
+    <meta property="og:locale" content="en_CA" />
+    <meta property="og:title" content="Corrado's Restaurant &amp; Bar | Authentic Italian Dining in Whitby, ON" />
+    <meta property="og:description" content="Whitby's favourite Italian restaurant since 2010. Handmade pasta, stone-oven pizza, curated wines, family meals, private events &amp; live sports. Open 7 days." />
+    <meta property="og:url" content="https://www.corradosrestaurant.com/" />
+    <meta property="og:image" content="https://www.corradosrestaurant.com/orrdos/exterior-building.jpg" />
+    <meta property="og:image:secure_url" content="https://www.corradosrestaurant.com/orrdos/exterior-building.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Corrado's Restaurant and Bar — 38 Baldwin Street, Whitby, Ontario" />
+
+    <!-- ── Twitter / X Card ─────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@corradoswhitby" />
+    <meta name="twitter:title" content="Corrado's Restaurant &amp; Bar | Authentic Italian Dining in Whitby, ON" />
+    <meta name="twitter:description" content="Whitby's favourite Italian restaurant since 2010. Handmade pasta, stone-oven pizza, curated wines, family meals &amp; private events." />
+    <meta name="twitter:image" content="https://www.corradosrestaurant.com/orrdos/exterior-building.jpg" />
+    <meta name="twitter:image:alt" content="Corrado's Restaurant and Bar exterior — Whitby, Ontario" />
+
+    <!-- ── JSON-LD: Restaurant (Primary) ───────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "@id": "https://www.corradosrestaurant.com/#restaurant",
+      "name": "Corrado's Restaurant and Bar",
+      "alternateName": ["Corrados", "Corrado's Restaurant & Bar", "Corrado's Whitby"],
+      "description": "Authentic Italian restaurant and bar in Whitby, Ontario, serving handmade pasta, stone-oven pizza, curated wines, daily specials, family meals, and hosting private events since 2010.",
+      "url": "https://www.corradosrestaurant.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.corradosrestaurant.com/logos/logo-blue.png",
+        "width": 200,
+        "height": 80
+      },
+      "image": [
+        {
+          "@type": "ImageObject",
+          "url": "https://www.corradosrestaurant.com/orrdos/exterior-building.jpg",
+          "caption": "Corrado's Restaurant and Bar exterior — Whitby, Ontario"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.corradosrestaurant.com/orrdos/interior-upstairs.jpg",
+          "caption": "Corrado's upstairs dining room — ideal for private events"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.corradosrestaurant.com/orrdos/exterior-patio.jpg",
+          "caption": "Corrado's outdoor patio — al fresco dining in Whitby"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.corradosrestaurant.com/orrdos/interior-booths.jpg",
+          "caption": "Intimate booth seating at Corrado's Restaurant"
+        },
+        {
+          "@type": "ImageObject",
+          "url": "https://www.corradosrestaurant.com/orrdos/interior-bar.jpg",
+          "caption": "Corrado's full bar with draft beer and curated wine selection"
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "38 Baldwin Street",
+        "addressLocality": "Whitby",
+        "addressRegion": "ON",
+        "postalCode": "L1M 1A2",
+        "addressCountry": "CA"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 43.9341,
+        "longitude": -78.9426
+      },
+      "telephone": "+19056553100",
+      "email": "corradosrestaurant@rogers.com",
+      "foundingDate": "2010",
+      "servesCuisine": ["Italian", "Pizza", "Pasta", "Seafood", "Mediterranean", "Canadian"],
+      "priceRange": "$$",
+      "currenciesAccepted": "CAD",
+      "paymentAccepted": "Cash, Visa, MasterCard, American Express, Interac",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": [
+            "https://schema.org/Monday",
+            "https://schema.org/Tuesday",
+            "https://schema.org/Wednesday",
+            "https://schema.org/Thursday",
+            "https://schema.org/Friday",
+            "https://schema.org/Saturday",
+            "https://schema.org/Sunday"
+          ],
+          "opens": "12:00",
+          "closes": "22:30"
+        }
+      ],
+      "hasMap": "https://maps.google.com/?q=38+Baldwin+Street+Whitby+ON+L1M+1A2",
+      "menu": "https://www.corradosrestaurant.com/menus",
+      "acceptsReservations": "True",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "bestRating": "5",
+        "worstRating": "1",
+        "ratingCount": "20",
+        "reviewCount": "20"
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Josh Zlender" },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+          "reviewBody": "Been going for about 10 years now. Never once had a bad experience. Food is amazing, service is great."
+        },
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Terry Mason" },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+          "reviewBody": "This is a lovely restaurant with great prices and various seating arrangements. Great for a large group upstairs, or intimate booths downstairs. The food is exceptional and the prices are very good."
+        },
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Grant Harris" },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+          "reviewBody": "Everything was 5★ food, service atmosphere, portion size, price and cleanliness."
+        },
+        {
+          "@type": "Review",
+          "author": { "@type": "Person", "name": "Paige Liznick" },
+          "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+          "reviewBody": "Hands-down the best Italian place we've found in Durham. Just casual enough to visit frequently with the fam."
+        }
+      ],
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Wheelchair Accessible", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Free Parking", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Outdoor Seating / Patio", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Private Dining Room", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Full Bar", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Sports Television", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Kids Menu", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Takeout", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Online Ordering", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Gift Cards", "value": true }
+      ],
+      "sameAs": [
+        "https://www.facebook.com/people/Corrados-Restaurant/100064117086171/",
+        "https://www.instagram.com/corrados.restaurant/",
+        "https://www.yelp.ca/biz/corrados-restaurant-whitby",
+        "https://www.tripadvisor.ca/Restaurant_Review-g887229-d2469430-Reviews-Corrados_Restaurant_and_Bar-Brooklin_Whitby_Ontario.html"
+      ]
+    }
+    </script>
+
+    <!-- ── JSON-LD: WebSite + Sitelinks SearchBox ───────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://www.corradosrestaurant.com/#website",
+      "name": "Corrado's Restaurant and Bar",
+      "url": "https://www.corradosrestaurant.com",
+      "description": "Official website of Corrado's Restaurant and Bar — authentic Italian dining in Whitby, Ontario since 2010.",
+      "publisher": {
+        "@id": "https://www.corradosrestaurant.com/#restaurant"
+      },
+      "inLanguage": "en-CA",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://www.corradosrestaurant.com/menus?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- ── JSON-LD: BreadcrumbList ──────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home",         "item": "https://www.corradosrestaurant.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Menus",        "item": "https://www.corradosrestaurant.com/menus" },
+        { "@type": "ListItem", "position": 3, "name": "Daily Specials","item": "https://www.corradosrestaurant.com/specials" },
+        { "@type": "ListItem", "position": 4, "name": "Family Meals", "item": "https://www.corradosrestaurant.com/family-meals" },
+        { "@type": "ListItem", "position": 5, "name": "Party Menus",  "item": "https://www.corradosrestaurant.com/party-menus" },
+        { "@type": "ListItem", "position": 6, "name": "Events",       "item": "https://www.corradosrestaurant.com/events" },
+        { "@type": "ListItem", "position": 7, "name": "Gallery",      "item": "https://www.corradosrestaurant.com/gallery" },
+        { "@type": "ListItem", "position": 8, "name": "Gift Cards",   "item": "https://www.corradosrestaurant.com/gift-cards" },
+        { "@type": "ListItem", "position": 9, "name": "Contact",      "item": "https://www.corradosrestaurant.com/contact" },
+        { "@type": "ListItem", "position":10, "name": "Our Story",    "item": "https://www.corradosrestaurant.com/about" }
+      ]
+    }
+    </script>
+
+    <!-- ── JSON-LD: FAQPage ─────────────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Where is Corrado's Restaurant located?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Corrado's Restaurant and Bar is located at 38 Baldwin Street, Whitby, Ontario, L1M 1A2. We are right off Baldwin with ample street parking available."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are Corrado's Restaurant hours?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We are open 7 days a week from 12:00 pm to 10:30 pm, Monday through Sunday."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Corrado's offer private event hosting?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! Corrado's has a beautiful upstairs dining room and a patio perfect for private events. We host birthday parties, corporate dinners, sports viewing events, and more. Contact us to discuss customisable party menus."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Corrado's have takeout and online ordering?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Corrado's offers both takeout and online ordering. You can order directly through our website or via our ordering platform."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What type of cuisine does Corrado's serve?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Corrado's specialises in authentic Italian cuisine including handmade pasta, stone-oven pizza, appetizers, salads, seafood, mains, and desserts. We also offer an extensive wine list, craft cocktails, and Canadian beers on tap."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Corrado's family friendly?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutely. Corrado's is a warm, family-friendly restaurant with a dedicated kids' menu, spacious seating including upstairs dining and intimate booths, and a welcoming atmosphere for guests of all ages."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Corrado's show sports?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! Corrado's has multiple screens throughout the restaurant and is a great spot to watch NHL playoffs, big games, and sporting events with friends and family."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Corrado's sell gift cards?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Corrado's gift cards are available for purchase online in any amount. They can be used for dine-in, takeout, and online orders and never expire."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- ── JSON-LD: LocalBusiness (reinforces local SEO) ───────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FoodEstablishment",
+      "@id": "https://www.corradosrestaurant.com/#localbusiness",
+      "name": "Corrado's Restaurant and Bar",
+      "image": "https://www.corradosrestaurant.com/orrdos/exterior-building.jpg",
+      "telephone": "+19056553100",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "38 Baldwin Street",
+        "addressLocality": "Whitby",
+        "addressRegion": "ON",
+        "postalCode": "L1M 1A2",
+        "addressCountry": "CA"
+      },
+      "url": "https://www.corradosrestaurant.com",
+      "openingHours": "Mo-Su 12:00-22:30",
+      "priceRange": "$$",
+      "hasMap": "https://maps.google.com/?q=38+Baldwin+Street+Whitby+ON+L1M+1A2",
+      "areaServed": [
+        { "@type": "City", "name": "Whitby" },
+        { "@type": "City", "name": "Oshawa" },
+        { "@type": "City", "name": "Ajax" },
+        { "@type": "City", "name": "Pickering" },
+        { "@type": "AdministrativeArea", "name": "Durham Region" }
+      ]
+    }
+    </script>
+
+    <!-- ── Preconnect & Resource Hints ─────────────────────────────────── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- ── Fonts ────────────────────────────────────────────────────────── -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ── Preload critical above-the-fold image ───────────────────────── -->
+    <link rel="preload" as="image" href="/orrdos/exterior-building.jpg" />
   </head>
   <body>
     <div id="root"></div>

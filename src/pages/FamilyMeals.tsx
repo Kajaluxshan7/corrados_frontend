@@ -18,21 +18,41 @@ import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import { PageHero } from '../components';
 import { familyMeals, businessInfo } from '../data';
 import { palette } from '../theme';
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
-const mealImages: Record<string, string> = {
-  'classic-italian': 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80',
-  'pizza-party': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
-  'sunday-feast': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
-  'date-night': 'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=800&q=80',
+// Default fallback images keyed by meal id
+const MEAL_IMAGE_DEFAULTS: Record<string, string> = {
+  "classic-italian": "/restaurant/shrimp-fettuccine.jpeg",
+  "pizza-party": "/restaurant/pizza-margherita.jpeg",
+  "sunday-feast": "/restaurant/beef-roast-jus.jpeg",
+  "date-night": "/restaurant/salmon-beurre-blanc.jpeg",
+};
+
+// Map from meal id to site-image key
+const MEAL_IMAGE_KEY: Record<string, string> = {
+  "classic-italian": "family_meal_classic_italian",
+  "pizza-party": "family_meal_pizza_party",
+  "sunday-feast": "family_meal_sunday_feast",
+  "date-night": "family_meal_date_night",
 };
 
 export default function FamilyMeals() {
+  usePageMeta({
+    title: "Family Meals | Italian Takeout Packages Whitby",
+    description: "Feed the whole family with Corrado's ready-to-enjoy family meal packages. Classic Italian dinners, pizza party packs, Sunday feasts & date-night bundles — generous portions, great value, delivered or ready for pickup.",
+    ogImage: "/restaurant/family-meal-takeout.jpeg",
+  });
+  const { getImage } = useSiteImages();
   return (
     <>
       <PageHero
         title="Family Meals"
         subtitle="Complete meal packages for the whole family — ready to enjoy at home or at our table."
-        backgroundImage="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_family_meals",
+          "/restaurant/family-meal-takeout.jpeg",
+        )}
       />
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
@@ -63,7 +83,10 @@ export default function FamilyMeals() {
                   >
                     <Box
                       component="img"
-                      src={mealImages[meal.id]}
+                      src={getImage(
+                        MEAL_IMAGE_KEY[meal.id],
+                        MEAL_IMAGE_DEFAULTS[meal.id],
+                      )}
                       alt={meal.name}
                       sx={{
                         width: "100%",

@@ -33,6 +33,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     socket.on("connect", () => setConnected(true));
     socket.on("disconnect", () => setConnected(false));
+    socket.on("connect_error", (err) => {
+      console.warn("[WebSocket] connection error:", err.message);
+      setConnected(false);
+    });
 
     socketRef.current = socket;
 

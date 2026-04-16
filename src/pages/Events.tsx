@@ -19,6 +19,8 @@ import { formatAmpersand } from "../utils/formatAmpersand";
 import { fetchEvents, type ApiEvent } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 // Map backend EventType enum values to display labels and colors
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -51,21 +53,14 @@ const categories = [
 
 // Fallback images per category
 const fallbackByCategory: Record<string, string> = {
-  live_music:
-    "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80",
-  sports_viewing:
-    "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=800&q=80",
-  special_event:
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-  private_party:
-    "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80",
-  trivia_night:
-    "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=800&q=80",
-  karaoke:
-    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80",
+  live_music: "/restaurant/catering-dessert-display.jpeg",
+  sports_viewing: "/restaurant/menu-spread.jpeg",
+  special_event: "/restaurant/spaghetti-bolognese.jpeg",
+  private_party: "/restaurant/catering-fruit-platter.jpeg",
+  trivia_night: "/restaurant/chocolate-lava-cake.jpeg",
+  karaoke: "/restaurant/valentine-martini.jpeg",
 };
-const fallbackDefault =
-  "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&q=80";
+const fallbackDefault = "/restaurant/catering-dessert-display.jpeg";
 
 const TZ = "America/Toronto";
 
@@ -129,6 +124,12 @@ function normalizeEvent(ev: ApiEvent): NormalizedEvent {
 }
 
 export default function Events() {
+  usePageMeta({
+    title: "Events | Live Music, Trivia & Sports in Whitby",
+    description: "See what's on at Corrado's Restaurant in Whitby — live music nights, trivia, NHL & sports viewing parties, karaoke, private events, and seasonal celebrations. There's always something exciting happening.",
+    ogImage: "/orrdos/interior-main-dining.jpg",
+  });
+  const { getImage } = useSiteImages();
   const [events, setEvents] = useState<NormalizedEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -164,7 +165,10 @@ export default function Events() {
       <PageHero
         title="Events at Corrado's"
         subtitle="Live music, sports nights, private celebrations, and community gatherings — there's always something happening."
-        backgroundImage="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_events",
+          "/restaurant/catering-dessert-display.jpeg",
+        )}
       />
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>

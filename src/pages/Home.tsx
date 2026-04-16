@@ -15,19 +15,21 @@ import {
   Stack,
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import LocalDiningIcon from "@mui/icons-material/LocalDining";
+import LocalPizzaIcon from "@mui/icons-material/LocalPizza";
 import WifiIcon from "@mui/icons-material/Wifi";
 import LocalParkingIcon from "@mui/icons-material/LocalParking";
 import AccessibleIcon from "@mui/icons-material/Accessible";
 import DeckIcon from "@mui/icons-material/Deck";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
-import LiquorIcon from "@mui/icons-material/Liquor";
+import WineBarIcon from "@mui/icons-material/WineBar";
 import CelebrationIcon from "@mui/icons-material/Celebration";
+import SportsBarIcon from "@mui/icons-material/SportsBar";
+import StarIcon from "@mui/icons-material/Star";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import CloseIcon from '@mui/icons-material/Close';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CloseIcon from "@mui/icons-material/Close";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AppleIcon from "@mui/icons-material/Apple";
 import ShopIcon from "@mui/icons-material/Shop";
 import { SectionHeader } from "../components";
@@ -44,14 +46,28 @@ import {
 } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
-const navTiles = [
+// navTiles defaults used as fallbacks when admin hasn't set a custom image
+const NAV_TILE_DEFAULTS: Record<string, string> = {
+  nav_about: "/restaurant/chef-pizza-oven.jpeg",
+  nav_menus: "/restaurant/gnocchi-tomato-cream.jpeg",
+  nav_specials: "/restaurant/ravioli-mushroom-spinach.jpeg",
+  nav_family_meals: "/restaurant/family-meal-takeout.jpeg",
+  nav_party_menus: "/restaurant/catering-dessert-display.jpeg",
+  nav_events: "/restaurant/menu-spread.jpeg",
+  nav_gallery: "/restaurant/seafood-linguine.jpeg",
+  nav_contact: "/restaurant/antipasto-platter.jpeg",
+};
+
+// Static tile metadata (no image here — resolved at render time via getImage)
+const NAV_TILE_META = [
   {
     label: "About",
     path: "/about",
     tagline: "Our Story & Heritage",
-    image:
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
+    key: "nav_about",
     gridColumn: "1 / 3",
     gridRow: "1 / 3",
   },
@@ -59,8 +75,7 @@ const navTiles = [
     label: "Menus",
     path: "/menus",
     tagline: "Explore Our Italian Table",
-    image:
-      "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&q=80",
+    key: "nav_menus",
     gridColumn: "3 / 4",
     gridRow: "1 / 2",
   },
@@ -68,8 +83,7 @@ const navTiles = [
     label: "Specials",
     path: "/specials",
     tagline: "Today's Featured Dishes",
-    image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80",
+    key: "nav_specials",
     gridColumn: "4 / 5",
     gridRow: "1 / 2",
   },
@@ -77,8 +91,7 @@ const navTiles = [
     label: "Family Meals",
     path: "/family-meals",
     tagline: "Feed the Whole Family",
-    image:
-      "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=600&q=80",
+    key: "nav_family_meals",
     gridColumn: "3 / 4",
     gridRow: "2 / 3",
   },
@@ -86,8 +99,7 @@ const navTiles = [
     label: "Party Menus",
     path: "/party-menus",
     tagline: "Celebrate With Us",
-    image:
-      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+    key: "nav_party_menus",
     gridColumn: "4 / 5",
     gridRow: "2 / 3",
   },
@@ -95,8 +107,7 @@ const navTiles = [
     label: "Events",
     path: "/events",
     tagline: "What's Happening",
-    image:
-      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80",
+    key: "nav_events",
     gridColumn: "1 / 3",
     gridRow: "3 / 4",
   },
@@ -104,8 +115,7 @@ const navTiles = [
     label: "Gallery",
     path: "/gallery",
     tagline: "A Feast for the Eyes",
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80",
+    key: "nav_gallery",
     gridColumn: "3 / 4",
     gridRow: "3 / 4",
   },
@@ -113,20 +123,19 @@ const navTiles = [
     label: "Contact",
     path: "/contact",
     tagline: "Find Us & Reach Out",
-    image:
-      "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=600&q=80",
+    key: "nav_contact",
     gridColumn: "4 / 5",
     gridRow: "3 / 4",
   },
 ];
 
 const specialFallbackImages: string[] = [
-  "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=900&q=80",
-  "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900&q=80",
-  "https://images.unsplash.com/photo-1562967914-608f82629710?w=900&q=80",
-  "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=900&q=80",
-  "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=900&q=80",
-  "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&q=80",
+  "/restaurant/penne-primavera.jpeg",
+  "/restaurant/pizza-margherita.jpeg",
+  "/restaurant/spaghetti-bolognese.jpeg",
+  "/restaurant/valentine-martini.jpeg",
+  "/restaurant/chicken-pasta-sundried.jpeg",
+  "/restaurant/seafood-mussels.jpeg",
 ];
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -174,9 +183,25 @@ function formatEventDateRange(start: string): string {
 }
 
 export default function Home() {
+  usePageMeta({
+    title: "Authentic Italian Dining in Whitby, ON",
+    description: "Corrado's Restaurant & Bar — Whitby's favourite Italian dining destination since 2010. Handmade pasta, stone-oven pizza, curated wines, family meals, daily specials, private events & live sports. Open 7 days.",
+    ogImage: "/orrdos/exterior-building.jpg",
+    ogType: "website",
+  });
+  const { getImage } = useSiteImages();
+
+  // Build navTiles with dynamic images at render time
+  const navTiles = NAV_TILE_META.map((meta) => ({
+    ...meta,
+    image: getImage(meta.key, NAV_TILE_DEFAULTS[meta.key]),
+  }));
+
   const [specialsPopupOpen, setSpecialsPopupOpen] = useState(false);
   const [activeSpecial, setActiveSpecial] = useState(0);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [reviewPage, setReviewPage] = useState(0);
+  const REVIEWS_PER_PAGE = 4;
 
   // Live data state
   const [liveSpecials, setLiveSpecials] = useState<ApiSpecial[]>([]);
@@ -280,6 +305,20 @@ export default function Home() {
     }
     return stopAutoPlay;
   }, [specialsPopupOpen, startAutoPlay, stopAutoPlay]);
+
+  const totalReviewPages = Math.ceil(testimonials.length / REVIEWS_PER_PAGE);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setReviewPage((prev) => (prev + 1) % totalReviewPages);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [totalReviewPages]);
+
+  const visibleReviews = testimonials.slice(
+    reviewPage * REVIEWS_PER_PAGE,
+    reviewPage * REVIEWS_PER_PAGE + REVIEWS_PER_PAGE,
+  );
 
   return (
     <>
@@ -728,8 +767,8 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=80"
-                alt="Corrado's Restaurant interior"
+                src="/restaurant/owner_and_logo.jpg"
+                alt="Corrado's owner with the restaurant logo"
                 sx={{
                   width: "100%",
                   height: { xs: 300, md: 400 },
@@ -802,23 +841,19 @@ export default function Home() {
             {[
               {
                 label: "Appetizers",
-                image:
-                  "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?w=400&q=80",
+                image: "/restaurant/arancini-tomato.jpeg",
               },
               {
                 label: "Pasta",
-                image:
-                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+                image: "/restaurant/ravioli-mushroom-spinach.jpeg",
               },
               {
                 label: "Pizza",
-                image:
-                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
+                image: "/orrdos/pizza-corrados.jpg",
               },
               {
                 label: "Mains",
-                image:
-                  "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400&q=80",
+                image: "/restaurant/beef-short-rib.jpeg",
               },
             ].map((cat) => (
               <Grid key={cat.label} size={{ xs: 12, sm: 6, md: 3 }}>
@@ -964,8 +999,7 @@ export default function Home() {
         sx={{
           py: { xs: 8, md: 10 },
           bgcolor: palette.charcoal,
-          backgroundImage:
-            "url(https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1600&q=80)",
+          backgroundImage: `url(${getImage("home_family_meals_bg", "/restaurant/catering-fruit-platter.jpeg")})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
@@ -1102,8 +1136,8 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=700&q=80"
-                alt="Private event at Corrado's"
+                src="/orrdos/interior-upstairs.jpg"
+                alt="Corrado's upstairs dining room — perfect for private events"
                 sx={{
                   width: "100%",
                   height: { xs: 300, md: 400 },
@@ -1160,9 +1194,7 @@ export default function Home() {
                         mb: 1,
                       }}
                     >
-                      {formatEventDateRange(
-                        event.eventStartDate,
-                      )}
+                      {formatEventDateRange(event.eventStartDate)}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -1201,10 +1233,10 @@ export default function Home() {
             {(galleryImages.length > 0
               ? galleryImages
               : [
-                  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
-                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
-                  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",
-                  "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&q=80",
+                  "/orrdos/exterior-building.jpg",
+                  "/orrdos/interior-upstairs.jpg",
+                  "/orrdos/interior-booths.jpg",
+                  "/orrdos/exterior-patio.jpg",
                 ]
             ).map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>
@@ -1374,8 +1406,8 @@ export default function Home() {
                 >
                   <Box
                     component="img"
-                    src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&q=80"
-                    alt="App preview"
+                    src="/restaurant/menu-spread.jpeg"
+                    alt="App preview — Corrado's menu on mobile"
                     sx={{
                       width: "100%",
                       height: "100%",
@@ -1401,52 +1433,62 @@ export default function Home() {
           <Grid container spacing={3}>
             {[
               {
-                icon: <LocalDiningIcon />,
+                icon: <LocalPizzaIcon />,
                 title: "Authentic Italian",
-                text: "Traditional recipes with the freshest ingredients",
+                text: "Handmade pasta, stone-oven pizza, and traditional recipes crafted with the freshest ingredients",
               },
               {
                 icon: <GroupsIcon />,
                 title: "Family Dining",
-                text: "Warm, welcoming atmosphere for the whole family",
+                text: "Warm booths downstairs, spacious upstairs seating — a welcoming atmosphere for the whole family",
               },
               {
                 icon: <CelebrationIcon />,
                 title: "Private Events",
-                text: "Customizable party and catering packages",
+                text: "Upstairs dining room and patio available for birthdays, corporate dinners, and celebrations",
               },
               {
-                icon: <LiquorIcon />,
-                title: "Extensive Wine List",
-                text: "Curated Italian and international wines",
+                icon: <WineBarIcon />,
+                title: "Wine & Cocktails",
+                text: "Extensive Italian and international wines, craft cocktails, and the best Espresso Martini in town",
+              },
+              {
+                icon: <SportsBarIcon />,
+                title: "Sports Viewing",
+                text: "Multiple screens throughout — the perfect spot to cheer on your team during the big game",
               },
               {
                 icon: <DeckIcon />,
                 title: "Beautiful Patio",
-                text: "Enjoy outdoor dining in the warmer months",
+                text: "Enjoy al fresco dining on our charming outdoor patio in the warmer months",
               },
               {
                 icon: <ChildCareIcon />,
                 title: "Kids' Menu",
-                text: "Child-friendly options the little ones will love",
+                text: "Child-friendly options the little ones will love, with fast service so no one waits long",
+              },
+              {
+                icon: <StarIcon />,
+                title: "Exceptional Value",
+                text: "Generous portions, quality ingredients, and great prices — consistently rated 5 stars",
+              },
+              {
+                icon: <LocalParkingIcon />,
+                title: "Easy to Find",
+                text: "Located right off Baldwin with ample street parking and a welcoming entrance",
               },
               {
                 icon: <WifiIcon />,
                 title: "Free WiFi",
-                text: "Stay connected while you dine",
-              },
-              {
-                icon: <LocalParkingIcon />,
-                title: "Free Parking",
-                text: "Convenient parking for all guests",
+                text: "Stay connected while you dine with complimentary high-speed WiFi",
               },
               {
                 icon: <AccessibleIcon />,
-                title: "Wheelchair Accessible",
-                text: "Fully accessible dining space",
+                title: "Fully Accessible",
+                text: "Wheelchair accessible space so every guest feels welcome and comfortable",
               },
             ].map((feature, i) => (
-              <Grid key={i} size={{ xs: 6, sm: 4, md: 4 }}>
+              <Grid key={i} size={{ xs: 6, sm: 4, md: 3 }}>
                 <Box sx={{ textAlign: "center", p: 2 }}>
                   <Box
                     sx={{
@@ -1483,16 +1525,29 @@ export default function Home() {
           title="Loved by Families Across Whitby"
         />
         <Container>
-          <Grid container spacing={3}>
-            {testimonials.map((t) => (
+          <Grid
+            container
+            spacing={3}
+            sx={{ minHeight: { xs: "auto", sm: 280 } }}
+          >
+            {visibleReviews.map((t) => (
               <Grid key={t.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card sx={{ height: "100%" }}>
-                  <CardContent sx={{ p: 3 }}>
+                <Card
+                  sx={{ height: 240, display: "flex", flexDirection: "column" }}
+                >
+                  <CardContent
+                    sx={{
+                      p: 3,
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
                     <Rating
                       value={t.rating}
                       readOnly
                       size="small"
-                      sx={{ mb: 1.5 }}
+                      sx={{ mb: 1.5, flexShrink: 0 }}
                     />
                     <Typography
                       variant="body2"
@@ -1501,30 +1556,57 @@ export default function Home() {
                         fontStyle: "italic",
                         lineHeight: 1.7,
                         mb: 2,
+                        flex: 1,
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 5,
+                        WebkitBoxOrient: "vertical",
                       }}
                     >
                       "{t.text}"
                     </Typography>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{ fontWeight: 700, fontSize: "0.85rem" }}
-                    >
-                      {t.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: palette.text.secondary,
-                        fontSize: "0.75rem",
-                      }}
-                    >
-                      via {t.source}
-                    </Typography>
+                    <Box sx={{ flexShrink: 0 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: 700, fontSize: "0.85rem" }}
+                      >
+                        {t.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: palette.text.secondary,
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        via {t.source}
+                      </Typography>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
             ))}
           </Grid>
+          {/* Dot indicators */}
+          <Box
+            sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 4 }}
+          >
+            {Array.from({ length: totalReviewPages }).map((_, i) => (
+              <Box
+                key={i}
+                onClick={() => setReviewPage(i)}
+                sx={{
+                  width: reviewPage === i ? 24 : 8,
+                  height: 8,
+                  borderRadius: 999,
+                  bgcolor:
+                    reviewPage === i ? palette.primary.main : palette.warmGray,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+              />
+            ))}
+          </Box>
         </Container>
       </Box>
 

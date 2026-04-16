@@ -4,8 +4,10 @@ import HomeIcon from '@mui/icons-material/Home';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { palette } from '../theme';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function NotFound() {
+  usePageMeta({ title: "Page Not Found" });
   return (
     <Box
       sx={{

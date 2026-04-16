@@ -30,6 +30,8 @@ import {
 } from "../services/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 import { resolveImageUrl } from "../config/api";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -89,6 +91,12 @@ function OrnamentDivider({ color = palette.gold }: { color?: string }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function Menus() {
+  usePageMeta({
+    title: "Our Menus | Italian Food in Whitby",
+    description: "Browse Corrado's full Italian menu — handmade pasta, stone-oven pizza, appetizers, fresh salads, seafood mains, decadent desserts, and an extensive wine & cocktail list. Something for everyone.",
+    ogImage: "/restaurant/gnocchi-tomato-cream.jpeg",
+  });
+  const { getImage } = useSiteImages();
   const [primaries, setPrimaries] = useState<ApiPrimaryCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,19 +156,34 @@ export default function Menus() {
       setMenuItems([]);
       return;
     }
+    let cancelled = false;
+    let fadeTimer: ReturnType<typeof setTimeout> | null = null;
+
     setItemsVisible(false);
     setItemsLoading(true);
     fetchItemsByCategory(activeCategoryId)
       .then((items) => {
+        if (cancelled) return;
         setMenuItems(
           items
             .filter((i) => i.isAvailable)
             .sort((a, b) => a.sortOrder - b.sortOrder),
         );
-        setTimeout(() => setItemsVisible(true), 80);
+        fadeTimer = setTimeout(() => {
+          if (!cancelled) setItemsVisible(true);
+        }, 80);
       })
-      .catch(() => setMenuItems([]))
-      .finally(() => setItemsLoading(false));
+      .catch(() => {
+        if (!cancelled) setMenuItems([]);
+      })
+      .finally(() => {
+        if (!cancelled) setItemsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      if (fadeTimer !== null) clearTimeout(fadeTimer);
+    };
   }, [activeCategoryId]);
 
   const activeCategory = useMemo(
@@ -193,7 +216,10 @@ export default function Menus() {
       <PageHero
         title="Our Menus"
         subtitle="Authentic Italian dishes made with fresh ingredients and time-honoured recipes."
-        backgroundImage="https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_menus",
+          "/restaurant/gnocchi-tomato-cream.jpeg",
+        )}
         cta={{ label: "Order Online", href: businessInfo.orderUrl }}
       />
 
@@ -326,7 +352,9 @@ export default function Menus() {
                               fontSize: "0.82rem",
                               height: 34,
                               borderRadius: "2px",
-                              bgcolor: isActive ? palette.charcoal : palette.cream,
+                              bgcolor: isActive
+                                ? palette.charcoal
+                                : palette.cream,
                               color: isActive ? "#fff" : palette.charcoal,
                               border: `1px solid ${isActive ? palette.charcoal : palette.warmGray}`,
                               "&:hover": {
@@ -350,7 +378,13 @@ export default function Menus() {
                         py: 1,
                       }}
                     >
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.25,
+                        }}
+                      >
                         {subCategories.map((cat) => {
                           const isActive = activeCategoryId === cat.id;
                           return (

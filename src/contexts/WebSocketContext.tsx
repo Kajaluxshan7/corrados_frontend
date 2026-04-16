@@ -23,6 +23,7 @@ export const WsEvent = {
   OPENING_HOURS_UPDATED: "openingHours:updated",
   STORY_UPDATED: "story:updated",
   PARTY_MENU_UPDATED: "partyMenu:updated",
+  SITE_IMAGES_UPDATED: "siteImages:updated",
 } as const;
 
 interface WebSocketContextType {

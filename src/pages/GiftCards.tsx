@@ -3,14 +3,22 @@ import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import { PageHero, SectionHeader } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
+import { useSiteImages } from '../contexts/SiteImagesContext';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function GiftCards() {
+  usePageMeta({
+    title: "Gift Cards | Give the Gift of Italian Dining",
+    description: "Give someone special the gift of authentic Italian dining at Corrado's in Whitby. Purchase a gift card online in any amount — valid for dine-in, takeout, and online orders. Never expires. Perfect for any occasion.",
+    ogImage: "/restaurant/tiramisu.jpeg",
+  });
+  const { getImage } = useSiteImages();
   return (
     <>
       <PageHero
         title="Gift Cards"
         subtitle="Give the gift of great Italian food — perfect for any occasion."
-        backgroundImage="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&q=80"
+        backgroundImage={getImage('hero_gift_cards', '/restaurant/chocolate-cup-dessert.jpeg')}
       />
 
       <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
@@ -170,38 +178,32 @@ export default function GiftCards() {
               {
                 title: "Birthdays",
                 text: "Celebrate another year with a special Italian dinner on the house.",
-                image:
-                  "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=400&q=80",
+                image: "/restaurant/catering-dessert-display.jpeg",
               },
               {
                 title: "Anniversaries",
                 text: "Mark the occasion with a romantic dinner at Corrado's.",
-                image:
-                  "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&q=80",
+                image: "/restaurant/salmon-beurre-blanc.jpeg",
               },
               {
                 title: "Holidays",
                 text: "The perfect stocking stuffer or holiday gift for food lovers.",
-                image:
-                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80",
+                image: "/restaurant/tiramisu.jpeg",
               },
               {
                 title: "Corporate Gifts",
                 text: "Show appreciation to clients and employees with the gift of great food.",
-                image:
-                  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80",
+                image: "/restaurant/menu-spread.jpeg",
               },
               {
                 title: "Thank You",
                 text: "A delicious way to say thanks to someone special.",
-                image:
-                  "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&q=80",
+                image: "/restaurant/burrata-caprese.jpeg",
               },
               {
                 title: "Just Because",
                 text: "Sometimes the best gifts come for no reason at all.",
-                image:
-                  "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
+                image: "/restaurant/chocolate-lava-cake.jpeg",
               },
             ].map((item, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>

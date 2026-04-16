@@ -175,3 +175,10 @@ export const fetchPartyMenus = () => get<ApiPartyMenu[]>('/party-menu');
 
 export const fetchStoryCategories = () =>
   get<ApiStoryCategory[]>('/stories/categories');
+
+/**
+ * Fetch the site-images map (key → imageUrl) from the backend.
+ * Used by the SiteImagesContext to power dynamic images across all pages.
+ */
+export const fetchSiteImages = () =>
+  get<Record<string, string>>('/site-images');

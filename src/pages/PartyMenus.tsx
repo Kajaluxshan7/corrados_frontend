@@ -20,6 +20,8 @@ import { palette } from "../theme";
 import { fetchPartyMenus, type ApiPartyMenu } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../contexts/SiteImagesContext";
+import { usePageMeta } from "../hooks/usePageMeta";
 
 const RESTAURANT_LOGO = "/logos/logo-blue.png";
 
@@ -33,6 +35,12 @@ function titleColor(menuType: string) {
 }
 
 export default function PartyMenus() {
+  usePageMeta({
+    title: "Party Menus | Private Event Venue Whitby",
+    description: "Host your next celebration at Corrado's Restaurant in Whitby. Customisable party and catering menus for birthdays, corporate dinners, sports viewing events, and private gatherings. Upstairs dining room & patio available.",
+    ogImage: "/orrdos/interior-upstairs.jpg",
+  });
+  const { getImage } = useSiteImages();
   const [menus, setMenus] = useState<ApiPartyMenu[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +74,10 @@ export default function PartyMenus() {
       <PageHero
         title="Party Menus & Catering"
         subtitle="Customizable packages for every occasion — from casual gatherings to premium celebrations."
-        backgroundImage="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1600&q=80"
+        backgroundImage={getImage(
+          "hero_party_menus",
+          "/restaurant/catering-dessert-display.jpeg",
+        )}
       />
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
@@ -86,10 +97,14 @@ export default function PartyMenus() {
           {!loading && !error && menus.length === 0 && (
             <Typography
               variant="body1"
-              sx={{ textAlign: "center", py: 10, color: palette.text.secondary }}
+              sx={{
+                textAlign: "center",
+                py: 10,
+                color: palette.text.secondary,
+              }}
             >
-              No party packages available right now. Please contact us to discuss
-              your event.
+              No party packages available right now. Please contact us to
+              discuss your event.
             </Typography>
           )}
 
@@ -160,17 +175,26 @@ export default function PartyMenus() {
                             component="img"
                             src={RESTAURANT_LOGO}
                             alt="Corrado's"
-                            sx={{ height: 72, width: "auto", objectFit: "contain" }}
+                            sx={{
+                              height: 72,
+                              width: "auto",
+                              objectFit: "contain",
+                            }}
                           />
                         )}
                         <Chip
-                          label={menu.menuType === "cocktail" ? "Cocktail" : "Party"}
+                          label={
+                            menu.menuType === "cocktail" ? "Cocktail" : "Party"
+                          }
                           size="small"
                           sx={{
                             position: "absolute",
                             top: 10,
                             left: 10,
-                            bgcolor: menu.menuType === "cocktail" ? "#0D3B6E" : "#8B2020",
+                            bgcolor:
+                              menu.menuType === "cocktail"
+                                ? "#0D3B6E"
+                                : "#8B2020",
                             color: "#fff",
                             fontWeight: 700,
                             fontSize: "0.68rem",
@@ -283,7 +307,10 @@ export default function PartyMenus() {
                           return (
                             <Box
                               key={sec.id}
-                              sx={{ mb: sIdx < sortedSections.length - 1 ? 1.5 : 0.5 }}
+                              sx={{
+                                mb:
+                                  sIdx < sortedSections.length - 1 ? 1.5 : 0.5,
+                              }}
                             >
                               {sec.title && (
                                 <Typography
@@ -319,7 +346,12 @@ export default function PartyMenus() {
                               {availItems.map((item) => (
                                 <Box
                                   key={item.id}
-                                  sx={{ display: "flex", gap: 0.5, pl: 0.5, alignItems: "center" }}
+                                  sx={{
+                                    display: "flex",
+                                    gap: 0.5,
+                                    pl: 0.5,
+                                    alignItems: "center",
+                                  }}
                                 >
                                   <Typography
                                     sx={{
@@ -394,18 +426,31 @@ export default function PartyMenus() {
           >
             <Typography
               variant="h4"
-              sx={{ fontWeight: 700, mb: 1, fontSize: { xs: "1.5rem", md: "2rem" } }}
+              sx={{
+                fontWeight: 700,
+                mb: 1,
+                fontSize: { xs: "1.5rem", md: "2rem" },
+              }}
             >
               Ready to Plan Your Event?
             </Typography>
             <Typography
               variant="body1"
-              sx={{ color: palette.text.secondary, mb: 3, maxWidth: 550, mx: "auto" }}
+              sx={{
+                color: palette.text.secondary,
+                mb: 3,
+                maxWidth: 550,
+                mx: "auto",
+              }}
             >
-              Contact our event coordinator to customize any package to your needs.
-              We'll make your event unforgettable.
+              Contact our event coordinator to customize any package to your
+              needs. We'll make your event unforgettable.
             </Typography>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              justifyContent="center"
+            >
               <Button
                 variant="contained"
                 color="primary"
