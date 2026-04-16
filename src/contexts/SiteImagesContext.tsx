@@ -15,7 +15,6 @@ import {
   useEffect,
   useState,
   useCallback,
-  useRef,
 } from "react";
 import type { ReactNode } from "react";
 import { fetchSiteImages } from "../services/api";
