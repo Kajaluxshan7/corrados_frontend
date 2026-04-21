@@ -110,7 +110,7 @@ export default function Specials() {
           );
           return firstType?.value ?? prev;
         });
-      };)
+      })
       .catch(() => {
         setError("Unable to load specials. Please try again later.");
         setSpecials([]);
