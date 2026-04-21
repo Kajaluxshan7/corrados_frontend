@@ -178,32 +178,32 @@ export default function GiftCards() {
               {
                 title: "Birthdays",
                 text: "Celebrate another year with a special Italian dinner on the house.",
-                image: "/restaurant/catering-dessert-display.jpeg",
+                image: getImage('gift_card_birthday', '/restaurant/catering-dessert-display.jpeg'),
               },
               {
                 title: "Anniversaries",
                 text: "Mark the occasion with a romantic dinner at Corrado's.",
-                image: "/restaurant/salmon-beurre-blanc.jpeg",
+                image: getImage('gift_card_anniversary', '/restaurant/salmon-beurre-blanc.jpeg'),
               },
               {
                 title: "Holidays",
                 text: "The perfect stocking stuffer or holiday gift for food lovers.",
-                image: "/restaurant/tiramisu.jpeg",
+                image: getImage('gift_card_holiday', '/restaurant/tiramisu.jpeg'),
               },
               {
                 title: "Corporate Gifts",
                 text: "Show appreciation to clients and employees with the gift of great food.",
-                image: "/restaurant/menu-spread.jpeg",
+                image: getImage('gift_card_corporate', '/restaurant/menu-spread.jpeg'),
               },
               {
                 title: "Thank You",
                 text: "A delicious way to say thanks to someone special.",
-                image: "/restaurant/burrata-caprese.jpeg",
+                image: getImage('gift_card_thank_you', '/restaurant/burrata-caprese.jpeg'),
               },
               {
                 title: "Just Because",
                 text: "Sometimes the best gifts come for no reason at all.",
-                image: "/restaurant/chocolate-lava-cake.jpeg",
+                image: getImage('gift_card_just_because', '/restaurant/chocolate-lava-cake.jpeg'),
               },
             ].map((item, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>

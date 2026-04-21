@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Box,
   Container,
@@ -203,9 +203,14 @@ export default function Menus() {
     setMenuItems([]);
   }
 
+  const itemsPanelRef = useRef<HTMLDivElement>(null);
+
   function handleCategorySelect(id: string) {
     if (id === activeCategoryId) return;
     setActiveCategoryId(id);
+    setTimeout(() => {
+      itemsPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
   }
 
   const theme = useTheme();
@@ -322,7 +327,7 @@ export default function Menus() {
                     display: "flex",
                     flexDirection: { xs: "column", md: "row" },
                     gap: { xs: 3, md: 5 },
-                    alignItems: { xs: "stretch", md: "center" },
+                    alignItems: { xs: "stretch", md: "flex-start" },
                     minHeight: 400,
                   }}
                 >
@@ -440,7 +445,7 @@ export default function Menus() {
                   )}
 
                   {/* ── Right: Items list with images ── */}
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Box ref={itemsPanelRef} sx={{ flex: 1, minWidth: 0 }}>
                     {activeCategory && (
                       <Box sx={{ mb: 3 }}>
                         <Typography

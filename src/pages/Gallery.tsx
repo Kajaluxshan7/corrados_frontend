@@ -178,6 +178,15 @@ export default function Gallery() {
                   <Box
                     key={item.id}
                     onClick={() => setSelectedImage(item)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedImage(item);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View ${item.alt}`}
                     sx={{
                       breakInside: "avoid",
                       mb: { xs: "8px", sm: "10px", md: "12px" },

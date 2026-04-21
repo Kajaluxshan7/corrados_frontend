@@ -1,6 +1,7 @@
 import { Box, Typography, Container, Button } from '@mui/material';
 import type { ReactNode } from 'react';
-import { palette } from '../theme';
+import { Link as RouterLink } from "react-router-dom";
+import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
 
 interface PageHeroProps {
@@ -92,7 +93,19 @@ export default function PageHero({
             {cta.label}
           </Button>
         )}
-        {cta && !cta.href && (
+        {cta && cta.to && !cta.href && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            component={RouterLink}
+            to={cta.to}
+            sx={{ mt: 1, px: 5, py: 1.5, fontSize: "0.9rem" }}
+          >
+            {cta.label}
+          </Button>
+        )}
+        {cta && !cta.href && !cta.to && (
           <Button
             variant="contained"
             color="primary"

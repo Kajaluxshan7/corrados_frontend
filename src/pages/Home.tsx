@@ -13,8 +13,9 @@ import {
   IconButton,
   Rating,
   Stack,
-} from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+  Tooltip,
+} from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import LocalPizzaIcon from "@mui/icons-material/LocalPizza";
 import WifiIcon from "@mui/icons-material/Wifi";
 import LocalParkingIcon from "@mui/icons-material/LocalParking";
@@ -33,16 +34,18 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AppleIcon from "@mui/icons-material/Apple";
 import ShopIcon from "@mui/icons-material/Shop";
 import { SectionHeader } from "../components";
-import { familyMeals, testimonials } from "../data";
+import { testimonials } from "../data";
 import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
 import {
   fetchSpecials,
   fetchEvents,
   fetchStoryCategories,
+  fetchFamilyMeals,
   type ApiSpecial,
   type ApiEvent,
   type ApiStoryCategory,
+  type ApiFamilyMeal,
 } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
@@ -182,10 +185,13 @@ function formatEventDateRange(start: string): string {
   return `${dateStr} · ${timeStr}`;
 }
 
+const REVIEWS_PER_PAGE = 4;
+
 export default function Home() {
   usePageMeta({
     title: "Authentic Italian Dining in Whitby, ON",
-    description: "Corrado's Restaurant & Bar — Whitby's favourite Italian dining destination since 2010. Handmade pasta, stone-oven pizza, curated wines, family meals, daily specials, private events & live sports. Open 7 days.",
+    description:
+      "Corrado's Restaurant & Bar — Whitby's favourite Italian dining destination since 2010. Handmade pasta, stone-oven pizza, curated wines, family meals, daily specials, private events & live sports. Open 7 days.",
     ogImage: "/orrdos/exterior-building.jpg",
     ogType: "website",
   });
@@ -201,7 +207,10 @@ export default function Home() {
   const [activeSpecial, setActiveSpecial] = useState(0);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [reviewPage, setReviewPage] = useState(0);
-  const REVIEWS_PER_PAGE = 4;
+  const [reviewsVisible, setReviewsVisible] = useState(true);
+  const [isReviewsHovered, setIsReviewsHovered] = useState(false);
+  const reviewFadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const popupShownRef = useRef(false);
 
   // Live data state
   const [liveSpecials, setLiveSpecials] = useState<ApiSpecial[]>([]);
@@ -209,32 +218,49 @@ export default function Home() {
   const [galleryCategories, setGalleryCategories] = useState<
     ApiStoryCategory[]
   >([]);
+  const [liveFamilyMeals, setLiveFamilyMeals] = useState<ApiFamilyMeal[]>([]);
 
-  const loadLiveData = useCallback(() => {
+  const loadHomeSpecials = useCallback(() => {
     fetchSpecials()
       .then((data) =>
         setLiveSpecials(data.sort((a, b) => a.sortOrder - b.sortOrder)),
       )
       .catch(() => {});
+  }, []);
+
+  const loadHomeEvents = useCallback(() => {
     fetchEvents()
       .then((data) => setLiveEvents(data))
       .catch(() => {});
+  }, []);
+
+  const loadHomeGallery = useCallback(() => {
     fetchStoryCategories()
       .then((data) => setGalleryCategories(data.filter((c) => c.isActive)))
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    loadLiveData();
-  }, [loadLiveData]);
+  const loadHomeFamilyMeals = useCallback(() => {
+    fetchFamilyMeals()
+      .then((data) => setLiveFamilyMeals(data))
+      .catch(() => {});
+  }, []);
 
-  useWsRefresh(WsEvent.SPECIAL_CREATED, loadLiveData);
-  useWsRefresh(WsEvent.SPECIAL_UPDATED, loadLiveData);
-  useWsRefresh(WsEvent.SPECIAL_DELETED, loadLiveData);
-  useWsRefresh(WsEvent.EVENT_CREATED, loadLiveData);
-  useWsRefresh(WsEvent.EVENT_UPDATED, loadLiveData);
-  useWsRefresh(WsEvent.EVENT_DELETED, loadLiveData);
-  useWsRefresh(WsEvent.STORY_UPDATED, loadLiveData);
+  useEffect(() => {
+    loadHomeSpecials();
+    loadHomeEvents();
+    loadHomeGallery();
+    loadHomeFamilyMeals();
+  }, [loadHomeSpecials, loadHomeEvents, loadHomeGallery, loadHomeFamilyMeals]);
+
+  useWsRefresh(WsEvent.SPECIAL_CREATED, loadHomeSpecials);
+  useWsRefresh(WsEvent.SPECIAL_UPDATED, loadHomeSpecials);
+  useWsRefresh(WsEvent.SPECIAL_DELETED, loadHomeSpecials);
+  useWsRefresh(WsEvent.EVENT_CREATED, loadHomeEvents);
+  useWsRefresh(WsEvent.EVENT_UPDATED, loadHomeEvents);
+  useWsRefresh(WsEvent.EVENT_DELETED, loadHomeEvents);
+  useWsRefresh(WsEvent.STORY_UPDATED, loadHomeGallery);
+  useWsRefresh(WsEvent.FAMILY_MEAL_UPDATED, loadHomeFamilyMeals);
 
   const popupSpecials = liveSpecials.slice(0, 4);
   const featuredSpecials = liveSpecials.slice(0, 3);
@@ -290,11 +316,23 @@ export default function Home() {
 
     const timer = window.setTimeout(() => {
       setSpecialsPopupOpen(true);
-      window.sessionStorage.setItem(storageKey, "true");
     }, 700);
 
     return () => window.clearTimeout(timer);
   }, []);
+
+  // Only mark popup as "seen" once it actually renders with specials data.
+  // This prevents sessionStorage being set before data has loaded.
+  useEffect(() => {
+    if (
+      !specialsPopupOpen ||
+      popupSpecials.length === 0 ||
+      popupShownRef.current
+    )
+      return;
+    popupShownRef.current = true;
+    window.sessionStorage.setItem("corrados-specials-popup-seen", "true");
+  }, [specialsPopupOpen, popupSpecials.length]);
 
   useEffect(() => {
     if (specialsPopupOpen) {
@@ -308,12 +346,28 @@ export default function Home() {
 
   const totalReviewPages = Math.ceil(testimonials.length / REVIEWS_PER_PAGE);
 
+  const changeReviewPage = useCallback((next: number) => {
+    setReviewsVisible(false);
+    if (reviewFadeRef.current) clearTimeout(reviewFadeRef.current);
+    reviewFadeRef.current = setTimeout(() => {
+      setReviewPage(next);
+      setReviewsVisible(true);
+    }, 300);
+  }, []);
+
   useEffect(() => {
+    if (isReviewsHovered) return;
     const timer = setInterval(() => {
-      setReviewPage((prev) => (prev + 1) % totalReviewPages);
+      changeReviewPage((reviewPage + 1) % totalReviewPages);
     }, 5000);
     return () => clearInterval(timer);
-  }, [totalReviewPages]);
+  }, [totalReviewPages, isReviewsHovered, reviewPage, changeReviewPage]);
+
+  useEffect(() => {
+    return () => {
+      if (reviewFadeRef.current) clearTimeout(reviewFadeRef.current);
+    };
+  }, []);
 
   const visibleReviews = testimonials.slice(
     reviewPage * REVIEWS_PER_PAGE,
@@ -767,7 +821,10 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="/restaurant/owner_and_logo.jpg"
+                src={getImage(
+                  "home_about_owner",
+                  "/restaurant/owner_and_logo.jpg",
+                )}
                 alt="Corrado's owner with the restaurant logo"
                 sx={{
                   width: "100%",
@@ -841,19 +898,31 @@ export default function Home() {
             {[
               {
                 label: "Appetizers",
-                image: "/restaurant/arancini-tomato.jpeg",
+                image: getImage(
+                  "home_menu_appetizers",
+                  "/restaurant/arancini-tomato.jpeg",
+                ),
               },
               {
                 label: "Pasta",
-                image: "/restaurant/ravioli-mushroom-spinach.jpeg",
+                image: getImage(
+                  "home_menu_pasta",
+                  "/restaurant/ravioli-mushroom-spinach.jpeg",
+                ),
               },
               {
                 label: "Pizza",
-                image: "/orrdos/pizza-corrados.jpg",
+                image: getImage(
+                  "home_menu_pizza",
+                  "/orrdos/pizza-corrados.jpg",
+                ),
               },
               {
                 label: "Mains",
-                image: "/restaurant/beef-short-rib.jpeg",
+                image: getImage(
+                  "home_menu_mains",
+                  "/restaurant/beef-short-rib.jpeg",
+                ),
               },
             ].map((cat) => (
               <Grid key={cat.label} size={{ xs: 12, sm: 6, md: 3 }}>
@@ -1021,7 +1090,7 @@ export default function Home() {
           />
           <Container>
             <Grid container spacing={3}>
-              {familyMeals.slice(0, 3).map((meal) => (
+              {liveFamilyMeals.filter((m) => m.mealType === 'combo').slice(0, 3).map((meal) => (
                 <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
                   <Card
                     sx={{ height: "100%", bgcolor: "rgba(255,255,255,0.95)" }}
@@ -1049,7 +1118,7 @@ export default function Home() {
                           mt: 2,
                         }}
                       >
-                        {meal.price}
+                        {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
                       </Typography>
                     </CardContent>
                   </Card>
@@ -1136,7 +1205,10 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
-                src="/orrdos/interior-upstairs.jpg"
+                src={getImage(
+                  "home_private_events",
+                  "/orrdos/interior-upstairs.jpg",
+                )}
                 alt="Corrado's upstairs dining room — perfect for private events"
                 sx={{
                   width: "100%",
@@ -1305,78 +1377,98 @@ export default function Home() {
                 purchase.
               </Typography>
               <Stack direction="row" spacing={2}>
-                {/* TODO: Replace href with actual App Store URL when available */}
-                <Button
-                  variant="contained"
-                  href="#"
-                  startIcon={<AppleIcon />}
-                  sx={{
-                    bgcolor: "#000",
-                    color: "#fff",
-                    px: 3,
-                    py: 1.2,
-                    "&:hover": { bgcolor: "#333" },
-                    textTransform: "none",
-                    fontSize: "0.85rem",
-                  }}
+                <Tooltip
+                  title="Coming soon — stay tuned!"
+                  arrow
+                  placement="top"
                 >
-                  <Box>
-                    <Typography
+                  <span>
+                    <Button
+                      variant="contained"
+                      disabled
+                      startIcon={<AppleIcon />}
                       sx={{
-                        fontSize: "0.6rem",
-                        lineHeight: 1,
-                        textAlign: "left",
+                        bgcolor: "#000",
+                        color: "#fff",
+                        px: 3,
+                        py: 1.2,
+                        textTransform: "none",
+                        fontSize: "0.85rem",
+                        "&.Mui-disabled": {
+                          bgcolor: "#555",
+                          color: "rgba(255,255,255,0.6)",
+                        },
                       }}
                     >
-                      Download on the
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: "1rem",
-                        fontWeight: 700,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      App Store
-                    </Typography>
-                  </Box>
-                </Button>
-                {/* TODO: Replace href with actual Google Play URL when available */}
-                <Button
-                  variant="contained"
-                  href="#"
-                  startIcon={<ShopIcon />}
-                  sx={{
-                    bgcolor: "#000",
-                    color: "#fff",
-                    px: 3,
-                    py: 1.2,
-                    "&:hover": { bgcolor: "#333" },
-                    textTransform: "none",
-                    fontSize: "0.85rem",
-                  }}
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.6rem",
+                            lineHeight: 1,
+                            textAlign: "left",
+                          }}
+                        >
+                          Coming Soon
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "1rem",
+                            fontWeight: 700,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          App Store
+                        </Typography>
+                      </Box>
+                    </Button>
+                  </span>
+                </Tooltip>
+                <Tooltip
+                  title="Coming soon — stay tuned!"
+                  arrow
+                  placement="top"
                 >
-                  <Box>
-                    <Typography
+                  <span>
+                    <Button
+                      variant="contained"
+                      disabled
+                      startIcon={<ShopIcon />}
                       sx={{
-                        fontSize: "0.6rem",
-                        lineHeight: 1,
-                        textAlign: "left",
+                        bgcolor: "#000",
+                        color: "#fff",
+                        px: 3,
+                        py: 1.2,
+                        textTransform: "none",
+                        fontSize: "0.85rem",
+                        "&.Mui-disabled": {
+                          bgcolor: "#555",
+                          color: "rgba(255,255,255,0.6)",
+                        },
                       }}
                     >
-                      GET IT ON
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: "1rem",
-                        fontWeight: 700,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      Google Play
-                    </Typography>
-                  </Box>
-                </Button>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: "0.6rem",
+                            lineHeight: 1,
+                            textAlign: "left",
+                          }}
+                        >
+                          Coming Soon
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "1rem",
+                            fontWeight: 700,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          Google Play
+                        </Typography>
+                      </Box>
+                    </Button>
+                  </span>
+                </Tooltip>
               </Stack>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -1524,11 +1616,18 @@ export default function Home() {
           subtitle="WHAT OUR GUESTS SAY"
           title="Loved by Families Across Whitby"
         />
-        <Container>
+        <Container
+          onMouseEnter={() => setIsReviewsHovered(true)}
+          onMouseLeave={() => setIsReviewsHovered(false)}
+        >
           <Grid
             container
             spacing={3}
-            sx={{ minHeight: { xs: "auto", sm: 280 } }}
+            sx={{
+              minHeight: { xs: "auto", sm: 280 },
+              opacity: reviewsVisible ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
           >
             {visibleReviews.map((t) => (
               <Grid key={t.id} size={{ xs: 12, sm: 6, md: 3 }}>
@@ -1594,7 +1693,7 @@ export default function Home() {
             {Array.from({ length: totalReviewPages }).map((_, i) => (
               <Box
                 key={i}
-                onClick={() => setReviewPage(i)}
+                onClick={() => changeReviewPage(i)}
                 sx={{
                   width: reviewPage === i ? 24 : 8,
                   height: 8,

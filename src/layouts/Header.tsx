@@ -244,7 +244,7 @@ export default function Header() {
             >
               <Box
                 component="img"
-              src="/logos/logo-black.png"
+                src="/logos/logo-white-on-blue.png"
                 alt="Corrado's Restaurant and Bar"
                 sx={{
                   height: { xs: 38, sm: 44 },

@@ -135,6 +135,32 @@ export interface ApiPartyMenu {
 
 // ─── Stories (Gallery) ────────────────────────────────────────────────────────
 
+export interface ApiFamilyMealAddon {
+  id: string;
+  name: string;
+  price: number;
+  isAvailable: boolean;
+  sortOrder: number;
+}
+
+export interface ApiFamilyMeal {
+  id: string;
+  name: string;
+  description: string | null;
+  serves: string;
+  basePrice: number;
+  priceLabel: string;
+  mealType: 'combo' | 'daily_special';
+  availableFor: string[];
+  items: string[];
+  isActive: boolean;
+  sortOrder: number;
+  imageUrls: string[];
+  addons: ApiFamilyMealAddon[];
+}
+
+// ─── Stories (Gallery) ────────────────────────────────────────────────────────
+
 export interface ApiStory {
   id: string;
   categoryId: string;
@@ -158,12 +184,6 @@ export interface ApiStoryCategory {
 export const fetchPrimaryCategories = () =>
   get<ApiPrimaryCategory[]>('/menu/primary-categories');
 
-export const fetchCategoriesWithItems = (primaryCategoryId: string, signal?: AbortSignal) =>
-  get<ApiMenuCategory[]>(
-    `/menu/categories?primaryCategoryId=${primaryCategoryId}`,
-    signal,
-  );
-
 export const fetchItemsByCategory = (categoryId: string) =>
   get<ApiMenuItem[]>(`/menu/categories/${categoryId}/items`);
 
@@ -172,6 +192,8 @@ export const fetchSpecials = () => get<ApiSpecial[]>('/specials/active');
 export const fetchEvents = () => get<ApiEvent[]>('/events/active');
 
 export const fetchPartyMenus = () => get<ApiPartyMenu[]>('/party-menu');
+
+export const fetchFamilyMeals = () => get<ApiFamilyMeal[]>("/family-meals");
 
 export const fetchStoryCategories = () =>
   get<ApiStoryCategory[]>('/stories/categories');

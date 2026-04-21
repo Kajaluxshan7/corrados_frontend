@@ -19,14 +19,15 @@ import { businessInfo } from '../data';
 import { palette } from '../theme';
 
 const quickLinks = [
-  { label: 'Home', path: '/' },
-  { label: 'About', path: '/about' },
-  { label: 'Menus', path: '/menus' },
-  { label: 'Specials', path: '/specials' },
-  { label: 'Family Meals', path: '/family-meals' },
-  { label: 'Events', path: '/events' },
-  { label: 'Gallery', path: '/gallery' },
-  { label: 'Contact', path: '/contact' },
+  { label: "Home", path: "/" },
+  { label: "About", path: "/about" },
+  { label: "Menus", path: "/menus" },
+  { label: "Specials", path: "/specials" },
+  { label: "Family Meals", path: "/family-meals" },
+  { label: "Party Menus", path: "/party-menus" },
+  { label: "Events", path: "/events" },
+  { label: "Gallery", path: "/gallery" },
+  { label: "Contact", path: "/contact" },
 ];
 
 const serviceLinks: Array<{ label: string; path?: string; href?: string }> = [

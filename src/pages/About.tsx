@@ -62,9 +62,9 @@ export default function About() {
                   fontSize: { xs: "1.75rem", md: "2.25rem" },
                 }}
               >
-                Where Family, Food{" "}
-                <span style={{ fontFamily: '"Lato", sans-serif' }}>&amp;</span>{" "}
-                Tradition Come Together
+                {formatAmpersand(
+                  "Where Family, Food & Tradition Come Together",
+                )}
               </Typography>
               <Typography
                 variant="body1"
@@ -154,25 +154,37 @@ export default function About() {
                 icon: <RestaurantIcon sx={{ fontSize: 36 }} />,
                 title: "Authentic Italian Cuisine",
                 text: "From handmade pasta and wood-fired pizza to classic Italian entrées — our menu celebrates the rich culinary traditions of Italy with a modern Canadian touch.",
-                image: "/restaurant/gnocchi-tomato-cream.jpeg",
+                image: getImage(
+                  "about_offer_cuisine",
+                  "/restaurant/gnocchi-tomato-cream.jpeg",
+                ),
               },
               {
                 icon: <FamilyRestroomIcon sx={{ fontSize: 36 }} />,
                 title: "Family-Friendly Atmosphere",
                 text: "A warm and casual dining space where families feel at home. With a dedicated kids' menu, spacious seating, and a welcoming vibe, every visit is an occasion.",
-                image: "/restaurant/family-meal-takeout.jpeg",
+                image: getImage(
+                  "about_offer_family",
+                  "/restaurant/family-meal-takeout.jpeg",
+                ),
               },
               {
                 icon: <LocalBarIcon sx={{ fontSize: 36 }} />,
                 title: "Curated Bar & Wine",
                 text: "Our bar features an extensive selection of Italian wines, craft cocktails, and Canadian beers on tap. The perfect complement to any meal or a great reason to visit on its own.",
-                image: "/restaurant/valentine-martini.jpeg",
+                image: getImage(
+                  "about_offer_bar",
+                  "/restaurant/valentine-martini.jpeg",
+                ),
               },
               {
                 icon: <EmojiEventsIcon sx={{ fontSize: 36 }} />,
                 title: "Events & Entertainment",
                 text: "From live jazz nights and trivia to NHL playoffs and private celebrations — Corrado's is the hub for community events, sports viewings, and good times.",
-                image: "/restaurant/catering-dessert-display.jpeg",
+                image: getImage(
+                  "about_offer_events",
+                  "/restaurant/catering-dessert-display.jpeg",
+                ),
               },
             ].map((item, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6 }}>

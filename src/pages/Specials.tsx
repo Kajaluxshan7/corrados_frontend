@@ -98,9 +98,19 @@ export default function Specials() {
   const loadSpecials = useCallback(() => {
     fetchSpecials()
       .then((data) => {
-        setSpecials(data.sort((a, b) => a.sortOrder - b.sortOrder));
+        const sorted = data.sort((a, b) => a.sortOrder - b.sortOrder);
+        setSpecials(sorted);
         setError(null);
-      })
+        // Auto-select first tab that has data if current tab is empty
+        setActiveTab((prev) => {
+          const hasCurrentTab = sorted.some((s) => s.type === prev);
+          if (hasCurrentTab) return prev;
+          const firstType = categories.find((cat) =>
+            sorted.some((s) => s.type === cat.value),
+          );
+          return firstType?.value ?? prev;
+        });
+      };)
       .catch(() => {
         setError("Unable to load specials. Please try again later.");
         setSpecials([]);
