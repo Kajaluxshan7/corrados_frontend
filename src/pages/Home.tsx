@@ -34,7 +34,8 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AppleIcon from "@mui/icons-material/Apple";
 import ShopIcon from "@mui/icons-material/Shop";
-import { SectionHeader, NewsletterSignup } from "../components";
+import { SectionHeader, NewsletterSignup, FadingVideo, BlurText } from "../components";
+import { motion } from "framer-motion";
 import { testimonials } from "../data";
 import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
@@ -169,14 +170,7 @@ const lightSweep = keyframes`
   }
 `;
 
-const sectionLight = keyframes`
-  0%, 100% {
-    background-position: 18% 12%, 88% 84%, 50% 50%;
-  }
-  50% {
-    background-position: 30% 18%, 72% 76%, 50% 50%;
-  }
-`;
+
 
 
 
@@ -715,19 +709,15 @@ export default function Home() {
           </>
         )}
       </Dialog>
-
-      {/* Navigation tile bento grid — 3×3, logo at center slot */}
+         {/* Navigation tile bento grid — 4×2 grid with custom JS fading video background */}
       <Box
         component="section"
+        className="bento-grid"
         sx={{
           position: "relative",
           isolation: "isolate",
           overflow: "hidden",
-          bgcolor: palette.charcoal,
-          backgroundImage:
-            "radial-gradient(ellipse at 18% 12%, rgba(190,89,83,0.28) 0%, rgba(190,89,83,0) 34%), radial-gradient(ellipse at 86% 86%, rgba(44,85,48,0.28) 0%, rgba(44,85,48,0) 36%), linear-gradient(135deg, #2D2926 0%, #171210 54%, #241815 100%)",
-          backgroundSize: "140% 140%, 140% 140%, 100% 100%",
-          animation: `${sectionLight} 18s ease-in-out infinite`,
+          bgcolor: "#000",
           display: "grid",
           gap: { xs: 1.25, md: 1.75 },
           p: { xs: 1.25, sm: 2, md: 3 },
@@ -743,44 +733,26 @@ export default function Home() {
             lg: "repeat(2, 310px)",
           },
           perspective: "1400px",
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: "none",
-            background:
-              "linear-gradient(115deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 22%, rgba(255,255,255,0) 48%), linear-gradient(180deg, rgba(0,0,0,0) 58%, rgba(0,0,0,0.34) 100%)",
-            mixBlendMode: "screen",
-          },
-          "&::after": {
-            content: '""',
-            position: "absolute",
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: "none",
-            opacity: 0.1,
-            backgroundImage:
-              "repeating-linear-gradient(0deg, rgba(255,255,255,0.2) 0 1px, rgba(255,255,255,0) 1px 4px)",
-          },
           "@media (prefers-reduced-motion: reduce)": {
-            animation: "none",
             "& .cinematic-tile, & .tile-img, & .tile-sheen, & .tile-frame, & .tile-title, & .tile-arrow":
               {
                 animation: "none !important",
                 transition: "none !important",
               },
-            "& .cinematic-tile::before": {
-              animation: "none !important",
-            },
           },
         }}
       >
+        <FadingVideo
+          src="https://assets.mixkit.co/videos/preview/mixkit-cooking-in-a-professional-kitchen-41588-large.mp4"
+          className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top z-0"
+          style={{ width: "120%", height: "120%", pointerEvents: "none" }}
+        />
+
         {/* ── All 8 nav tiles (4 × 2 grid) ── */}
         {navTiles.map((tile, i) => (
           <Box
             key={tile.path}
-            className="cinematic-tile"
+            className="cinematic-tile liquid-glass"
             component={RouterLink}
             to={tile.path}
             sx={{
@@ -790,21 +762,11 @@ export default function Home() {
               textDecoration: "none",
               display: "block",
               borderRadius: 2,
-              border: "1px solid rgba(255,255,255,0.14)",
-              bgcolor: palette.charcoal,
-              boxShadow:
-                "0 24px 60px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
               transformStyle: "preserve-3d",
               animation: `${tileReveal} 880ms cubic-bezier(0.19, 1, 0.22, 1) both`,
               animationDelay: `${i * 65}ms`,
               transition:
-                "transform 0.55s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.55s ease, border-color 0.55s ease",
-              "&:hover, &:focus-visible": {
-                boxShadow:
-                  "0 34px 76px rgba(0,0,0,0.42), 0 0 0 1px rgba(201,169,110,0.34)",
-                borderColor: "rgba(201,169,110,0.5)",
-                transform: "translateY(-10px) scale(1.018)",
-              },
+                "transform 0.55s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.55s ease, border-color 0.55s ease, opacity 0.4s ease, filter 0.4s ease",
               "&:focus-visible": {
                 outline: `2px solid ${palette.gold}`,
                 outlineOffset: 4,
@@ -812,10 +774,7 @@ export default function Home() {
               "&:hover .tile-img, &:focus-visible .tile-img": {
                 "--tile-scale": "1.15",
                 filter: "saturate(1.08) contrast(1.06)",
-              },
-              "&:hover .tile-overlay, &:focus-visible .tile-overlay": {
-                background:
-                  "linear-gradient(to top, rgba(20,15,12,0.94) 0%, rgba(20,15,12,0.64) 50%, rgba(20,15,12,0.12) 100%)",
+                opacity: 0.95,
               },
               "&:hover .tile-frame, &:focus-visible .tile-frame": {
                 opacity: 1,
@@ -855,21 +814,11 @@ export default function Home() {
                 backgroundImage: `url(${tile.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
+                opacity: 0.28,
                 filter: "saturate(0.96) contrast(1)",
                 animation: `${tileImageDrift} ${17 + i}s ease-in-out infinite alternate`,
-                transition: "filter 0.55s ease",
+                transition: "filter 0.55s ease, opacity 0.55s ease",
                 willChange: "transform",
-              }}
-            />
-            <Box
-              className="tile-overlay"
-              sx={{
-                position: "absolute",
-                inset: 0,
-                zIndex: 1,
-                background:
-                  "linear-gradient(to top, rgba(20,15,12,0.9) 0%, rgba(20,15,12,0.48) 48%, rgba(20,15,12,0.08) 100%)",
-                transition: "background 0.45s ease",
               }}
             />
             <Box
@@ -952,7 +901,7 @@ export default function Home() {
                     fontSize: { xs: "1.05rem", sm: "1.1rem", md: "1.16rem" },
                     letterSpacing: "0.01em",
                     lineHeight: 1.25,
-                    textShadow: "0 3px 14px rgba(0,0,0,0.4)",
+                    textShadow: "0 3px 14px rgba(0,0,0,0.6)",
                     transition:
                       "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease",
                   }}
@@ -972,7 +921,6 @@ export default function Home() {
             </Box>
           </Box>
         ))}
-
       </Box>
 
       {/* ─── INTRO / ABOUT TEASER ─── */}
@@ -980,69 +928,84 @@ export default function Home() {
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                component="img"
-                loading="lazy"
-                src={getImage(
-                  "home_about_owner",
-                  "/restaurant/owner_and_logo.jpg",
-                )}
-                alt="Corrado's owner with the restaurant logo"
-                sx={{
-                  width: "100%",
-                  height: { xs: 300, md: 400 },
-                  objectFit: "cover",
-                  borderRadius: 1,
-                }}
-              />
+              <motion.div
+                initial={{ opacity: 0, x: -40, scale: 0.95 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+              >
+                <Box
+                  component="img"
+                  loading="lazy"
+                  src={getImage(
+                    "home_about_owner",
+                    "/restaurant/owner_and_logo.jpg",
+                  )}
+                  alt="Corrado's owner with the restaurant logo"
+                  sx={{
+                    width: "100%",
+                    height: { xs: 300, md: 400 },
+                    objectFit: "cover",
+                    borderRadius: 1,
+                  }}
+                />
+              </motion.div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  color: palette.primary.main,
-                  mb: 1,
-                  letterSpacing: "0.15em",
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1], delay: 0.15 }}
               >
-                OUR STORY
-              </Typography>
-              <Typography
-                variant="h3"
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  fontSize: { xs: "1.75rem", md: "2.25rem" },
-                }}
-              >
-                A Taste of Italy in Whitby
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
-              >
-                Since 2010, Corrado's has been the neighbourhood's favourite
-                destination for authentic Italian cuisine. From our family to
-                yours, we prepare every dish with fresh ingredients,
-                time-honoured recipes, and a genuine passion for hospitality.
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
-              >
-                Whether you're here for a casual weeknight dinner, a special
-                celebration, or cheering on your team during the big game —
-                there's always a seat at our table for you.
-              </Typography>
-              <Button
-                variant="outlined"
-                color="primary"
-                component={RouterLink}
-                to="/about"
-                endIcon={<ArrowForwardIcon />}
-              >
-                Our Story
-              </Button>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: palette.primary.main,
+                    mb: 1,
+                    letterSpacing: "0.15em",
+                  }}
+                >
+                  OUR STORY
+                </Typography>
+                <Typography
+                  variant="h3"
+                  component="div"
+                  sx={{
+                    mb: 3,
+                    fontWeight: 700,
+                    fontSize: { xs: "1.75rem", md: "2.25rem" },
+                  }}
+                >
+                  <BlurText text="A Taste of Italy in Whitby" align="left" />
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
+                >
+                  Since 2010, Corrado's has been the neighbourhood's favourite
+                  destination for authentic Italian cuisine. From our family to
+                  yours, we prepare every dish with fresh ingredients,
+                  time-honoured recipes, and a genuine passion for hospitality.
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
+                >
+                  Whether you're here for a casual weeknight dinner, a special
+                  celebration, or cheering on your team during the big game —
+                  there's always a seat at our table for you.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  component={RouterLink}
+                  to="/about"
+                  endIcon={<ArrowForwardIcon />}
+                >
+                  Our Story
+                </Button>
+              </motion.div>
             </Grid>
           </Grid>
         </Container>
@@ -1086,57 +1049,72 @@ export default function Home() {
                   "/restaurant/beef-short-rib.jpeg",
                 ),
               },
-            ].map((cat) => (
+            ].map((cat, i) => (
               <Grid key={cat.label} size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card
-                  component={RouterLink}
-                  to="/menus"
-                  sx={{
-                    textDecoration: "none",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "transform 0.3s, box-shadow 0.3s",
-                    "&:hover": {
-                      transform: "translateY(-6px)",
-                      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
-                    },
-                  }}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.7, delay: i * 0.08, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ height: "100%" }}
                 >
-                  <CardMedia
-                    component="img"
-                    loading="lazy"
-                    image={cat.image}
-                    alt={cat.label}
+                  <Card
+                    component={RouterLink}
+                    to="/menus"
                     sx={{
-                      height: { xs: 200, sm: 220, md: 240 },
-                      objectFit: "cover",
-                      flexShrink: 0,
+                      textDecoration: "none",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      transition: "transform 0.3s, box-shadow 0.3s",
+                      "&:hover": {
+                        transform: "translateY(-6px)",
+                        boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+                      },
                     }}
-                  />
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 700, color: palette.charcoal }}
-                    >
-                      {cat.label}
-                    </Typography>
-                  </CardContent>
-                </Card>
+                  >
+                    <CardMedia
+                      component="img"
+                      loading="lazy"
+                      image={cat.image}
+                      alt={cat.label}
+                      sx={{
+                        height: { xs: 200, sm: 220, md: 240 },
+                        objectFit: "cover",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <CardContent>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 700, color: palette.charcoal }}
+                      >
+                        {cat.label}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              component={RouterLink}
-              to="/menus"
-              endIcon={<ArrowForwardIcon />}
-              size="large"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.35 }}
             >
-              View Full Menu
-            </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                component={RouterLink}
+                to="/menus"
+                endIcon={<ArrowForwardIcon />}
+                size="large"
+              >
+                View Full Menu
+              </Button>
+            </motion.div>
           </Box>
         </Container>
       </Box>
@@ -1150,85 +1128,100 @@ export default function Home() {
         />
         <Container>
           <Grid container spacing={3}>
-            {featuredSpecials.map((special) => (
+            {featuredSpecials.map((special, i) => (
               <Grid key={special.id} size={{ xs: 12, md: 4 }}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
+                <motion.div
+                  initial={{ opacity: 0, y: 35 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ height: "100%" }}
                 >
-                  {special.imageUrls?.length > 0 && (
-                    <CardMedia
-                      component="img"
-                      loading="lazy"
-                      height="180"
-                      image={resolveImageUrl(special.imageUrls[0])}
-                      alt={special.title}
-                    />
-                  )}
-                  <CardContent sx={{ flex: 1, p: 3 }}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        mb: 2,
-                      }}
-                    >
-                      <Chip
-                        label={getSpecialLabel(special)}
-                        size="small"
-                        sx={{
-                          bgcolor: palette.primary.main,
-                          color: "#fff",
-                          fontWeight: 700,
-                          fontSize: "0.7rem",
-                        }}
+                  <Card
+                    sx={{
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {special.imageUrls?.length > 0 && (
+                      <CardMedia
+                        component="img"
+                        loading="lazy"
+                        height="180"
+                        image={resolveImageUrl(special.imageUrls[0])}
+                        alt={special.title}
                       />
-                      <Chip
-                        label={
-                          SPECIAL_TYPE_LABELS[special.type] ?? special.type
-                        }
-                        size="small"
-                        variant="outlined"
+                    )}
+                    <CardContent sx={{ flex: 1, p: 3 }}>
+                      <Box
                         sx={{
-                          borderColor: palette.gold,
-                          color: palette.gold,
-                          fontWeight: 600,
-                          fontSize: "0.7rem",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          mb: 2,
                         }}
-                      />
-                    </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                      {formatAmpersand(special.title)}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: palette.text.secondary,
-                        mb: 2,
-                        lineHeight: 1.7,
-                      }}
-                    >
-                      {special.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
+                      >
+                        <Chip
+                          label={getSpecialLabel(special)}
+                          size="small"
+                          sx={{
+                            bgcolor: palette.primary.main,
+                            color: "#fff",
+                            fontWeight: 700,
+                            fontSize: "0.7rem",
+                          }}
+                        />
+                        <Chip
+                          label={
+                            SPECIAL_TYPE_LABELS[special.type] ?? special.type
+                          }
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            borderColor: palette.gold,
+                            color: palette.gold,
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        {formatAmpersand(special.title)}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: palette.text.secondary,
+                          mb: 2,
+                          lineHeight: 1.7,
+                        }}
+                      >
+                        {special.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              component={RouterLink}
-              to="/specials"
-              endIcon={<ArrowForwardIcon />}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
             >
-              View All Specials
-            </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                component={RouterLink}
+                to="/specials"
+                endIcon={<ArrowForwardIcon />}
+              >
+                View All Specials
+              </Button>
+            </motion.div>
           </Box>
         </Container>
       </Box>
@@ -1238,17 +1231,21 @@ export default function Home() {
         sx={{
           py: { xs: 8, md: 10 },
           bgcolor: palette.charcoal,
-          backgroundImage: `url(${getImage("home_family_meals_bg", "/restaurant/catering-fruit-platter.jpeg")})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           position: "relative",
+          overflow: "hidden",
         }}
       >
+        <FadingVideo
+          src="https://assets.mixkit.co/videos/preview/mixkit-chef-preparing-a-fresh-vegetable-salad-41584-large.mp4"
+          className="absolute left-1/2 top-0 -translate-x-1/2 object-cover z-0"
+          style={{ width: "120%", height: "120%", pointerEvents: "none" }}
+        />
         <Box
           sx={{
             position: "absolute",
             inset: 0,
-            bgcolor: "rgba(30, 25, 22, 0.85)",
+            bgcolor: "rgba(12, 10, 9, 0.88)",
+            zIndex: 0,
           }}
         />
         <Box sx={{ position: "relative", zIndex: 1 }}>
@@ -1263,56 +1260,81 @@ export default function Home() {
               {liveFamilyMeals
                 .filter((m) => m.mealType === "combo")
                 .slice(0, 3)
-                .map((meal) => (
+                .map((meal, i) => (
                   <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
-                    <Card
-                      sx={{ height: "100%", bgcolor: "rgba(255,255,255,0.95)" }}
+                    <motion.div
+                      initial={{ opacity: 0, y: 35 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-80px" }}
+                      transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
+                      style={{ height: "100%" }}
                     >
-                      <CardContent sx={{ p: 3 }}>
-                        <Typography
-                          variant="h6"
-                          fontWeight={700}
-                          sx={{ mb: 1 }}
-                        >
-                          {formatAmpersand(meal.name)}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: palette.text.secondary, mb: 2 }}
-                        >
-                          {meal.description}
-                        </Typography>
-                        <Chip
-                          label={`Serves ${meal.serves}`}
-                          size="small"
-                          sx={{ mr: 1, mb: 1 }}
-                        />
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            color: palette.primary.main,
-                            fontWeight: 700,
-                            mt: 2,
-                          }}
-                        >
-                          {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
-                        </Typography>
-                      </CardContent>
-                    </Card>
+                      <Card
+                        className="liquid-glass-strong"
+                        sx={{
+                          height: "100%",
+                          bgcolor: "rgba(255, 255, 255, 0.05)",
+                          color: "#fff",
+                        }}
+                      >
+                        <CardContent sx={{ p: 3 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight={700}
+                            sx={{ mb: 1, color: "#fff" }}
+                          >
+                            {formatAmpersand(meal.name)}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "rgba(255, 255, 255, 0.7)", mb: 2 }}
+                          >
+                            {meal.description}
+                          </Typography>
+                          <Chip
+                            label={`Serves ${meal.serves}`}
+                            size="small"
+                            sx={{
+                              mr: 1,
+                              mb: 1,
+                              bgcolor: "rgba(255,255,255,0.15)",
+                              color: "#fff",
+                            }}
+                          />
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              color: palette.gold,
+                              fontWeight: 700,
+                              mt: 2,
+                            }}
+                          >
+                            {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
                   </Grid>
                 ))}
             </Grid>
             <Box sx={{ textAlign: "center", mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                component={RouterLink}
-                to="/family-meals"
-                endIcon={<ArrowForwardIcon />}
-                size="large"
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.35 }}
               >
-                View Family Meals
-              </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  component={RouterLink}
+                  to="/family-meals"
+                  endIcon={<ArrowForwardIcon />}
+                  size="large"
+                >
+                  View Family Meals
+                </Button>
+              </motion.div>
             </Box>
           </Container>
         </Box>
@@ -1323,78 +1345,93 @@ export default function Home() {
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  color: palette.primary.main,
-                  mb: 1,
-                  letterSpacing: "0.15em",
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
               >
-                PRIVATE EVENTS & CATERING
-              </Typography>
-              <Typography
-                variant="h3"
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  fontSize: { xs: "1.75rem", md: "2.25rem" },
-                }}
-              >
-                Host Your Next Event at Corrado's
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
-              >
-                From intimate gatherings to large celebrations, we have the
-                perfect space and menu for your event. Birthday parties,
-                corporate dinners, sports viewing parties, and more.
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
-              >
-                Our dedicated event coordinator will work with you to customize
-                every detail, from menu selection to seating arrangement.
-                Starting at just $25 per person.
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  component={RouterLink}
-                  to="/party-menus"
-                  endIcon={<ArrowForwardIcon />}
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: palette.primary.main,
+                    mb: 1,
+                    letterSpacing: "0.15em",
+                  }}
                 >
-                  Party Menus
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  component={RouterLink}
-                  to="/contact"
+                  PRIVATE EVENTS & CATERING
+                </Typography>
+                <Typography
+                  variant="h3"
+                  component="div"
+                  sx={{
+                    mb: 3,
+                    fontWeight: 700,
+                    fontSize: { xs: "1.75rem", md: "2.25rem" },
+                  }}
                 >
-                  Get in Touch
-                </Button>
-              </Stack>
+                  <BlurText text="Host Your Next Event at Corrado's" align="left" />
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
+                >
+                  From intimate gatherings to large celebrations, we have the
+                  perfect space and menu for your event. Birthday parties,
+                  corporate dinners, sports viewing parties, and more.
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
+                >
+                  Our dedicated event coordinator will work with you to customize
+                  every detail, from menu selection to seating arrangement.
+                  Starting at just $25 per person.
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component={RouterLink}
+                    to="/party-menus"
+                    endIcon={<ArrowForwardIcon />}
+                  >
+                    Party Menus
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component={RouterLink}
+                    to="/contact"
+                  >
+                    Get in Touch
+                  </Button>
+                </Stack>
+              </motion.div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                component="img"
-                loading="lazy"
-                src={getImage(
-                  "home_private_events",
-                  "/orrdos/interior-upstairs.jpg",
-                )}
-                alt="Corrado's upstairs dining room — perfect for private events"
-                sx={{
-                  width: "100%",
-                  height: { xs: 300, md: 400 },
-                  objectFit: "cover",
-                  borderRadius: 1,
-                }}
-              />
+              <motion.div
+                initial={{ opacity: 0, x: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1], delay: 0.15 }}
+              >
+                <Box
+                  component="img"
+                  loading="lazy"
+                  src={getImage(
+                    "home_private_events",
+                    "/orrdos/interior-upstairs.jpg",
+                  )}
+                  alt="Corrado's upstairs dining room — perfect for private events"
+                  sx={{
+                    width: "100%",
+                    height: { xs: 300, md: 400 },
+                    objectFit: "cover",
+                    borderRadius: 1,
+                  }}
+                />
+              </motion.div>
             </Grid>
           </Grid>
         </Container>
@@ -1409,65 +1446,80 @@ export default function Home() {
         />
         <Container>
           <Grid container spacing={3}>
-            {featuredEvents.map((event) => (
+            {featuredEvents.map((event, i) => (
               <Grid key={event.id} size={{ xs: 12, md: 4 }}>
-                <Card sx={{ height: "100%" }}>
-                  {event.imageUrls?.length > 0 && (
-                    <CardMedia
-                      component="img"
-                      loading="lazy"
-                      height="180"
-                      image={resolveImageUrl(event.imageUrls[0])}
-                      alt={event.title}
-                    />
-                  )}
-                  <CardContent sx={{ p: 3 }}>
-                    <Chip
-                      label={EVENT_TYPE_LABELS[event.type] ?? event.type}
-                      size="small"
-                      sx={{
-                        mb: 2,
-                        bgcolor: palette.secondary.main,
-                        color: "#fff",
-                        textTransform: "capitalize",
-                        fontWeight: 600,
-                        fontSize: "0.7rem",
-                      }}
-                    />
-                    <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                      {formatAmpersand(event.title)}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: palette.primary.main,
-                        fontWeight: 600,
-                        mb: 1,
-                      }}
-                    >
-                      {formatEventDateRange(event.eventStartDate)}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: palette.text.secondary, lineHeight: 1.7 }}
-                    >
-                      {event.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
+                <motion.div
+                  initial={{ opacity: 0, y: 35 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ height: "100%" }}
+                >
+                  <Card sx={{ height: "100%" }}>
+                    {event.imageUrls?.length > 0 && (
+                      <CardMedia
+                        component="img"
+                        loading="lazy"
+                        height="180"
+                        image={resolveImageUrl(event.imageUrls[0])}
+                        alt={event.title}
+                      />
+                    )}
+                    <CardContent sx={{ p: 3 }}>
+                      <Chip
+                        label={EVENT_TYPE_LABELS[event.type] ?? event.type}
+                        size="small"
+                        sx={{
+                          mb: 2,
+                          bgcolor: palette.secondary.main,
+                          color: "#fff",
+                          textTransform: "capitalize",
+                          fontWeight: 600,
+                          fontSize: "0.7rem",
+                        }}
+                      />
+                      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                        {formatAmpersand(event.title)}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: palette.primary.main,
+                          fontWeight: 600,
+                          mb: 1,
+                        }}
+                      >
+                        {formatEventDateRange(event.eventStartDate)}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: palette.text.secondary, lineHeight: 1.7 }}
+                      >
+                        {event.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              component={RouterLink}
-              to="/events"
-              endIcon={<ArrowForwardIcon />}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
             >
-              View All Events
-            </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                component={RouterLink}
+                to="/events"
+                endIcon={<ArrowForwardIcon />}
+              >
+                View All Events
+              </Button>
+            </motion.div>
           </Box>
         </Container>
       </Box>
@@ -1491,33 +1543,47 @@ export default function Home() {
                 ]
             ).map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>
-                <Box
-                  component="img"
-                  loading="lazy"
-                  src={src}
-                  alt={`Gallery image ${i + 1}`}
-                  sx={{
-                    width: "100%",
-                    height: { xs: 160, md: 220 },
-                    objectFit: "cover",
-                    borderRadius: 1,
-                    transition: "transform 0.3s",
-                    "&:hover": { transform: "scale(1.03)" },
-                  }}
-                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.92, y: 20 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.6, delay: i * 0.08, ease: [0.25, 1, 0.5, 1] }}
+                >
+                  <Box
+                    component="img"
+                    loading="lazy"
+                    src={src}
+                    alt={`Gallery image ${i + 1}`}
+                    sx={{
+                      width: "100%",
+                      height: { xs: 160, md: 220 },
+                      objectFit: "cover",
+                      borderRadius: 1,
+                      transition: "transform 0.3s",
+                      "&:hover": { transform: "scale(1.03)" },
+                    }}
+                  />
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              component={RouterLink}
-              to="/gallery"
-              endIcon={<ArrowForwardIcon />}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.35 }}
             >
-              View Full Gallery
-            </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                component={RouterLink}
+                to="/gallery"
+                endIcon={<ArrowForwardIcon />}
+              >
+                View Full Gallery
+              </Button>
+            </motion.div>
           </Box>
         </Container>
       </Box>
@@ -1527,169 +1593,184 @@ export default function Home() {
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  color: palette.primary.main,
-                  mb: 1,
-                  letterSpacing: "0.15em",
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
               >
-                MOBILE APP
-              </Typography>
-              <Typography
-                variant="h3"
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  fontSize: { xs: "1.75rem", md: "2.25rem" },
-                }}
-              >
-                Order From Anywhere
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
-              >
-                Download the Corrado's app and get your favourite Italian dishes
-                delivered right to your door. Browse our full menu, customize
-                your order, track delivery, and earn rewards with every
-                purchase.
-              </Typography>
-              <Stack direction="row" spacing={2}>
-                <Tooltip
-                  title="Coming soon — stay tuned!"
-                  arrow
-                  placement="top"
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: palette.primary.main,
+                    mb: 1,
+                    letterSpacing: "0.15em",
+                  }}
                 >
-                  <span>
-                    <Button
-                      variant="contained"
-                      disabled
-                      startIcon={<AppleIcon />}
-                      sx={{
-                        bgcolor: "#000",
-                        color: "#fff",
-                        px: 3,
-                        py: 1.2,
-                        textTransform: "none",
-                        fontSize: "0.85rem",
-                        "&.Mui-disabled": {
-                          bgcolor: "#555",
-                          color: "rgba(255,255,255,0.6)",
-                        },
-                      }}
-                    >
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: "0.6rem",
-                            lineHeight: 1,
-                            textAlign: "left",
-                          }}
-                        >
-                          Coming Soon
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: "1rem",
-                            fontWeight: 700,
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          App Store
-                        </Typography>
-                      </Box>
-                    </Button>
-                  </span>
-                </Tooltip>
-                <Tooltip
-                  title="Coming soon — stay tuned!"
-                  arrow
-                  placement="top"
+                  MOBILE APP
+                </Typography>
+                <Typography
+                  variant="h3"
+                  component="div"
+                  sx={{
+                    mb: 3,
+                    fontWeight: 700,
+                    fontSize: { xs: "1.75rem", md: "2.25rem" },
+                  }}
                 >
-                  <span>
-                    <Button
-                      variant="contained"
-                      disabled
-                      startIcon={<ShopIcon />}
-                      sx={{
-                        bgcolor: "#000",
-                        color: "#fff",
-                        px: 3,
-                        py: 1.2,
-                        textTransform: "none",
-                        fontSize: "0.85rem",
-                        "&.Mui-disabled": {
-                          bgcolor: "#555",
-                          color: "rgba(255,255,255,0.6)",
-                        },
-                      }}
-                    >
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontSize: "0.6rem",
-                            lineHeight: 1,
-                            textAlign: "left",
-                          }}
-                        >
-                          Coming Soon
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: "1rem",
-                            fontWeight: 700,
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          Google Play
-                        </Typography>
-                      </Box>
-                    </Button>
-                  </span>
-                </Tooltip>
-              </Stack>
+                  <BlurText text="Order From Anywhere" align="left" />
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
+                >
+                  Download the Corrado's app and get your favourite Italian dishes
+                  delivered right to your door. Browse our full menu, customize
+                  your order, track delivery, and earn rewards with every
+                  purchase.
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  <Tooltip
+                    title="Coming soon — stay tuned!"
+                    arrow
+                    placement="top"
+                  >
+                    <span>
+                      <Button
+                        variant="contained"
+                        disabled
+                        startIcon={<AppleIcon />}
+                        sx={{
+                          bgcolor: "#000",
+                          color: "#fff",
+                          px: 3,
+                          py: 1.2,
+                          textTransform: "none",
+                          fontSize: "0.85rem",
+                          "&.Mui-disabled": {
+                            bgcolor: "#555",
+                            color: "rgba(255,255,255,0.6)",
+                          },
+                        }}
+                      >
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontSize: "0.6rem",
+                              lineHeight: 1,
+                              textAlign: "left",
+                            }}
+                          >
+                            Coming Soon
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "1rem",
+                              fontWeight: 700,
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            App Store
+                          </Typography>
+                        </Box>
+                      </Button>
+                    </span>
+                  </Tooltip>
+                  <Tooltip
+                    title="Coming soon — stay tuned!"
+                    arrow
+                    placement="top"
+                  >
+                    <span>
+                      <Button
+                        variant="contained"
+                        disabled
+                        startIcon={<ShopIcon />}
+                        sx={{
+                          bgcolor: "#000",
+                          color: "#fff",
+                          px: 3,
+                          py: 1.2,
+                          textTransform: "none",
+                          fontSize: "0.85rem",
+                          "&.Mui-disabled": {
+                            bgcolor: "#555",
+                            color: "rgba(255,255,255,0.6)",
+                          },
+                        }}
+                      >
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontSize: "0.6rem",
+                              lineHeight: 1,
+                              textAlign: "left",
+                            }}
+                          >
+                            Coming Soon
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "1rem",
+                              fontWeight: 700,
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            Google Play
+                          </Typography>
+                        </Box>
+                      </Button>
+                    </span>
+                  </Tooltip>
+                </Stack>
+              </motion.div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: { xs: 280, md: 400 },
-                  bgcolor: palette.background.default,
-                  borderRadius: 1,
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 60, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 1.0, type: "spring", stiffness: 60, damping: 15 }}
               >
                 <Box
                   sx={{
-                    width: 200,
-                    height: 380,
-                    bgcolor: "#222",
-                    borderRadius: "24px",
-                    border: "4px solid #444",
                     display: "flex",
-                    alignItems: "center",
                     justifyContent: "center",
-                    position: "relative",
-                    overflow: "hidden",
+                    alignItems: "center",
+                    height: { xs: 280, md: 400 },
+                    bgcolor: palette.background.default,
+                    borderRadius: 1,
                   }}
                 >
                   <Box
-                    component="img"
-                    loading="lazy"
-                    src="/restaurant/menu-spread.jpeg"
-                    alt="App preview — Corrado's menu on mobile"
                     sx={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      borderRadius: "20px",
+                      width: 200,
+                      height: 380,
+                      bgcolor: "#222",
+                      borderRadius: "24px",
+                      border: "4px solid #444",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      position: "relative",
+                      overflow: "hidden",
                     }}
-                  />
+                  >
+                    <Box
+                      component="img"
+                      loading="lazy"
+                      src="/restaurant/menu-spread.jpeg"
+                      alt="App preview — Corrado's menu on mobile"
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        borderRadius: "20px",
+                      }}
+                    />
+                  </Box>
                 </Box>
-              </Box>
+              </motion.div>
             </Grid>
           </Grid>
         </Container>
@@ -1762,29 +1843,36 @@ export default function Home() {
               },
             ].map((feature, i) => (
               <Grid key={i} size={{ xs: 6, sm: 4, md: 3 }}>
-                <Box sx={{ textAlign: "center", p: 2 }}>
-                  <Box
-                    sx={{
-                      color: palette.primary.main,
-                      mb: 1.5,
-                      "& svg": { fontSize: 36 },
-                    }}
-                  >
-                    {feature.icon}
+                <motion.div
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.6, delay: (i % 4) * 0.08, ease: [0.25, 1, 0.5, 1] }}
+                >
+                  <Box sx={{ textAlign: "center", p: 2 }}>
+                    <Box
+                      sx={{
+                        color: palette.primary.main,
+                        mb: 1.5,
+                        "& svg": { fontSize: 36 },
+                      }}
+                    >
+                      {feature.icon}
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 700, fontSize: "1rem", mb: 0.5 }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: palette.text.secondary }}
+                    >
+                      {feature.text}
+                    </Typography>
                   </Box>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 700, fontSize: "1rem", mb: 0.5 }}
-                  >
-                    {feature.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ color: palette.text.secondary }}
-                  >
-                    {feature.text}
-                  </Typography>
-                </Box>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
@@ -1801,92 +1889,99 @@ export default function Home() {
           onMouseEnter={() => setIsReviewsHovered(true)}
           onMouseLeave={() => setIsReviewsHovered(false)}
         >
-          <Grid
-            container
-            spacing={3}
-            sx={{
-              minHeight: { xs: "auto", sm: 280 },
-              opacity: reviewsVisible ? 1 : 0,
-              transition: "opacity 0.3s ease",
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
           >
-            {visibleReviews.map((t) => (
-              <Grid key={t.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                <Card
-                  sx={{ height: 240, display: "flex", flexDirection: "column" }}
-                >
-                  <CardContent
-                    sx={{
-                      p: 3,
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
+            <Grid
+              container
+              spacing={3}
+              sx={{
+                minHeight: { xs: "auto", sm: 280 },
+                opacity: reviewsVisible ? 1 : 0,
+                transition: "opacity 0.3s ease",
+              }}
+            >
+              {visibleReviews.map((t) => (
+                <Grid key={t.id} size={{ xs: 12, sm: 6, md: 3 }}>
+                  <Card
+                    sx={{ height: 240, display: "flex", flexDirection: "column" }}
                   >
-                    <Rating
-                      value={t.rating}
-                      readOnly
-                      size="small"
-                      sx={{ mb: 1.5, flexShrink: 0 }}
-                    />
-                    <Typography
-                      variant="body2"
+                    <CardContent
                       sx={{
-                        color: palette.text.secondary,
-                        fontStyle: "italic",
-                        lineHeight: 1.7,
-                        mb: 2,
+                        p: 3,
                         flex: 1,
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 5,
-                        WebkitBoxOrient: "vertical",
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      "{t.text}"
-                    </Typography>
-                    <Box sx={{ flexShrink: 0 }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: 700, fontSize: "0.85rem" }}
-                      >
-                        {t.name}
-                      </Typography>
+                      <Rating
+                        value={t.rating}
+                        readOnly
+                        size="small"
+                        sx={{ mb: 1.5, flexShrink: 0 }}
+                      />
                       <Typography
                         variant="body2"
                         sx={{
                           color: palette.text.secondary,
-                          fontSize: "0.75rem",
+                          fontStyle: "italic",
+                          lineHeight: 1.7,
+                          mb: 2,
+                          flex: 1,
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 5,
+                          WebkitBoxOrient: "vertical",
                         }}
                       >
-                        via {t.source}
+                        "{t.text}"
                       </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-          {/* Dot indicators */}
-          <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 4 }}
-          >
-            {Array.from({ length: totalReviewPages }).map((_, i) => (
-              <Box
-                key={i}
-                onClick={() => changeReviewPage(i)}
-                sx={{
-                  width: reviewPage === i ? 24 : 8,
-                  height: 8,
-                  borderRadius: 999,
-                  bgcolor:
-                    reviewPage === i ? palette.primary.main : palette.warmGray,
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                }}
-              />
-            ))}
-          </Box>
+                      <Box sx={{ flexShrink: 0 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 700, fontSize: "0.85rem" }}
+                        >
+                          {t.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: palette.text.secondary,
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          via {t.source}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+            {/* Dot indicators */}
+            <Box
+              sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 4 }}
+            >
+              {Array.from({ length: totalReviewPages }).map((_, i) => (
+                <Box
+                  key={i}
+                  onClick={() => changeReviewPage(i)}
+                  sx={{
+                    width: reviewPage === i ? 24 : 8,
+                    height: 8,
+                    borderRadius: 999,
+                    bgcolor:
+                      reviewPage === i ? palette.primary.main : palette.warmGray,
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                  }}
+                />
+              ))}
+            </Box>
+          </motion.div>
         </Container>
       </Box>
 

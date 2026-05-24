@@ -5,3 +5,7 @@ export { default as ScrollProgressButton } from './ScrollProgressButton';
 export { default as WelcomeSplash } from './WelcomeSplash';
 export { default as PosterBar } from './PosterBar';
 export { default as NewsletterSignup } from './NewsletterSignup';
+export { default as Magnet } from './Magnet';
+export { default as AnimatedText } from './AnimatedText';
+export { default as FadingVideo } from './FadingVideo';
+export { default as BlurText } from './BlurText';

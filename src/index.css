@@ -1,3 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Instrument Serif", serif;
+  --font-body: "Barlow", sans-serif;
+  --radius-default: 9999px;
+}
+
 /*
  * Ampersand fix: override the & glyph in Playfair Display with a plain
  * system-font glyph. Playfair Display's & is a stylistic swash form;
@@ -55,3 +63,390 @@ img {
   height: auto;
   display: block;
 }
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float-shadow {
+  0%, 100% {
+    transform: scaleX(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleX(0.85);
+    opacity: 0.18;
+    filter: blur(8px);
+  }
+}
+
+/* --- GALLERY PAGE ENHANCEMENTS --- */
+
+/* 1. Ken Burns Effect */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1.05) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.15) translate(-1%, -0.5%);
+  }
+  100% {
+    transform: scale(1.05) translate(0, 0);
+  }
+}
+
+/* 2. Hero Scroll Parallax */
+@keyframes heroScrollParallax {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(150px);
+  }
+}
+
+/* 3. Scroll-Driven Reveal Up */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4. Page Hero Parallax classes */
+.hero-parallax-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -150px; /* Extra height to accommodate parallax translation */
+  height: calc(100% + 150px);
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@supports ((animation-timeline: scroll()) or (animation-timeline: view())) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-parallax-bg {
+      animation: heroScrollParallax linear both;
+      animation-timeline: scroll();
+      animation-range: 0px 600px;
+    }
+  }
+}
+
+/* 5. Animated Mesh Gradient Header */
+.gallery-header-bg {
+  background: linear-gradient(135deg, #FDF8F4 0%, #F5EDE4 40%, #F2DFDB 70%, #FDF8F4 100%);
+  background-size: 300% 300%;
+  animation: meshGradient 18s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes meshGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gallery-header-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 70%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(190, 89, 83, 0.08) 0%, rgba(0,0,0,0) 70%);
+  pointer-events: none;
+  animation: floatGlow 15s ease-in-out infinite alternate;
+}
+
+.gallery-header-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -40%;
+  right: -20%;
+  width: 70%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(201, 169, 110, 0.06) 0%, rgba(0,0,0,0) 70%);
+  pointer-events: none;
+  animation: floatGlow 18s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes floatGlow {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(8%, 10%) scale(1.15);
+  }
+}
+
+/* 6. Spotlight Effect & Masonry Layout */
+.gallery-grid {
+  columns: 2;
+  column-gap: 8px;
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .gallery-grid {
+    columns: 3;
+    column-gap: 12px;
+  }
+}
+
+@media (min-width: 900px) {
+  .gallery-grid {
+    columns: 4;
+    column-gap: 16px;
+  }
+}
+
+/* Outer Card Wrapper (handles entrance, stagger, scroll animation, and idle float) */
+.gallery-card-wrapper {
+  break-inside: avoid;
+  margin-bottom: 8px;
+  position: relative;
+  will-change: transform, opacity;
+}
+
+@media (min-width: 600px) {
+  .gallery-card-wrapper {
+    margin-bottom: 12px;
+  }
+}
+
+@media (min-width: 900px) {
+  .gallery-card-wrapper {
+    margin-bottom: 16px;
+  }
+}
+
+/* Idle floating animation (brings the grid to life) */
+.gallery-card-floating {
+  animation: cardFloat 6s ease-in-out infinite alternate;
+  animation-delay: calc(var(--float-delay, 0) * -0.7s);
+}
+
+@keyframes cardFloat {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Inner Card Container (handles 3D tilt perspective, spotlight hover, and shadows) */
+.gallery-item-animated {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 28px;
+  display: block;
+  background-color: #F5EDE4;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: box-shadow 0.3s ease, opacity 0.4s ease;
+  will-change: transform;
+}
+
+/* Spotlight dimming (dims non-hovered cards when user hovers over grid) */
+.gallery-grid:hover .gallery-item-animated {
+  opacity: 0.4;
+}
+
+.gallery-grid .gallery-item-animated:hover {
+  opacity: 1;
+  box-shadow: 0 20px 45px rgba(190, 89, 83, 0.12);
+  z-index: 10;
+}
+
+/* 7. Scroll-Driven Reveal (Native, Performant override) */
+@supports ((animation-timeline: view()) and (animation-range: entry)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .gallery-card-wrapper {
+      opacity: 0;
+      transform: translateY(40px);
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 40%;
+    }
+  }
+}
+
+/* 8. Intersection Observer Reveal Fallback */
+.gallery-card-wrapper.reveal-fallback {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-card-wrapper.reveal-fallback.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 9. Scrolling Marquee Row and Tiles */
+.marquee-section {
+  background-color: #FDF8F4;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+}
+
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.marquee-tile {
+  flex: 0 0 420px;
+  height: 270px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  background-color: #F5EDE4;
+  transition: box-shadow 0.3s ease;
+}
+
+.marquee-tile img,
+.marquee-tile video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.marquee-tile:hover img,
+.marquee-tile:hover video {
+  transform: scale(1.04);
+}
+
+/* 10. Stacking Category Cards */
+.gallery-stack-card {
+  border: 2px solid #BE5953;
+  background-color: #FFFFFF;
+  border-radius: 40px;
+  padding: 16px;
+  box-shadow: 0 -15px 40px rgba(190, 89, 83, 0.08);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .gallery-stack-card {
+    border-radius: 50px;
+    padding: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .gallery-stack-card {
+    border-radius: 60px;
+    padding: 32px;
+  }
+}
+
+/* --- LIQUID-GLASS DESIGN SYSTEM UTILITIES --- */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.15) 80%,
+    rgba(255, 255, 255, 0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.liquid-glass-strong {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  border: none;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-strong::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.2) 80%,
+    rgba(255, 255, 255, 0.5) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Bento Grid Spotlight Dimming */
+.bento-grid:hover .cinematic-tile {
+  opacity: 0.4;
+  filter: blur(1.5px) saturate(0.85);
+}
+
+.bento-grid .cinematic-tile:hover {
+  opacity: 1 !important;
+  filter: blur(0px) saturate(1.08) contrast(1.04) !important;
+  transform: translateY(-8px) scale(1.025) !important;
+  box-shadow: 0 34px 76px rgba(0, 0, 0, 0.42), 0 0 0 1.5px rgba(255, 255, 255, 0.24) !important;
+}
+
+
+
+
+
+
+

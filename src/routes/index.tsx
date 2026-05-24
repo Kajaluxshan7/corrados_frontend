@@ -14,6 +14,7 @@ const Gallery    = lazy(() => import('../pages/Gallery'));
 const GiftCards  = lazy(() => import('../pages/GiftCards'));
 const Contact    = lazy(() => import('../pages/Contact'));
 const NotFound   = lazy(() => import('../pages/NotFound'));
+const ToonHub    = lazy(() => import('../pages/ToonHub'));
 
 
 function withSuspense(element: React.ReactNode) {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       { path: '/contact',       element: withSuspense(<Contact />) },
       { path: '*',              element: withSuspense(<NotFound />) },
     ],
+  },
+  {
+    path: '/toonhub',
+    element: withSuspense(<ToonHub />),
   },
 ]);
 

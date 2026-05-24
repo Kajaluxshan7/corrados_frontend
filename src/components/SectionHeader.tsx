@@ -2,6 +2,7 @@ import { Box, Typography, Container } from '@mui/material';
 import type { ReactNode } from 'react';
 import { palette } from '../theme';
 import { formatAmpersand } from "../utils/formatAmpersand";
+import BlurText from './BlurText';
 
 interface SectionHeaderProps {
   subtitle?: string;
@@ -44,15 +45,17 @@ export default function SectionHeader({
           </Typography>
         )}
         <Typography
-          variant="h3"
+          component="div"
           sx={{
             color: light ? "#fff" : palette.charcoal,
             mb: 2,
             fontSize: { xs: "1.75rem", md: "2.25rem" },
             fontWeight: 700,
+            display: "flex",
+            justifyContent: align === "center" ? "center" : "flex-start",
           }}
         >
-          {formatAmpersand(title)}
+          <BlurText text={formatAmpersand(title)} align={align} />
         </Typography>
         {description && (
           <Typography

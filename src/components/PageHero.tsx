@@ -12,6 +12,8 @@ interface PageHeroProps {
   children?: ReactNode;
   height?: string | number;
   overlay?: number;
+  parallax?: boolean;
+  kenBurns?: boolean;
 }
 
 export default function PageHero({
@@ -22,7 +24,12 @@ export default function PageHero({
   children,
   height = "50vh",
   overlay = 0.55,
+  parallax = false,
+  kenBurns = false,
 }: PageHeroProps) {
+  // Determine if we use the dual-layer background (for parallax/Ken Burns) or single-layer
+  const useDualLayer = backgroundImage && (parallax || kenBurns);
+
   return (
     <Box
       sx={{
@@ -31,7 +38,8 @@ export default function PageHero({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundImage: backgroundImage
+        // Fallback or single-layer image
+        backgroundImage: (backgroundImage && !useDualLayer)
           ? `url(${backgroundImage})`
           : undefined,
         backgroundSize: "cover",
@@ -40,6 +48,36 @@ export default function PageHero({
         overflow: "hidden",
       }}
     >
+      {/* Parallax / Ken Burns background layers */}
+      {useDualLayer && (
+        <Box
+          className={parallax ? "hero-parallax-bg" : undefined}
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: parallax ? -150 : 0,
+            height: parallax ? "calc(100% + 150px)" : "100%",
+            width: "100%",
+            zIndex: 0,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
+        >
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              animation: kenBurns ? "kenBurns 24s ease-in-out infinite" : undefined,
+            }}
+          />
+        </Box>
+      )}
+
       {/* Overlay */}
       <Box
         sx={{
