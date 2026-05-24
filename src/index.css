@@ -1,3 +1,23 @@
+/*
+ * Ampersand fix: override the & glyph in Playfair Display with a plain
+ * system-font glyph. Playfair Display's & is a stylistic swash form;
+ * both normal and italic variants are covered so italic body text is also fixed.
+ */
+@font-face {
+  font-family: 'AmpersandFix';
+  font-style: normal;
+  font-weight: 100 900;
+  src: local('Arial'), local('Helvetica Neue'), local('Liberation Sans');
+  unicode-range: U+0026;
+}
+@font-face {
+  font-family: 'AmpersandFix';
+  font-style: italic;
+  font-weight: 100 900;
+  src: local('Arial'), local('Helvetica Neue'), local('Liberation Sans');
+  unicode-range: U+0026;
+}
+
 /* Minimal global resets - MUI CssBaseline handles most resets */
 * {
   margin: 0;

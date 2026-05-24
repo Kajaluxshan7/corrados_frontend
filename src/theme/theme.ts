@@ -10,23 +10,23 @@ let theme = createTheme({
     text: palette.text,
   },
   typography: {
-    fontFamily: '"Playfair Display", "Georgia", serif',
+    fontFamily: '"AmpersandFix", "Playfair Display", "Georgia", serif',
     h1: {
-      fontFamily: '"Playfair Display", "Georgia", serif',
+      fontFamily: '"AmpersandFix", "Playfair Display", "Georgia", serif',
       fontWeight: 700,
       letterSpacing: '-0.02em',
     },
     h2: {
-      fontFamily: '"Playfair Display", "Georgia", serif',
+      fontFamily: '"AmpersandFix", "Playfair Display", "Georgia", serif',
       fontWeight: 700,
       letterSpacing: '-0.01em',
     },
     h3: {
-      fontFamily: '"Playfair Display", "Georgia", serif',
+      fontFamily: '"AmpersandFix", "Playfair Display", "Georgia", serif',
       fontWeight: 600,
     },
     h4: {
-      fontFamily: '"Playfair Display", "Georgia", serif',
+      fontFamily: '"AmpersandFix", "Playfair Display", "Georgia", serif',
       fontWeight: 600,
     },
     h5: {

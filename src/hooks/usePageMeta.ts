@@ -13,6 +13,8 @@ interface PageMetaOptions {
 const SITE_DOMAIN = "https://www.corradosrestaurant.com";
 const SITE_NAME   = "Corrado's Restaurant and Bar";
 const DEFAULT_IMAGE = "/orrdos/exterior-building.jpg";
+const DEFAULT_DESCRIPTION =
+  "Corrado's Restaurant & Bar — authentic Italian dining in Whitby, ON since 2010. Handmade pasta, stone-oven pizza, daily specials, family meals & private events.";
 
 /**
  * Updates document title, canonical link, and all OG / Twitter meta tags
@@ -26,6 +28,7 @@ export function usePageMeta({
 }: PageMetaOptions) {
   useEffect(() => {
     const fullTitle   = `${title} | ${SITE_NAME}`;
+    const metaDescription = description ?? DEFAULT_DESCRIPTION;
     const imageRelative = ogImage ?? DEFAULT_IMAGE;
     const imageAbsolute = `${SITE_DOMAIN}${imageRelative}`;
     const canonicalUrl  = `${SITE_DOMAIN}${window.location.pathname}`;
@@ -44,22 +47,16 @@ export function usePageMeta({
     setMeta("og:image:secure_url", imageAbsolute, "property");
     setMeta("og:site_name",   SITE_NAME,     "property");
     setMeta("og:locale",      "en_CA",       "property");
-    if (description) {
-      setMeta("og:description", description, "property");
-    }
+    setMeta("og:description", metaDescription, "property");
 
     // ── Twitter ──────────────────────────────────────────────────────────
     setMeta("twitter:card",  "summary_large_image", "name");
     setMeta("twitter:title", fullTitle,             "name");
     setMeta("twitter:image", imageAbsolute,         "name");
-    if (description) {
-      setMeta("twitter:description", description, "name");
-    }
+    setMeta("twitter:description", metaDescription, "name");
 
     // ── Primary description ──────────────────────────────────────────────
-    if (description) {
-      setMeta("description", description, "name");
-    }
+    setMeta("description", metaDescription, "name");
 
     // ── Robots (all pages are indexable) ─────────────────────────────────
     setMeta("robots", "index, follow, max-snippet:-1, max-image-preview:large", "name");

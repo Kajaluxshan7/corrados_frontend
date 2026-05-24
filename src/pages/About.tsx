@@ -109,6 +109,7 @@ export default function About() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
+                loading="lazy"
                 src={getImage("about_heritage", "/restaurant/menu-spread.jpeg")}
                 alt="Corrado's signature dishes — pizzas and mains on the table"
                 sx={{
@@ -205,6 +206,7 @@ export default function About() {
                   >
                     <Box
                       component="img"
+                      loading="lazy"
                       src={item.image}
                       alt={item.title}
                       sx={{
@@ -289,6 +291,7 @@ export default function About() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
+                loading="lazy"
                 src={getImage("about_cta", "/restaurant/pork-roll-jus.jpeg")}
                 alt="Corrado's signature Italian entrée — slow-roasted pork with jus"
                 sx={{

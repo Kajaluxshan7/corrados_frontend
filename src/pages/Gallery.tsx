@@ -309,7 +309,7 @@ export default function Gallery() {
         onClose={() => setSelectedImage(null)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { bgcolor: "#000", borderRadius: 1 } }}
+        slotProps={{ paper: { sx: { bgcolor: "#000", borderRadius: 1 } } }}
       >
         {selectedImage && (
           <Box sx={{ position: "relative" }}>

@@ -444,7 +444,7 @@ export default function Contact() {
                     details you can send us.
                   </Typography>
 
-                  <Box component="form" onSubmit={handleSubmit} noValidate>
+                  <Box component="form" onSubmit={handleSubmit}>
                     <Grid container spacing={2}>
                       {/* Name */}
                       <Grid size={{ xs: 12, sm: 6 }}>
@@ -761,7 +761,8 @@ export default function Contact() {
         <Box
           component="iframe"
           title="Corrado's Restaurant Location"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2870.0!2d-78.9426!3d43.8745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDUyJzI4LjIiTiA3OMKwNTYnMzMuNCJX!5e0!3m2!1sen!2sca!4v1234567890"
+          src={`https://maps.google.com/maps?q=${encodeURIComponent(businessInfo.address)}&z=16&output=embed`}
+          loading="lazy"
           width="100%"
           height="100%"
           sx={{ border: 0, display: "block" }}

@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { Link as RouterLink } from "react-router-dom";
 import { PageHero } from "../components";
 import { businessInfo } from "../data";
@@ -148,6 +150,7 @@ export default function PartyMenus() {
                           <>
                             <Box
                               component="img"
+                              loading="lazy"
                               src={imgSrc}
                               alt={menu.name}
                               sx={{
@@ -405,6 +408,50 @@ export default function PartyMenus() {
                             </Box>
                           );
                         })}
+                        {/* PDF downloads */}
+                        {menu.pdfUrls && menu.pdfUrls.length > 0 && (
+                          <Box sx={{ mt: 1.5, pt: 1.5, borderTop: "1px solid #D9D0B8" }}>
+                            <Typography
+                              sx={{
+                                fontSize: "0.68rem",
+                                fontWeight: 900,
+                                color: tc,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.06em",
+                                mb: 0.75,
+                              }}
+                            >
+                              Menu PDF{menu.pdfUrls.length > 1 ? "s" : ""}
+                            </Typography>
+                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                              {menu.pdfUrls.map((url, i) => (
+                                <Button
+                                  key={i}
+                                  component="a"
+                                  href={resolveImageUrl(url)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  size="small"
+                                  startIcon={<PictureAsPdfIcon sx={{ fontSize: "0.85rem !important" }} />}
+                                  endIcon={<OpenInNewIcon sx={{ fontSize: "0.75rem !important" }} />}
+                                  sx={{
+                                    fontSize: "0.65rem",
+                                    fontWeight: 700,
+                                    textTransform: "none",
+                                    color: tc,
+                                    border: `1px solid ${tc}`,
+                                    borderRadius: 999,
+                                    px: 1.25,
+                                    py: 0.35,
+                                    "&:hover": { bgcolor: tc, color: "#fff" },
+                                  }}
+                                >
+                                  {menu.pdfUrls.length > 1 ? `PDF ${i + 1}` : "View PDF"}
+                                </Button>
+                              ))}
+                            </Stack>
+                          </Box>
+                        )}
                       </Box>
                     </Box>
                   </Grid>

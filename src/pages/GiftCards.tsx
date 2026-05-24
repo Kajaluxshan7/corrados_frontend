@@ -116,7 +116,7 @@ export default function GiftCards() {
                     <Typography
                       sx={{
                         color: palette.primary.main,
-                        fontFamily: '"Playfair Display", serif',
+                        fontFamily: '"AmpersandFix", "Playfair Display", serif',
                         fontWeight: 700,
                         fontSize: "1.5rem",
                       }}
@@ -151,7 +151,7 @@ export default function GiftCards() {
                     <Typography
                       sx={{
                         color: "#fff",
-                        fontFamily: '"Playfair Display", serif',
+                        fontFamily: '"AmpersandFix", "Playfair Display", serif',
                         fontWeight: 700,
                         fontSize: "2rem",
                       }}
@@ -226,6 +226,7 @@ export default function GiftCards() {
                   >
                     <Box
                       component="img"
+                      loading="lazy"
                       src={item.image}
                       alt={item.title}
                       sx={{

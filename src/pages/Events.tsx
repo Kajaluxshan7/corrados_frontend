@@ -21,46 +21,13 @@ import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 import { useSiteImages } from "../contexts/SiteImagesContext";
 import { usePageMeta } from "../hooks/usePageMeta";
-
-// Map backend EventType enum values to display labels and colors
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  live_music: "Live Music",
-  sports_viewing: "Sports Viewing",
-  trivia_night: "Trivia Night",
-  karaoke: "Karaoke",
-  private_party: "Private Party",
-  special_event: "Special Event",
-};
-
-const categoryColors: Record<string, string> = {
-  live_music: "#6A1B9A",
-  sports_viewing: "#1565C0",
-  trivia_night: palette.secondary.main,
-  karaoke: palette.wine,
-  private_party: palette.gold,
-  special_event: palette.primary.main,
-};
-
-const categories = [
-  { label: "All Events", value: "all" },
-  { label: "Live Music", value: "live_music" },
-  { label: "Sports Viewing", value: "sports_viewing" },
-  { label: "Trivia Night", value: "trivia_night" },
-  { label: "Karaoke", value: "karaoke" },
-  { label: "Private Party", value: "private_party" },
-  { label: "Special Event", value: "special_event" },
-];
-
-// Fallback images per category
-const fallbackByCategory: Record<string, string> = {
-  live_music: "/restaurant/catering-dessert-display.jpeg",
-  sports_viewing: "/restaurant/menu-spread.jpeg",
-  special_event: "/restaurant/spaghetti-bolognese.jpeg",
-  private_party: "/restaurant/catering-fruit-platter.jpeg",
-  trivia_night: "/restaurant/chocolate-lava-cake.jpeg",
-  karaoke: "/restaurant/valentine-martini.jpeg",
-};
-const fallbackDefault = "/restaurant/catering-dessert-display.jpeg";
+import {
+  EVENT_TYPE_LABELS,
+  EVENT_CATEGORY_COLORS,
+  EVENT_CATEGORIES,
+  EVENT_FALLBACK_BY_CATEGORY,
+  EVENT_FALLBACK_DEFAULT,
+} from "../constants/menus";
 
 const TZ = "America/Toronto";
 
@@ -111,7 +78,7 @@ function normalizeEvent(ev: ApiEvent): NormalizedEvent {
   const category = ev.type;
   const imageUrl = ev.imageUrls?.length
     ? resolveImageUrl(ev.imageUrls[0])
-    : (fallbackByCategory[category] ?? fallbackDefault);
+    : (EVENT_FALLBACK_BY_CATEGORY[category] ?? EVENT_FALLBACK_DEFAULT);
   return {
     id: ev.id,
     title: ev.title,
@@ -208,7 +175,7 @@ export default function Events() {
                     },
                   }}
                 >
-                  {categories.map((cat) => (
+                  {EVENT_CATEGORIES.map((cat) => (
                     <Tab key={cat.value} label={cat.label} value={cat.value} />
                   ))}
                 </Tabs>
@@ -251,9 +218,10 @@ export default function Events() {
                             objectFit: "cover",
                             transition: "transform 0.5s ease",
                           }}
+                          loading="lazy"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src =
-                              fallbackDefault;
+                              EVENT_FALLBACK_DEFAULT;
                           }}
                         />
                         <Box
@@ -274,7 +242,7 @@ export default function Events() {
                             top: 12,
                             left: 12,
                             bgcolor:
-                              categoryColors[event.category] ||
+                              EVENT_CATEGORY_COLORS[event.category] ||
                               palette.charcoal,
                             color: "#fff",
                             textTransform: "capitalize",

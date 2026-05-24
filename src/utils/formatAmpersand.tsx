@@ -1,18 +1,8 @@
-import { Fragment } from "react";
-
 /**
- * Renders text with ampersands (&) in the body font (Lato)
- * instead of the heading font (Playfair Display).
+ * Previously wrapped ampersands in a Lato span to override Playfair Display's
+ * stylistic italic & glyph. Now a no-op: the AmpersandFix @font-face in
+ * index.css handles this globally via unicode-range, so no JS wrapper is needed.
  */
-export function formatAmpersand(text: string) {
-  const parts = text.split("&");
-  if (parts.length === 1) return text;
-  return parts.map((part, i) => (
-    <Fragment key={i}>
-      {part}
-      {i < parts.length - 1 && (
-        <span style={{ fontFamily: '"Lato", sans-serif' }}>&amp;</span>
-      )}
-    </Fragment>
-  ));
+export function formatAmpersand(text: string): string {
+  return text;
 }

@@ -45,6 +45,25 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 480 }}>
             We're sorry for the inconvenience. Please try refreshing the page.
           </Typography>
+          {import.meta.env.DEV && this.state.error && (
+            <Box
+              component="pre"
+              sx={{
+                maxWidth: 640,
+                width: "100%",
+                overflow: "auto",
+                textAlign: "left",
+                bgcolor: "rgba(0,0,0,0.05)",
+                borderRadius: 1,
+                p: 2,
+                mb: 3,
+                fontSize: "0.8rem",
+                color: "error.main",
+              }}
+            >
+              {this.state.error.stack ?? this.state.error.message}
+            </Box>
+          )}
           <Button
             variant="contained"
             onClick={() => {

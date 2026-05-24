@@ -21,50 +21,23 @@ import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 import { useSiteImages } from "../contexts/SiteImagesContext";
 import { usePageMeta } from "../hooks/usePageMeta";
-
-// Display labels for backend SpecialType enum
-const SPECIAL_TYPE_LABELS: Record<string, string> = {
-  daily: "Daily",
-  game_time: "Game Time",
-  day_time: "Daytime",
-  chef: "Chef's Special",
-  seasonal: "Seasonal",
-};
-
-const categoryColors: Record<string, string> = {
-  daily: palette.primary.main,
-  game_time: "#1565C0",
-  day_time: palette.gold,
-  chef: palette.wine,
-  seasonal: palette.secondary.main,
-};
-
-const categories = [
-  { label: "Daily", value: "daily" },
-  { label: "Game Time", value: "game_time" },
-  { label: "Daytime", value: "day_time" },
-  { label: "Chef's Special", value: "chef" },
-  { label: "Seasonal", value: "seasonal" },
-];
-
-// Fallback images by special type / day
-const fallbackByDay: Record<string, string> = {
-  monday: "/restaurant/ravioli-mushroom-spinach.jpeg",
-  tuesday: "/restaurant/pizza-margherita.jpeg",
-  wednesday: "/restaurant/chicken-marsala.jpeg",
-  thursday: "/restaurant/seafood-mussels.jpeg",
-  friday: "/restaurant/spaghetti-bolognese.jpeg",
-  saturday: "/restaurant/penne-primavera.jpeg",
-  sunday: "/restaurant/beef-short-rib.jpeg",
-};
-const fallbackDefault = "/restaurant/gnocchi-tomato-cream.jpeg";
+import {
+  SPECIAL_TYPE_LABELS,
+  SPECIAL_CATEGORY_COLORS,
+  SPECIAL_CATEGORIES,
+  SPECIAL_FALLBACK_BY_DAY,
+  SPECIAL_FALLBACK_DEFAULT,
+} from "../constants/menus";
 
 function getSpecialImage(special: ApiSpecial): string {
   if (special.imageUrls?.length) return resolveImageUrl(special.imageUrls[0]);
   if (special.dayOfWeek) {
-    return fallbackByDay[special.dayOfWeek.toLowerCase()] ?? fallbackDefault;
+    return (
+      SPECIAL_FALLBACK_BY_DAY[special.dayOfWeek.toLowerCase()] ??
+      SPECIAL_FALLBACK_DEFAULT
+    );
   }
-  return fallbackDefault;
+  return SPECIAL_FALLBACK_DEFAULT;
 }
 
 function getSpecialDayLabel(special: ApiSpecial): string {
@@ -73,14 +46,7 @@ function getSpecialDayLabel(special: ApiSpecial): string {
       special.dayOfWeek.charAt(0).toUpperCase() + special.dayOfWeek.slice(1)
     );
   }
-  const typeMap: Record<string, string> = {
-    daily: "Daily",
-    game_time: "Game Time",
-    day_time: "Daytime",
-    chef: "Chef's Special",
-    seasonal: "Seasonal",
-  };
-  return typeMap[special.type] ?? "Special";
+  return SPECIAL_TYPE_LABELS[special.type] ?? "Special";
 }
 
 export default function Specials() {
@@ -105,7 +71,7 @@ export default function Specials() {
         setActiveTab((prev) => {
           const hasCurrentTab = sorted.some((s) => s.type === prev);
           if (hasCurrentTab) return prev;
-          const firstType = categories.find((cat) =>
+          const firstType = SPECIAL_CATEGORIES.find((cat) =>
             sorted.some((s) => s.type === cat.value),
           );
           return firstType?.value ?? prev;
@@ -177,7 +143,7 @@ export default function Specials() {
                     },
                   }}
                 >
-                  {categories.map((cat) => (
+                  {SPECIAL_CATEGORIES.map((cat) => (
                     <Tab key={cat.value} label={cat.label} value={cat.value} />
                   ))}
                 </Tabs>
@@ -229,9 +195,10 @@ export default function Specials() {
                             objectFit: "cover",
                             transition: "transform 0.5s ease",
                           }}
+                          loading="lazy"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src =
-                              fallbackDefault;
+                              SPECIAL_FALLBACK_DEFAULT;
                           }}
                         />
                         <Box
@@ -269,7 +236,7 @@ export default function Specials() {
                               size="small"
                               sx={{
                                 bgcolor:
-                                  categoryColors[special.type] ||
+                                  SPECIAL_CATEGORY_COLORS[special.type] ||
                                   palette.primary.main,
                                 color: "#fff",
                                 fontWeight: 700,

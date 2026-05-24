@@ -20,6 +20,8 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DinnerDiningIcon from '@mui/icons-material/DinnerDining';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { PageHero } from '../components';
@@ -116,6 +118,7 @@ function MealCard({
       >
         <Box
           component="img"
+          loading="lazy"
           src={imageUrl}
           alt={meal.name}
           sx={{
@@ -281,6 +284,38 @@ function MealCard({
                 </Typography>
               </Box>
             ))}
+          </Box>
+        )}
+
+        {/* PDF downloads */}
+        {meal.pdfUrls && meal.pdfUrls.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <Divider sx={{ mb: 1.5 }} />
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1, fontSize: '0.75rem', color: palette.charcoal }}
+            >
+              MENU PDFs:
+            </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              {meal.pdfUrls.map((url, i) => (
+                <Button
+                  key={i}
+                  component="a"
+                  href={resolveImageUrl(url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                  startIcon={<PictureAsPdfIcon />}
+                  endIcon={<OpenInNewIcon sx={{ fontSize: '0.75rem !important' }} />}
+                  variant="outlined"
+                  color="primary"
+                  sx={{ fontSize: '0.72rem', textTransform: 'none', borderRadius: 999 }}
+                >
+                  {meal.pdfUrls.length > 1 ? `PDF ${i + 1}` : 'View PDF'}
+                </Button>
+              ))}
+            </Stack>
           </Box>
         )}
       </CardContent>

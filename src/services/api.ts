@@ -129,6 +129,7 @@ export interface ApiPartyMenu {
   description: string;
   isActive: boolean;
   imageUrls: string[];
+  pdfUrls: string[];
   sortOrder: number;
   sections: ApiPartySection[];
 }
@@ -156,6 +157,7 @@ export interface ApiFamilyMeal {
   isActive: boolean;
   sortOrder: number;
   imageUrls: string[];
+  pdfUrls: string[];
   addons: ApiFamilyMealAddon[];
 }
 
@@ -204,3 +206,48 @@ export const fetchStoryCategories = () =>
  */
 export const fetchSiteImages = () =>
   get<Record<string, string>>('/site-images');
+
+// ─── Digital Menu PDFs ────────────────────────────────────────────────────────
+
+export interface ApiDigitalMenuPdf {
+  id: string;
+  title: string;
+  description?: string;
+  pdfUrl: string;
+  thumbnailUrl?: string;
+  category: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export const fetchDigitalMenuPdfs = () =>
+  get<ApiDigitalMenuPdf[]>('/digital-menu');
+
+// ─── Posters ─────────────────────────────────────────────────────────────────
+
+export interface ApiPoster {
+  id: string;
+  imageUrl: string;
+  title?: string;
+  description?: string;
+  linkUrl?: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export const fetchPosters = () => get<ApiPoster[]>('/posters');
+
+// ─── Newsletter ───────────────────────────────────────────────────────────────
+
+export const subscribeNewsletter = async (email: string): Promise<{ message: string }> => {
+  const res = await fetch(`${API_BASE_URL}/newsletter/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || 'Subscription failed');
+  }
+  return res.json();
+};

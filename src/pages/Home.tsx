@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { keyframes } from "@emotion/react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Container,
@@ -33,7 +34,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AppleIcon from "@mui/icons-material/Apple";
 import ShopIcon from "@mui/icons-material/Shop";
-import { SectionHeader } from "../components";
+import { SectionHeader, NewsletterSignup } from "../components";
 import { testimonials } from "../data";
 import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
@@ -51,6 +52,11 @@ import { resolveImageUrl } from "../config/api";
 import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
 import { useSiteImages } from "../contexts/SiteImagesContext";
 import { usePageMeta } from "../hooks/usePageMeta";
+import {
+  EVENT_TYPE_LABELS,
+  SPECIAL_TYPE_LABELS,
+  SPECIAL_POPUP_FALLBACK_IMAGES,
+} from "../constants/menus";
 
 // navTiles defaults used as fallbacks when admin hasn't set a custom image
 const NAV_TILE_DEFAULTS: Record<string, string> = {
@@ -64,103 +70,120 @@ const NAV_TILE_DEFAULTS: Record<string, string> = {
   nav_contact: "/restaurant/antipasto-platter.jpeg",
 };
 
-// Static tile metadata (no image here — resolved at render time via getImage)
+// Static tile metadata — 4×2 grid, no center logo
+// Order: About, Menus, Specials, Events, Family Meals, Party Menus, Gallery, Contact
 const NAV_TILE_META = [
   {
     label: "About",
     path: "/about",
     tagline: "Our Story & Heritage",
     key: "nav_about",
-    gridColumn: "1 / 3",
-    gridRow: "1 / 3",
   },
   {
-    label: "Menus",
+    label: "Digital Menu",
     path: "/menus",
     tagline: "Explore Our Italian Table",
     key: "nav_menus",
-    gridColumn: "3 / 4",
-    gridRow: "1 / 2",
   },
   {
     label: "Specials",
     path: "/specials",
     tagline: "Today's Featured Dishes",
     key: "nav_specials",
-    gridColumn: "4 / 5",
-    gridRow: "1 / 2",
-  },
-  {
-    label: "Family Meals",
-    path: "/family-meals",
-    tagline: "Feed the Whole Family",
-    key: "nav_family_meals",
-    gridColumn: "3 / 4",
-    gridRow: "2 / 3",
-  },
-  {
-    label: "Party Menus",
-    path: "/party-menus",
-    tagline: "Celebrate With Us",
-    key: "nav_party_menus",
-    gridColumn: "4 / 5",
-    gridRow: "2 / 3",
   },
   {
     label: "Events",
     path: "/events",
     tagline: "What's Happening",
     key: "nav_events",
-    gridColumn: "1 / 3",
-    gridRow: "3 / 4",
+  },
+  {
+    label: "Family Meals",
+    path: "/family-meals",
+    tagline: "Feed the Whole Family",
+    key: "nav_family_meals",
+  },
+  {
+    label: "Party Menus",
+    path: "/party-menus",
+    tagline: "Celebrate With Us",
+    key: "nav_party_menus",
   },
   {
     label: "Gallery",
     path: "/gallery",
     tagline: "A Feast for the Eyes",
     key: "nav_gallery",
-    gridColumn: "3 / 4",
-    gridRow: "3 / 4",
   },
   {
     label: "Contact",
     path: "/contact",
     tagline: "Find Us & Reach Out",
     key: "nav_contact",
-    gridColumn: "4 / 5",
-    gridRow: "3 / 4",
   },
 ];
 
-const specialFallbackImages: string[] = [
-  "/restaurant/penne-primavera.jpeg",
-  "/restaurant/pizza-margherita.jpeg",
-  "/restaurant/spaghetti-bolognese.jpeg",
-  "/restaurant/valentine-martini.jpeg",
-  "/restaurant/chicken-pasta-sundried.jpeg",
-  "/restaurant/seafood-mussels.jpeg",
-];
+const tileReveal = keyframes`
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0) scale(0.96);
+    filter: blur(8px) saturate(0.75);
+  }
+  58% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0) saturate(1);
+  }
+`;
 
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  live_music: "Live Music",
-  sports_viewing: "Sports Viewing",
-  trivia_night: "Trivia Night",
-  karaoke: "Karaoke",
-  private_party: "Private Party",
-  special_event: "Special Event",
-};
+const tileImageDrift = keyframes`
+  0% {
+    transform: scale(var(--tile-scale, 1.06)) translate3d(-1.4%, -1.1%, 0);
+  }
+  50% {
+    transform: scale(var(--tile-scale, 1.06)) translate3d(1.2%, -0.4%, 0);
+  }
+  100% {
+    transform: scale(var(--tile-scale, 1.06)) translate3d(0.3%, 1.2%, 0);
+  }
+`;
 
-const SPECIAL_TYPE_LABELS: Record<string, string> = {
-  daily: "Daily",
-  game_time: "Game Time",
-  day_time: "Daytime",
-  chef: "Chef's Special",
-  seasonal: "Seasonal",
-};
+const lightSweep = keyframes`
+  0% {
+    transform: translate3d(-130%, 0, 0) rotate(18deg);
+    opacity: 0;
+  }
+  32% {
+    opacity: 0.34;
+  }
+  58% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate3d(145%, 0, 0) rotate(18deg);
+    opacity: 0;
+  }
+`;
+
+const sectionLight = keyframes`
+  0%, 100% {
+    background-position: 18% 12%, 88% 84%, 50% 50%;
+  }
+  50% {
+    background-position: 30% 18%, 72% 76%, 50% 50%;
+  }
+`;
+
+
 
 function getSpecialPopupImage(special: ApiSpecial, index: number): string {
   if (special.imageUrls?.length) return resolveImageUrl(special.imageUrls[0]);
-  return specialFallbackImages[index % specialFallbackImages.length];
+  return SPECIAL_POPUP_FALLBACK_IMAGES[
+    index % SPECIAL_POPUP_FALLBACK_IMAGES.length
+  ];
 }
 
 function getSpecialLabel(special: ApiSpecial): string {
@@ -172,13 +195,17 @@ function getSpecialLabel(special: ApiSpecial): string {
   return SPECIAL_TYPE_LABELS[special.type] ?? "Special";
 }
 
+const EVENT_TZ = "America/Toronto";
+
 function formatEventDateRange(start: string): string {
   const s = new Date(start);
   const dateStr = s.toLocaleDateString("en-CA", {
+    timeZone: EVENT_TZ,
     month: "short",
     day: "numeric",
   });
   const timeStr = s.toLocaleTimeString("en-CA", {
+    timeZone: EVENT_TZ,
     hour: "numeric",
     minute: "2-digit",
   });
@@ -308,6 +335,12 @@ export default function Home() {
     goToSpecial((activeSpecial + 1) % popupSpecials.length);
   }, [activeSpecial, popupSpecials.length, goToSpecial]);
 
+  const closeSpecialsPopup = useCallback(() => {
+    stopAutoPlay();
+    setSpecialsPopupOpen(false);
+    setActiveSpecial(0);
+  }, [stopAutoPlay]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -339,7 +372,6 @@ export default function Home() {
       startAutoPlay();
     } else {
       stopAutoPlay();
-      setActiveSpecial(0);
     }
     return stopAutoPlay;
   }, [specialsPopupOpen, startAutoPlay, stopAutoPlay]);
@@ -382,16 +414,18 @@ export default function Home() {
           popupSpecials.length > 0 &&
           activeSpecial < popupSpecials.length
         }
-        onClose={() => setSpecialsPopupOpen(false)}
+        onClose={closeSpecialsPopup}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          sx: {
-            overflow: "hidden",
-            borderRadius: 2.5,
-            bgcolor: palette.charcoal,
-            border: `1px solid ${palette.warmGray}`,
-            boxShadow: "0 28px 70px rgba(45, 41, 38, 0.28)",
+        slotProps={{
+          paper: {
+            sx: {
+              overflow: "hidden",
+              borderRadius: 2.5,
+              bgcolor: palette.charcoal,
+              border: `1px solid ${palette.warmGray}`,
+              boxShadow: "0 28px 70px rgba(45, 41, 38, 0.28)",
+            },
           },
         }}
       >
@@ -408,7 +442,7 @@ export default function Home() {
               }}
             >
               <IconButton
-                onClick={() => setSpecialsPopupOpen(false)}
+                onClick={closeSpecialsPopup}
                 sx={{ position: "absolute", top: 12, right: 12, color: "#fff" }}
               >
                 <CloseIcon />
@@ -449,17 +483,38 @@ export default function Home() {
               <Box
                 sx={{
                   position: "relative",
-                  minHeight: { xs: 300, md: 360 },
+                  height: { xs: 300, md: 360 },
                   borderRadius: 2,
                   overflow: "hidden",
                   border: "1px solid rgba(255,255,255,0.14)",
                   boxShadow: "0 16px 36px rgba(0,0,0,0.2)",
-                  backgroundImage: `linear-gradient(180deg, rgba(20,15,12,0.06) 0%, rgba(20,15,12,0.65) 60%, rgba(20,15,12,0.92) 100%), url(${getSpecialPopupImage(popupSpecials[activeSpecial], activeSpecial)})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  transition: "background-image 0.4s ease",
+                  bgcolor: palette.charcoal,
                 }}
               >
+                {/* Full-ratio image — objectFit contain shows the whole image */}
+                <Box
+                  key={getSpecialPopupImage(popupSpecials[activeSpecial], activeSpecial)}
+                  component="img"
+                  src={getSpecialPopupImage(popupSpecials[activeSpecial], activeSpecial)}
+                  alt={popupSpecials[activeSpecial].title}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    display: "block",
+                    transition: "opacity 0.4s ease",
+                  }}
+                />
+                {/* Gradient overlay for text readability */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(180deg, rgba(20,15,12,0.06) 0%, rgba(20,15,12,0.65) 60%, rgba(20,15,12,0.92) 100%)",
+                    pointerEvents: "none",
+                  }}
+                />
                 <Box
                   sx={{
                     position: "absolute",
@@ -550,74 +605,80 @@ export default function Home() {
                   </Box>
                 </Box>
 
-                {/* Prev / Next buttons */}
-                <IconButton
-                  onClick={goPrev}
-                  sx={{
-                    position: "absolute",
-                    left: 8,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    bgcolor: "rgba(0,0,0,0.45)",
-                    color: "#fff",
-                    "&:hover": { bgcolor: "rgba(0,0,0,0.65)" },
-                    width: 36,
-                    height: 36,
-                  }}
-                >
-                  <ChevronLeftIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  onClick={goNext}
-                  sx={{
-                    position: "absolute",
-                    right: 8,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    bgcolor: "rgba(0,0,0,0.45)",
-                    color: "#fff",
-                    "&:hover": { bgcolor: "rgba(0,0,0,0.65)" },
-                    width: 36,
-                    height: 36,
-                  }}
-                >
-                  <ChevronRightIcon fontSize="small" />
-                </IconButton>
+                {/* Prev / Next buttons — only shown when multiple specials */}
+                {popupSpecials.length > 1 && (
+                  <>
+                    <IconButton
+                      onClick={goPrev}
+                      sx={{
+                        position: "absolute",
+                        left: 8,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        bgcolor: "rgba(0,0,0,0.45)",
+                        color: "#fff",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.65)" },
+                        width: 36,
+                        height: 36,
+                      }}
+                    >
+                      <ChevronLeftIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      onClick={goNext}
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        bgcolor: "rgba(0,0,0,0.45)",
+                        color: "#fff",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.65)" },
+                        width: 36,
+                        height: 36,
+                      }}
+                    >
+                      <ChevronRightIcon fontSize="small" />
+                    </IconButton>
+                  </>
+                )}
               </Box>
 
-              {/* Dot indicators */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 1,
-                  mt: 2,
-                }}
-              >
-                {popupSpecials.map((_, i) => (
-                  <Box
-                    key={i}
-                    onClick={() => goToSpecial(i)}
-                    sx={{
-                      width: activeSpecial === i ? 24 : 8,
-                      height: 8,
-                      borderRadius: 999,
-                      bgcolor:
-                        activeSpecial === i
-                          ? palette.gold
-                          : "rgba(255,255,255,0.25)",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
+              {/* Dot indicators — only shown when multiple specials */}
+              {popupSpecials.length > 1 && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 1,
+                    mt: 2,
+                  }}
+                >
+                  {popupSpecials.map((_, i) => (
+                    <Box
+                      key={i}
+                      onClick={() => goToSpecial(i)}
+                      sx={{
+                        width: activeSpecial === i ? 24 : 8,
+                        height: 8,
+                        borderRadius: 999,
                         bgcolor:
                           activeSpecial === i
                             ? palette.gold
-                            : "rgba(255,255,255,0.4)",
-                      },
-                    }}
-                  />
-                ))}
-              </Box>
+                            : "rgba(255,255,255,0.25)",
+                        cursor: "pointer",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          bgcolor:
+                            activeSpecial === i
+                              ? palette.gold
+                              : "rgba(255,255,255,0.4)",
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
             </Box>
 
             {/* Footer */}
@@ -632,18 +693,20 @@ export default function Home() {
                 flexWrap: "wrap",
               }}
             >
-              <Typography
-                variant="body2"
-                sx={{ color: palette.text.secondary, fontSize: "0.78rem" }}
-              >
-                {activeSpecial + 1} / {popupSpecials.length}
-              </Typography>
+              {popupSpecials.length > 1 && (
+                <Typography
+                  variant="body2"
+                  sx={{ color: palette.text.secondary, fontSize: "0.78rem" }}
+                >
+                  {activeSpecial + 1} / {popupSpecials.length}
+                </Typography>
+              )}
               <Button
                 variant="contained"
                 component={RouterLink}
                 to="/specials"
                 endIcon={<ArrowForwardIcon />}
-                onClick={() => setSpecialsPopupOpen(false)}
+                onClick={closeSpecialsPopup}
               >
                 View All Specials
               </Button>
@@ -652,13 +715,21 @@ export default function Home() {
         )}
       </Dialog>
 
-      {/* Navigation tile bento grid */}
+      {/* Navigation tile bento grid — 3×3, logo at center slot */}
       <Box
+        component="section"
         sx={{
-          bgcolor: palette.background.default,
+          position: "relative",
+          isolation: "isolate",
+          overflow: "hidden",
+          bgcolor: palette.charcoal,
+          backgroundImage:
+            "radial-gradient(ellipse at 18% 12%, rgba(190,89,83,0.28) 0%, rgba(190,89,83,0) 34%), radial-gradient(ellipse at 86% 86%, rgba(44,85,48,0.28) 0%, rgba(44,85,48,0) 36%), linear-gradient(135deg, #2D2926 0%, #171210 54%, #241815 100%)",
+          backgroundSize: "140% 140%, 140% 140%, 100% 100%",
+          animation: `${sectionLight} 18s ease-in-out infinite`,
           display: "grid",
-          gap: { xs: 1, md: 1.5 },
-          p: { xs: 1, md: 1.5 },
+          gap: { xs: 1.25, md: 1.75 },
+          p: { xs: 1.25, sm: 2, md: 3 },
           gridTemplateColumns: {
             xs: "1fr",
             sm: "repeat(2, 1fr)",
@@ -667,90 +738,175 @@ export default function Home() {
           gridTemplateRows: {
             xs: "repeat(8, 200px)",
             sm: "repeat(4, 240px)",
-            md: "repeat(3, 300px)",
+            md: "repeat(2, minmax(270px, 28vw))",
+            lg: "repeat(2, 310px)",
+          },
+          perspective: "1400px",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            background:
+              "linear-gradient(115deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 22%, rgba(255,255,255,0) 48%), linear-gradient(180deg, rgba(0,0,0,0) 58%, rgba(0,0,0,0.34) 100%)",
+            mixBlendMode: "screen",
+          },
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            opacity: 0.1,
+            backgroundImage:
+              "repeating-linear-gradient(0deg, rgba(255,255,255,0.2) 0 1px, rgba(255,255,255,0) 1px 4px)",
+          },
+          "@media (prefers-reduced-motion: reduce)": {
+            animation: "none",
+            "& .cinematic-tile, & .tile-img, & .tile-sheen, & .tile-frame, & .tile-title, & .tile-arrow":
+              {
+                animation: "none !important",
+                transition: "none !important",
+              },
+            "& .cinematic-tile::before": {
+              animation: "none !important",
+            },
           },
         }}
       >
-        {navTiles.map((tile) => (
+        {/* ── All 8 nav tiles (4 × 2 grid) ── */}
+        {navTiles.map((tile, i) => (
           <Box
             key={tile.path}
+            className="cinematic-tile"
             component={RouterLink}
             to={tile.path}
             sx={{
               position: "relative",
+              zIndex: 1,
               overflow: "hidden",
               textDecoration: "none",
               display: "block",
               borderRadius: 2,
-              border: `1px solid ${palette.warmGray}`,
-              boxShadow: "0 10px 28px rgba(45, 41, 38, 0.08)",
-              gridColumn: { md: tile.gridColumn },
-              gridRow: { md: tile.gridRow },
-              "&:hover": {
-                boxShadow: "0 18px 42px rgba(45, 41, 38, 0.16)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              bgcolor: palette.charcoal,
+              boxShadow:
+                "0 24px 60px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)",
+              transformStyle: "preserve-3d",
+              animation: `${tileReveal} 880ms cubic-bezier(0.19, 1, 0.22, 1) both`,
+              animationDelay: `${i * 65}ms`,
+              transition:
+                "transform 0.55s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.55s ease, border-color 0.55s ease",
+              "&:hover, &:focus-visible": {
+                boxShadow:
+                  "0 34px 76px rgba(0,0,0,0.42), 0 0 0 1px rgba(201,169,110,0.34)",
+                borderColor: "rgba(201,169,110,0.5)",
+                transform: "translateY(-10px) scale(1.018)",
               },
-              "&:hover .tile-img": { transform: "scale(1.05)" },
-              "&:hover .tile-overlay": {
+              "&:focus-visible": {
+                outline: `2px solid ${palette.gold}`,
+                outlineOffset: 4,
+              },
+              "&:hover .tile-img, &:focus-visible .tile-img": {
+                "--tile-scale": "1.15",
+                filter: "saturate(1.08) contrast(1.06)",
+              },
+              "&:hover .tile-overlay, &:focus-visible .tile-overlay": {
                 background:
-                  "linear-gradient(to top, rgba(20,15,12,0.92) 0%, rgba(20,15,12,0.62) 58%, rgba(20,15,12,0.22) 100%)",
+                  "linear-gradient(to top, rgba(20,15,12,0.94) 0%, rgba(20,15,12,0.64) 50%, rgba(20,15,12,0.12) 100%)",
               },
-              "&:hover .tile-frame": { opacity: 1 },
-              "&:hover .tile-arrow": { transform: "translateX(5px)" },
+              "&:hover .tile-frame, &:focus-visible .tile-frame": {
+                opacity: 1,
+                transform: "scale(0.985)",
+              },
+              "&:hover .tile-title, &:focus-visible .tile-title": {
+                transform: "translateY(-3px)",
+                color: palette.gold,
+              },
+              "&:hover .tile-arrow, &:focus-visible .tile-arrow": {
+                transform: "translate3d(6px, 0, 0)",
+              },
               "&::after": {
                 content: '""',
                 position: "absolute",
-                bottom: 10,
-                left: 12,
-                right: 12,
+                zIndex: 3,
+                bottom: 14,
+                left: 18,
+                right: 18,
                 height: "2px",
-                bgcolor: palette.primary.main,
+                background: `linear-gradient(90deg, ${palette.primary.main}, ${palette.gold})`,
                 transform: "scaleX(0)",
                 transformOrigin: "left",
-                transition: "transform 0.35s ease",
+                transition: "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
               },
-              "&:hover::after": { transform: "scaleX(1)" },
+              "&:hover::after, &:focus-visible::after": {
+                transform: "scaleX(1)",
+              },
             }}
           >
-            {/* Background image */}
             <Box
               className="tile-img"
               sx={{
+                "--tile-scale": "1.07",
                 position: "absolute",
-                inset: 0,
+                inset: -8,
                 backgroundImage: `url(${tile.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                transition: "transform 0.55s ease",
+                filter: "saturate(0.96) contrast(1)",
+                animation: `${tileImageDrift} ${17 + i}s ease-in-out infinite alternate`,
+                transition: "filter 0.55s ease",
+                willChange: "transform",
               }}
             />
-            {/* Gradient overlay */}
             <Box
               className="tile-overlay"
               sx={{
                 position: "absolute",
                 inset: 0,
+                zIndex: 1,
                 background:
-                  "linear-gradient(to top, rgba(20,15,12,0.84) 0%, rgba(20,15,12,0.42) 52%, rgba(20,15,12,0.08) 100%)",
-                transition: "background 0.3s ease",
+                  "linear-gradient(to top, rgba(20,15,12,0.9) 0%, rgba(20,15,12,0.48) 48%, rgba(20,15,12,0.08) 100%)",
+                transition: "background 0.45s ease",
+              }}
+            />
+            <Box
+              className="tile-sheen"
+              sx={{
+                position: "absolute",
+                zIndex: 2,
+                top: "-28%",
+                bottom: "-28%",
+                width: "34%",
+                left: 0,
+                background:
+                  "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,244,222,0.38) 50%, rgba(255,255,255,0) 100%)",
+                filter: "blur(10px)",
+                animation: `${lightSweep} ${9 + i * 0.4}s ease-in-out infinite`,
+                animationDelay: `${0.6 + i * 0.32}s`,
+                pointerEvents: "none",
               }}
             />
             <Box
               className="tile-frame"
               sx={{
                 position: "absolute",
+                zIndex: 2,
                 inset: 12,
-                border: "1px solid rgba(255,255,255,0.28)",
+                border: "1px solid rgba(255,255,255,0.24)",
                 borderRadius: 1.5,
-                opacity: 0.7,
-                transition: "opacity 0.3s ease",
+                opacity: 0.55,
+                transition:
+                  "opacity 0.45s ease, transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
                 pointerEvents: "none",
               }}
             />
-            {/* Text */}
             <Box
               sx={{
                 position: "absolute",
                 inset: 0,
+                zIndex: 3,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "flex-end",
@@ -761,14 +917,14 @@ export default function Home() {
                 variant="overline"
                 sx={{
                   color: "#fff",
-                  bgcolor: "rgba(36, 58, 125, 0.72)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  fontSize: "0.58rem",
-                  letterSpacing: "0.16em",
-                  mb: 0.9,
-                  px: 1,
-                  py: 0.35,
-                  borderRadius: 999,
+                  bgcolor: `${palette.primary.main}CC`,
+                  border: `1px solid ${palette.primary.light}44`,
+                  fontSize: "0.55rem",
+                  letterSpacing: "0.18em",
+                  mb: 0.75,
+                  px: 0.9,
+                  py: 0.3,
+                  borderRadius: 0.75,
                   display: "inline-flex",
                   lineHeight: 1.2,
                   width: "fit-content",
@@ -786,15 +942,18 @@ export default function Home() {
                 }}
               >
                 <Typography
+                  className="tile-title"
                   variant="h5"
                   sx={{
                     color: "#fff",
                     fontWeight: 700,
-                    fontSize: { xs: "1.08rem", sm: "1.15rem", md: "1.22rem" },
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    lineHeight: 1.2,
-                    textShadow: "0 3px 14px rgba(0,0,0,0.35)",
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: { xs: "1.05rem", sm: "1.1rem", md: "1.16rem" },
+                    letterSpacing: "0.01em",
+                    lineHeight: 1.25,
+                    textShadow: "0 3px 14px rgba(0,0,0,0.4)",
+                    transition:
+                      "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease",
                   }}
                 >
                   {tile.label}
@@ -812,6 +971,7 @@ export default function Home() {
             </Box>
           </Box>
         ))}
+
       </Box>
 
       {/* ─── INTRO / ABOUT TEASER ─── */}
@@ -821,6 +981,7 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
+                loading="lazy"
                 src={getImage(
                   "home_about_owner",
                   "/restaurant/owner_and_logo.jpg",
@@ -932,6 +1093,8 @@ export default function Home() {
                   sx={{
                     textDecoration: "none",
                     height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
                     transition: "transform 0.3s, box-shadow 0.3s",
                     "&:hover": {
                       transform: "translateY(-6px)",
@@ -941,9 +1104,14 @@ export default function Home() {
                 >
                   <CardMedia
                     component="img"
-                    height="200"
+                    loading="lazy"
                     image={cat.image}
                     alt={cat.label}
+                    sx={{
+                      height: { xs: 200, sm: 220, md: 240 },
+                      objectFit: "cover",
+                      flexShrink: 0,
+                    }}
                   />
                   <CardContent>
                     <Typography
@@ -993,6 +1161,7 @@ export default function Home() {
                   {special.imageUrls?.length > 0 && (
                     <CardMedia
                       component="img"
+                      loading="lazy"
                       height="180"
                       image={resolveImageUrl(special.imageUrls[0])}
                       alt={special.title}
@@ -1090,40 +1259,47 @@ export default function Home() {
           />
           <Container>
             <Grid container spacing={3}>
-              {liveFamilyMeals.filter((m) => m.mealType === 'combo').slice(0, 3).map((meal) => (
-                <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
-                  <Card
-                    sx={{ height: "100%", bgcolor: "rgba(255,255,255,0.95)" }}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                        {formatAmpersand(meal.name)}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: palette.text.secondary, mb: 2 }}
-                      >
-                        {meal.description}
-                      </Typography>
-                      <Chip
-                        label={`Serves ${meal.serves}`}
-                        size="small"
-                        sx={{ mr: 1, mb: 1 }}
-                      />
-                      <Typography
-                        variant="h5"
-                        sx={{
-                          color: palette.primary.main,
-                          fontWeight: 700,
-                          mt: 2,
-                        }}
-                      >
-                        {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+              {liveFamilyMeals
+                .filter((m) => m.mealType === "combo")
+                .slice(0, 3)
+                .map((meal) => (
+                  <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
+                    <Card
+                      sx={{ height: "100%", bgcolor: "rgba(255,255,255,0.95)" }}
+                    >
+                      <CardContent sx={{ p: 3 }}>
+                        <Typography
+                          variant="h6"
+                          fontWeight={700}
+                          sx={{ mb: 1 }}
+                        >
+                          {formatAmpersand(meal.name)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: palette.text.secondary, mb: 2 }}
+                        >
+                          {meal.description}
+                        </Typography>
+                        <Chip
+                          label={`Serves ${meal.serves}`}
+                          size="small"
+                          sx={{ mr: 1, mb: 1 }}
+                        />
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            color: palette.primary.main,
+                            fontWeight: 700,
+                            mt: 2,
+                          }}
+                        >
+                          {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
             </Grid>
             <Box sx={{ textAlign: "center", mt: 4 }}>
               <Button
@@ -1205,6 +1381,7 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
+                loading="lazy"
                 src={getImage(
                   "home_private_events",
                   "/orrdos/interior-upstairs.jpg",
@@ -1237,6 +1414,7 @@ export default function Home() {
                   {event.imageUrls?.length > 0 && (
                     <CardMedia
                       component="img"
+                      loading="lazy"
                       height="180"
                       image={resolveImageUrl(event.imageUrls[0])}
                       alt={event.title}
@@ -1314,6 +1492,7 @@ export default function Home() {
               <Grid key={i} size={{ xs: 6, md: 3 }}>
                 <Box
                   component="img"
+                  loading="lazy"
                   src={src}
                   alt={`Gallery image ${i + 1}`}
                   sx={{
@@ -1498,6 +1677,7 @@ export default function Home() {
                 >
                   <Box
                     component="img"
+                    loading="lazy"
                     src="/restaurant/menu-spread.jpeg"
                     alt="App preview — Corrado's menu on mobile"
                     sx={{
@@ -1708,6 +1888,9 @@ export default function Home() {
           </Box>
         </Container>
       </Box>
+
+      {/* ─── NEWSLETTER SIGNUP ─── */}
+      <NewsletterSignup />
 
       {/* ─── CONTACT STRIP ─── */}
     </>

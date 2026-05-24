@@ -25,6 +25,8 @@ export const WsEvent = {
   PARTY_MENU_UPDATED: "partyMenu:updated",
   FAMILY_MEAL_UPDATED: "familyMeal:updated",
   SITE_IMAGES_UPDATED: "siteImages:updated",
+  DIGITAL_MENU_UPDATED: "digitalMenu:updated",
+  POSTERS_UPDATED: "posters:updated",
 } as const;
 
 interface WebSocketContextType {
