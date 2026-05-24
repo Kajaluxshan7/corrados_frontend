@@ -49,8 +49,9 @@ import {
   type ApiFamilyMeal,
 } from "../services/api";
 import { resolveImageUrl } from "../config/api";
-import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
-import { useSiteImages } from "../contexts/SiteImagesContext";
+import { useWsRefresh } from "../hooks/useWebSocket";
+import { WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../hooks/useSiteImages";
 import { usePageMeta } from "../hooks/usePageMeta";
 import {
   EVENT_TYPE_LABELS,

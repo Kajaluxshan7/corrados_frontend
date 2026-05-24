@@ -3,7 +3,7 @@ import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import { PageHero, SectionHeader } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
-import { useSiteImages } from '../contexts/SiteImagesContext';
+import { useSiteImages } from '../hooks/useSiteImages';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function GiftCards() {

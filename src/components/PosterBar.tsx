@@ -6,7 +6,8 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { keyframes } from "@emotion/react";
 import { fetchPosters, type ApiPoster } from "../services/api";
 import { resolveImageUrl } from "../config/api";
-import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
+import { useWsRefresh } from "../hooks/useWebSocket";
+import { WsEvent } from "../contexts/WebSocketContext";
 import { palette } from "../theme";
 
 const BAR_HEIGHT = 180;

@@ -20,4 +20,25 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // Context files intentionally export both a Provider component and the raw
+  // context object (needed by hooks in separate files). Allow this pattern.
+  {
+    files: ['src/contexts/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  // setState inside useEffect is valid for DOM measurement and socket
+  // lifecycle (connect/disconnect). The React Compiler rule is too strict
+  // for these legitimate patterns.
+  {
+    files: [
+      'src/hooks/useWebSocket.ts',
+      'src/components/PosterBar.tsx',
+      'src/pages/Menus.tsx',
+    ],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
 ])

@@ -11,7 +11,6 @@
  */
 import {
   createContext,
-  useContext,
   useEffect,
   useState,
   useCallback,
@@ -19,7 +18,8 @@ import {
 import type { ReactNode } from "react";
 import { fetchSiteImages } from "../services/api";
 import { resolveImageUrl } from "../config/api";
-import { useWsRefresh, WsEvent } from "./WebSocketContext";
+import { useWsRefresh } from "../hooks/useWebSocket";
+import { WsEvent } from "./WebSocketContext";
 
 interface SiteImagesContextType {
   /** Returns the current image URL for `key`, falling back to `defaultUrl`. */
@@ -28,7 +28,7 @@ interface SiteImagesContextType {
   loading: boolean;
 }
 
-const SiteImagesContext = createContext<SiteImagesContextType | undefined>(
+export const SiteImagesContext = createContext<SiteImagesContextType | undefined>(
   undefined,
 );
 
@@ -70,10 +70,3 @@ export function SiteImagesProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useSiteImages() {
-  const ctx = useContext(SiteImagesContext);
-  if (!ctx) {
-    throw new Error("useSiteImages must be used inside SiteImagesProvider");
-  }
-  return ctx;
-}

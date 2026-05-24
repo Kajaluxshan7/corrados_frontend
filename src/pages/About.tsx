@@ -18,7 +18,7 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { PageHero } from "../components";
 import { palette } from "../theme";
 import { businessInfo } from "../data";
-import { useSiteImages } from "../contexts/SiteImagesContext";
+import { useSiteImages } from "../hooks/useSiteImages";
 import { usePageMeta } from "../hooks/usePageMeta";
 
 export default function About() {

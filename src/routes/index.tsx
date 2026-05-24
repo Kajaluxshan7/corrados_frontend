@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import { Box, CircularProgress } from '@mui/material';
 import { MainLayout } from '../layouts';
+import PageLoader from '../components/PageLoader';
 
 const Home       = lazy(() => import('../pages/Home'));
 const About      = lazy(() => import('../pages/About'));
@@ -15,20 +15,6 @@ const GiftCards  = lazy(() => import('../pages/GiftCards'));
 const Contact    = lazy(() => import('../pages/Contact'));
 const NotFound   = lazy(() => import('../pages/NotFound'));
 
-function PageLoader() {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-      }}
-    >
-      <CircularProgress color="primary" />
-    </Box>
-  );
-}
 
 function withSuspense(element: React.ReactNode) {
   return <Suspense fallback={<PageLoader />}>{element}</Suspense>;

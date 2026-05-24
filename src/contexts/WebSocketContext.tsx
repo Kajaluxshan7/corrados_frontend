@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import { createContext } from "react";
 import type { ReactNode } from "react";
 import { useWebSocket, type WsEventHandler } from "../hooks/useWebSocket";
 
@@ -35,7 +29,7 @@ interface WebSocketContextType {
   off: (event: string, handler?: WsEventHandler) => void;
 }
 
-const WebSocketContext = createContext<WebSocketContextType | undefined>(
+export const WebSocketContext = createContext<WebSocketContextType | undefined>(
   undefined,
 );
 
@@ -49,34 +43,3 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useWs() {
-  const context = useContext(WebSocketContext);
-  if (context === undefined) {
-    throw new Error("useWs must be used within a WebSocketProvider");
-  }
-  return context;
-}
-
-export function useWsEvent(event: string, handler: WsEventHandler) {
-  const { on } = useWs();
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-
-  useEffect(() => {
-    const stableHandler: WsEventHandler = (data) => handlerRef.current(data);
-    const cleanup = on(event, stableHandler);
-    return cleanup;
-  }, [event, on]);
-}
-
-export function useWsRefresh(event: string, fetchFn: () => void) {
-  const fetchRef = useRef(fetchFn);
-  fetchRef.current = fetchFn;
-
-  useWsEvent(
-    event,
-    useCallback(() => {
-      fetchRef.current();
-    }, []),
-  );
-}

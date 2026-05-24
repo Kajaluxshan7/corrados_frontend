@@ -21,8 +21,9 @@ import { businessInfo } from "../data";
 import { palette } from "../theme";
 import { fetchPartyMenus, type ApiPartyMenu } from "../services/api";
 import { resolveImageUrl } from "../config/api";
-import { useWsRefresh, WsEvent } from "../contexts/WebSocketContext";
-import { useSiteImages } from "../contexts/SiteImagesContext";
+import { useWsRefresh } from "../hooks/useWebSocket";
+import { WsEvent } from "../contexts/WebSocketContext";
+import { useSiteImages } from "../hooks/useSiteImages";
 import { usePageMeta } from "../hooks/usePageMeta";
 
 const RESTAURANT_LOGO = "/logos/logo-blue.png";

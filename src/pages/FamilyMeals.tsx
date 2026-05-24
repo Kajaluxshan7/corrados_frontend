@@ -27,8 +27,9 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { PageHero } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
-import { useSiteImages } from '../contexts/SiteImagesContext';
-import { useWsRefresh, WsEvent } from '../contexts/WebSocketContext';
+import { useSiteImages } from '../hooks/useSiteImages';
+import { useWsRefresh } from '../hooks/useWebSocket';
+import { WsEvent } from '../contexts/WebSocketContext';
 import { usePageMeta } from '../hooks/usePageMeta';
 import {
   fetchFamilyMeals,

@@ -24,7 +24,7 @@ import { PageHero, SocialIcon } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 import { API_BASE_URL } from '../config/api';
-import { useSiteImages } from "../contexts/SiteImagesContext";
+import { useSiteImages } from "../hooks/useSiteImages";
 import { usePageMeta } from "../hooks/usePageMeta";
 
 // ─── Subject options ──────────────────────────────────────────────────────────

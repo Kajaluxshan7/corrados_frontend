@@ -5,7 +5,8 @@ import WifiOffIcon from "@mui/icons-material/WifiOff";
 import Header from "./Header";
 import Footer from "./Footer";
 import { ScrollProgressButton, PosterBar } from "../components";
-import { WebSocketProvider, useWs } from "../contexts/WebSocketContext";
+import { WebSocketProvider } from "../contexts/WebSocketContext";
+import { useWs } from "../hooks/useWebSocket";
 import { SiteImagesProvider } from "../contexts/SiteImagesContext";
 
 function WsStatusBanner() {

@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 import { API_BASE_URL } from "../config/api";
+import { WebSocketContext } from "../contexts/WebSocketContext";
 
 export type WsEventHandler = (data?: unknown) => void;
 
@@ -86,4 +87,42 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   }, []);
 
   return { connected, on, off };
+}
+
+export function useWs() {
+  const context = useContext(WebSocketContext);
+  if (context === undefined) {
+    throw new Error("useWs must be used within a WebSocketProvider");
+  }
+  return context;
+}
+
+export function useWsEvent(event: string, handler: WsEventHandler) {
+  const { on } = useWs();
+  const handlerRef = useRef(handler);
+
+  useEffect(() => {
+    handlerRef.current = handler;
+  });
+
+  useEffect(() => {
+    const stableHandler: WsEventHandler = (data) => handlerRef.current(data);
+    const cleanup = on(event, stableHandler);
+    return cleanup;
+  }, [event, on]);
+}
+
+export function useWsRefresh(event: string, fetchFn: () => void) {
+  const fetchRef = useRef(fetchFn);
+
+  useEffect(() => {
+    fetchRef.current = fetchFn;
+  });
+
+  useWsEvent(
+    event,
+    useCallback(() => {
+      fetchRef.current();
+    }, []),
+  );
 }
