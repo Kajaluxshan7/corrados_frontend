@@ -23,8 +23,8 @@ const shimmer = keyframes`
 
 /* Gentle pulse on the "NOW SHOWING" dot */
 const pulse = keyframes`
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 169, 110, 0.7); }
-  50%       { box-shadow: 0 0 0 6px rgba(201, 169, 110, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(190, 89, 83, 0.7); }
+  50%       { box-shadow: 0 0 0 6px rgba(190, 89, 83, 0); }
 `;
 
 export default function PosterBar() {
@@ -32,6 +32,7 @@ export default function PosterBar() {
   const [reps, setReps] = useState(2);
   const [setWidth, setSetWidth] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const measureRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<Animation | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -45,15 +46,17 @@ export default function PosterBar() {
   useEffect(() => { loadPosters(); }, [loadPosters]);
   useWsRefresh(WsEvent.POSTERS_UPDATED, loadPosters);
 
+  const validPosters = posters.filter((p) => !failedImages[p.imageUrl]);
+
   useEffect(() => {
-    if (!measureRef.current || posters.length === 0) return;
+    if (!measureRef.current || validPosters.length === 0) return;
     const w = measureRef.current.scrollWidth;
     if (w === 0) return;
     const needed = Math.ceil((window.innerWidth * 3) / w);
     const evenNeeded = needed % 2 === 0 ? needed : needed + 1;
     setReps(Math.max(evenNeeded, 4));
     setSetWidth(w);
-  }, [posters]);
+  }, [validPosters]);
 
   useEffect(() => {
     if (!trackRef.current || setWidth === 0) return;
@@ -83,27 +86,27 @@ export default function PosterBar() {
   useEffect(() => {
     if (lightboxIdx === null) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") setLightboxIdx((i) => i === null ? null : (i + 1) % posters.length);
-      if (e.key === "ArrowLeft")  setLightboxIdx((i) => i === null ? null : (i - 1 + posters.length) % posters.length);
+      if (e.key === "ArrowRight") setLightboxIdx((i) => i === null ? null : (i + 1) % validPosters.length);
+      if (e.key === "ArrowLeft")  setLightboxIdx((i) => i === null ? null : (i - 1 + validPosters.length) % validPosters.length);
       if (e.key === "Escape") setLightboxIdx(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightboxIdx, posters.length]);
+  }, [lightboxIdx, validPosters.length]);
 
-  if (posters.length === 0) return null;
+  if (validPosters.length === 0) return null;
 
-  const repeatedPosters = Array.from({ length: reps }, () => posters).flat();
+  const repeatedPosters = Array.from({ length: reps }, () => validPosters).flat();
 
   const openLightbox = (originalIdx: number) => setLightboxIdx(originalIdx);
-  const lightboxPrev = () => setLightboxIdx((i) => i === null ? null : (i - 1 + posters.length) % posters.length);
-  const lightboxNext = () => setLightboxIdx((i) => i === null ? null : (i + 1) % posters.length);
+  const lightboxPrev = () => setLightboxIdx((i) => i === null ? null : (i - 1 + validPosters.length) % validPosters.length);
+  const lightboxNext = () => setLightboxIdx((i) => i === null ? null : (i + 1) % validPosters.length);
 
-  const activePoster = lightboxIdx !== null ? posters[lightboxIdx] : null;
+  const activePoster = lightboxIdx !== null ? validPosters[lightboxIdx] : null;
 
   const posterItems = (items: ApiPoster[], keyPrefix: string, clickable: boolean) =>
     items.map((poster, idx) => {
-      const originalIdx = posters.indexOf(poster);
+      const originalIdx = validPosters.indexOf(poster);
       return (
         <Box
           key={`${keyPrefix}-${poster.id}-${idx}`}
@@ -125,18 +128,21 @@ export default function PosterBar() {
               height: "calc(100% - 28px)",
               borderRadius: "6px",
               overflow: "hidden",
-              boxShadow: "0 4px 18px rgba(0,0,0,0.45)",
-              border: "1px solid rgba(201,169,110,0.18)",
+              boxShadow: "0 4px 16px rgba(190, 89, 83, 0.08)",
+              border: `1px solid ${palette.warmGray}`,
               transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease",
               "&:hover": clickable ? {
                 transform: "translateY(-5px) scale(1.04)",
-                boxShadow: `0 12px 32px rgba(0,0,0,0.55), 0 0 0 1.5px ${palette.gold}55`,
+                boxShadow: `0 10px 24px rgba(190, 89, 83, 0.15), 0 0 0 1.5px ${palette.primary.main}44`,
               } : {},
             }}
           >
             <Box
               component="img"
               src={resolveImageUrl(poster.imageUrl)}
+              onError={() => {
+                setFailedImages((prev) => ({ ...prev, [poster.imageUrl]: true }));
+              }}
               alt={poster.title ?? "Poster"}
               sx={{
                 height: "100%",
@@ -177,11 +183,11 @@ export default function PosterBar() {
           overflow: "hidden",
           position: "relative",
           isolation: "isolate",
-          /* Brand-aligned background — matches site charcoal dark sections */
+          /* Brand-aligned background — matches site cream light sections */
           background: `
-            radial-gradient(ellipse at 15% 50%, rgba(190,89,83,0.22) 0%, transparent 52%),
-            radial-gradient(ellipse at 85% 50%, rgba(44,85,48,0.18) 0%, transparent 52%),
-            linear-gradient(180deg, ${palette.charcoal} 0%, #241C19 50%, ${palette.charcoal} 100%)
+            radial-gradient(ellipse at 15% 50%, rgba(190,89,83,0.12) 0%, transparent 60%),
+            radial-gradient(ellipse at 85% 50%, rgba(44,85,48,0.08) 0%, transparent 60%),
+            linear-gradient(180deg, ${palette.cream} 0%, #FAF6F0 50%, ${palette.cream} 100%)
           `,
           /* Gold top + bottom accent lines */
           "&::before": {
@@ -222,7 +228,7 @@ export default function PosterBar() {
               top: 0,
               bottom: 0,
               width: "35%",
-              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
               animation: `${shimmer} 8s ease-in-out infinite`,
             },
           }}
@@ -238,7 +244,7 @@ export default function PosterBar() {
             width: { xs: 90, sm: 130, md: 160 },
             zIndex: 4,
             pointerEvents: "none",
-            background: `linear-gradient(to right, ${palette.charcoal} 0%, ${palette.charcoal} 38%, transparent 100%)`,
+            background: `linear-gradient(to right, ${palette.cream} 0%, ${palette.cream} 38%, transparent 100%)`,
             display: "flex",
             alignItems: "center",
             pl: { xs: 1.5, md: 2.5 },
@@ -251,7 +257,7 @@ export default function PosterBar() {
                 width: 7,
                 height: 7,
                 borderRadius: "50%",
-                bgcolor: palette.gold,
+                bgcolor: palette.primary.main,
                 animation: `${pulse} 2.2s ease-in-out infinite`,
               }}
             />
@@ -260,7 +266,7 @@ export default function PosterBar() {
                 fontFamily: "'Playfair Display', serif",
                 fontSize: { xs: "0.52rem", md: "0.62rem" },
                 fontWeight: 700,
-                color: palette.gold,
+                color: palette.primary.dark,
                 letterSpacing: "0.22em",
                 textTransform: "uppercase",
                 lineHeight: 1.3,
@@ -282,7 +288,7 @@ export default function PosterBar() {
             width: { xs: 64, md: 100 },
             zIndex: 4,
             pointerEvents: "none",
-            background: `linear-gradient(to left, ${palette.charcoal} 0%, transparent 100%)`,
+            background: `linear-gradient(to left, ${palette.cream} 0%, transparent 100%)`,
           }}
         />
 
@@ -310,6 +316,7 @@ export default function PosterBar() {
             width: "max-content",
             willChange: "transform",
             userSelect: "none",
+            pl: { xs: "90px", sm: "130px", md: "160px" },
           }}
         >
           {posterItems(repeatedPosters, "track", true)}
@@ -452,13 +459,13 @@ export default function PosterBar() {
                 </Typography>
                 <Box sx={{ width: 14, height: 1, bgcolor: "rgba(255,255,255,0.25)", borderRadius: 1 }} />
                 <Typography sx={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.55)" }}>
-                  {posters.length}
+                  {validPosters.length}
                 </Typography>
               </Box>
             )}
 
             {/* Prev / Next */}
-            {posters.length > 1 && (
+            {validPosters.length > 1 && (
               <>
                 <IconButton
                   onClick={lightboxPrev}

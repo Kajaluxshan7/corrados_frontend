@@ -16,7 +16,7 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import LocalPizzaIcon from "@mui/icons-material/LocalPizza";
 import WifiIcon from "@mui/icons-material/Wifi";
 import LocalParkingIcon from "@mui/icons-material/LocalParking";
@@ -34,7 +34,23 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import AppleIcon from "@mui/icons-material/Apple";
 import ShopIcon from "@mui/icons-material/Shop";
-import { SectionHeader, NewsletterSignup, FadingVideo, BlurText } from "../components";
+import {
+  SectionHeader,
+  NewsletterSignup,
+  FadingVideo,
+  BlurText,
+  TiltCard,
+  ParallaxImage,
+  SpotlightCard,
+  InfiniteMarquee,
+  ScrollRotate3D,
+  TextReveal,
+  Magnet,
+  CinematicReveal,
+  MouseMoveSpotlight,
+  ScrollZoomContainer,
+  ShatterPortalOverlay,
+} from "../components";
 import { motion } from "framer-motion";
 import { testimonials } from "../data";
 import { palette } from "../theme";
@@ -70,6 +86,78 @@ const NAV_TILE_DEFAULTS: Record<string, string> = {
   nav_events: "/restaurant/menu-spread.jpeg",
   nav_gallery: "/restaurant/seafood-linguine.jpeg",
   nav_contact: "/restaurant/antipasto-platter.jpeg",
+};
+
+const PREVIEW_IMAGES_MAP: Record<string, string[]> = {
+  nav_about: [
+    "/restaurant/chef-pizza-oven.jpeg",
+    "/restaurant/owner_and_logo.jpg",
+    "/orrdos/interior-booths.jpg",
+    "/orrdos/interior-upstairs.jpg",
+    "/orrdos/exterior-building.jpg",
+    "/restaurant/menu-spread.jpeg"
+  ],
+  nav_menus: [
+    "/restaurant/gnocchi-tomato-cream.jpeg",
+    "/restaurant/seafood-linguine.jpeg",
+    "/orrdos/pizza-corrados.jpg",
+    "/restaurant/arancini-tomato.jpeg",
+    "/restaurant/ravioli-mushroom-spinach.jpeg",
+    "/restaurant/beef-short-rib.jpeg",
+    "/restaurant/antipasto-platter.jpeg",
+    "/restaurant/catering-dessert-display.jpeg"
+  ],
+  nav_specials: [
+    "/restaurant/ravioli-mushroom-spinach.jpeg",
+    "/restaurant/beef-short-rib.jpeg",
+    "/restaurant/antipasto-platter.jpeg",
+    "/restaurant/arancini-tomato.jpeg",
+    "/restaurant/gnocchi-tomato-cream.jpeg",
+    "/restaurant/seafood-linguine.jpeg",
+    "/orrdos/pizza-corrados.jpg"
+  ],
+  nav_family_meals: [
+    "/restaurant/family-meal-takeout.jpeg",
+    "/restaurant/menu-spread.jpeg",
+    "/restaurant/gnocchi-tomato-cream.jpeg",
+    "/restaurant/arancini-tomato.jpeg",
+    "/orrdos/pizza-corrados.jpg",
+    "/restaurant/beef-short-rib.jpeg"
+  ],
+  nav_party_menus: [
+    "/restaurant/catering-dessert-display.jpeg",
+    "/orrdos/interior-upstairs.jpg",
+    "/restaurant/antipasto-platter.jpeg",
+    "/orrdos/interior-booths.jpg",
+    "/restaurant/menu-spread.jpeg",
+    "/restaurant/seafood-linguine.jpeg"
+  ],
+  nav_events: [
+    "/restaurant/menu-spread.jpeg",
+    "/orrdos/interior-upstairs.jpg",
+    "/restaurant/chef-pizza-oven.jpeg",
+    "/orrdos/exterior-building.jpg",
+    "/restaurant/owner_and_logo.jpg",
+    "/orrdos/interior-booths.jpg"
+  ],
+  nav_gallery: [
+    "/restaurant/seafood-linguine.jpeg",
+    "/orrdos/exterior-building.jpg",
+    "/orrdos/interior-booths.jpg",
+    "/orrdos/exterior-patio.jpg",
+    "/orrdos/interior-upstairs.jpg",
+    "/restaurant/chef-pizza-oven.jpeg",
+    "/restaurant/owner_and_logo.jpg",
+    "/restaurant/gnocchi-tomato-cream.jpeg"
+  ],
+  nav_contact: [
+    "/restaurant/antipasto-platter.jpeg",
+    "/orrdos/exterior-building.jpg",
+    "/restaurant/owner_and_logo.jpg",
+    "/orrdos/exterior-patio.jpg",
+    "/orrdos/interior-booths.jpg",
+    "/orrdos/interior-upstairs.jpg"
+  ],
 };
 
 // Static tile metadata — 4×2 grid, no center logo
@@ -125,21 +213,6 @@ const NAV_TILE_META = [
   },
 ];
 
-const tileReveal = keyframes`
-  0% {
-    opacity: 0;
-    transform: translate3d(0, 34px, 0) scale(0.96);
-    filter: blur(8px) saturate(0.75);
-  }
-  58% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-    filter: blur(0) saturate(1);
-  }
-`;
 
 const tileImageDrift = keyframes`
   0% {
@@ -207,7 +280,34 @@ function formatEventDateRange(start: string): string {
   return `${dateStr} · ${timeStr}`;
 }
 
-const REVIEWS_PER_PAGE = 4;
+const bentoContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const bentoTileVariants = {
+  hidden: {
+    opacity: 0,
+    y: 35,
+    scale: 0.96,
+    filter: "blur(6px) saturate(0.8)",
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    filter: "blur(0px) saturate(1)",
+    transition: {
+      duration: 0.85,
+      ease: [0.19, 1, 0.22, 1] as const,
+    },
+  },
+};
 
 export default function Home() {
   usePageMeta({
@@ -219,19 +319,79 @@ export default function Home() {
   });
   const { getImage } = useSiteImages();
 
-  // Build navTiles with dynamic images at render time
+  // Stagger reveal trigger synced with splash screen
+  const [animateEntrance, setAnimateEntrance] = useState(false);
+  const navigate = useNavigate();
+
+  const bentoGridRef = useRef<HTMLDivElement>(null);
+  const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
+  const [activeShatter, setActiveShatter] = useState<{
+    rect: DOMRect;
+    path: string;
+    image: string;
+    label: string;
+    tagline: string;
+    previewImages: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if ((window as any).__splash_completed) {
+        setAnimateEntrance(true);
+      } else {
+        const timer = setTimeout(() => {
+          setAnimateEntrance(true);
+        }, 1950);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
+  const handleTileClick = (e: React.MouseEvent<HTMLAnchorElement>, tile: any) => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      return;
+    }
+    e.preventDefault();
+    if (activeShatter) return;
+
+    const gridEl = bentoGridRef.current;
+    const cardEl = e.currentTarget;
+    if (gridEl && cardEl) {
+      const gridRect = gridEl.getBoundingClientRect();
+      const cardRect = cardEl.getBoundingClientRect();
+      const relativeX = cardRect.left - gridRect.left + cardRect.width / 2;
+      const relativeY = cardRect.top - gridRect.top + cardRect.height / 2;
+      setZoomOrigin(`${relativeX}px ${relativeY}px`);
+    }
+
+    const rect = cardEl.getBoundingClientRect();
+    setActiveShatter({
+      rect,
+      path: tile.path,
+      image: tile.image,
+      label: tile.label,
+      tagline: tile.tagline,
+      previewImages: tile.previewImages,
+    });
+  };
+
+  const handleZoomComplete = () => {
+    if (activeShatter) {
+      navigate(activeShatter.path);
+    }
+  };
+
+  // Build navTiles with dynamic images and preview lists at render time
   const navTiles = NAV_TILE_META.map((meta) => ({
     ...meta,
     image: getImage(meta.key, NAV_TILE_DEFAULTS[meta.key]),
+    previewImages: PREVIEW_IMAGES_MAP[meta.key] || [NAV_TILE_DEFAULTS[meta.key]],
   }));
 
   const [specialsPopupOpen, setSpecialsPopupOpen] = useState(false);
   const [activeSpecial, setActiveSpecial] = useState(0);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [reviewPage, setReviewPage] = useState(0);
-  const [reviewsVisible, setReviewsVisible] = useState(true);
-  const [isReviewsHovered, setIsReviewsHovered] = useState(false);
-  const reviewFadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const popupShownRef = useRef(false);
 
   // Live data state
@@ -247,25 +407,25 @@ export default function Home() {
       .then((data) =>
         setLiveSpecials(data.sort((a, b) => a.sortOrder - b.sortOrder)),
       )
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const loadHomeEvents = useCallback(() => {
     fetchEvents()
       .then((data) => setLiveEvents(data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const loadHomeGallery = useCallback(() => {
     fetchStoryCategories()
       .then((data) => setGalleryCategories(data.filter((c) => c.isActive)))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const loadHomeFamilyMeals = useCallback(() => {
     fetchFamilyMeals()
       .then((data) => setLiveFamilyMeals(data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -370,36 +530,6 @@ export default function Home() {
     }
     return stopAutoPlay;
   }, [specialsPopupOpen, startAutoPlay, stopAutoPlay]);
-
-  const totalReviewPages = Math.ceil(testimonials.length / REVIEWS_PER_PAGE);
-
-  const changeReviewPage = useCallback((next: number) => {
-    setReviewsVisible(false);
-    if (reviewFadeRef.current) clearTimeout(reviewFadeRef.current);
-    reviewFadeRef.current = setTimeout(() => {
-      setReviewPage(next);
-      setReviewsVisible(true);
-    }, 300);
-  }, []);
-
-  useEffect(() => {
-    if (isReviewsHovered) return;
-    const timer = setInterval(() => {
-      changeReviewPage((reviewPage + 1) % totalReviewPages);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [totalReviewPages, isReviewsHovered, reviewPage, changeReviewPage]);
-
-  useEffect(() => {
-    return () => {
-      if (reviewFadeRef.current) clearTimeout(reviewFadeRef.current);
-    };
-  }, []);
-
-  const visibleReviews = testimonials.slice(
-    reviewPage * REVIEWS_PER_PAGE,
-    reviewPage * REVIEWS_PER_PAGE + REVIEWS_PER_PAGE,
-  );
 
   return (
     <>
@@ -541,7 +671,7 @@ export default function Home() {
                     <Chip
                       label={
                         SPECIAL_TYPE_LABELS[
-                          popupSpecials[activeSpecial].type
+                        popupSpecials[activeSpecial].type
                         ] ?? popupSpecials[activeSpecial].type
                       }
                       size="small"
@@ -709,255 +839,309 @@ export default function Home() {
           </>
         )}
       </Dialog>
-         {/* Navigation tile bento grid — 4×2 grid with custom JS fading video background */}
-      <Box
-        component="section"
-        className="bento-grid"
-        sx={{
-          position: "relative",
-          isolation: "isolate",
-          overflow: "hidden",
-          bgcolor: "#000",
-          display: "grid",
-          gap: { xs: 1.25, md: 1.75 },
-          p: { xs: 1.25, sm: 2, md: 3 },
-          gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, 1fr)",
-            md: "repeat(4, 1fr)",
-          },
-          gridTemplateRows: {
-            xs: "repeat(8, 200px)",
-            sm: "repeat(4, 240px)",
-            md: "repeat(2, minmax(270px, 28vw))",
-            lg: "repeat(2, 310px)",
-          },
-          perspective: "1400px",
-          "@media (prefers-reduced-motion: reduce)": {
-            "& .cinematic-tile, & .tile-img, & .tile-sheen, & .tile-frame, & .tile-title, & .tile-arrow":
+      {/* Navigation tile bento grid — 4×2 grid with custom JS fading video background wrapped in MouseMoveSpotlight */}
+      <MouseMoveSpotlight
+        glowColor="rgba(255, 255, 255, 0.12)"
+        size={900}
+        style={{ width: "100%", height: "100%", backgroundColor: "#12100E" }}
+      >
+        <Box
+          ref={bentoGridRef}
+          component={motion.section}
+          variants={bentoContainerVariants}
+          initial="hidden"
+          animate={
+            activeShatter
+              ? {
+                scale: 3.0,
+                opacity: 0,
+                transition: { duration: 1.5, ease: [0.19, 1, 0.22, 1] },
+              }
+              : animateEntrance
+                ? "visible"
+                : "hidden"
+          }
+          style={{
+            transformOrigin: activeShatter ? zoomOrigin : "50% 50%",
+          }}
+          className="bento-grid"
+          sx={{
+            position: "relative",
+            isolation: "isolate",
+            overflow: "hidden",
+            bgcolor: "transparent",
+            display: "grid",
+            gap: { xs: 1.25, md: 1.75 },
+            p: { xs: 1.25, sm: 2, md: 3 },
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(4, 1fr)",
+            },
+            gridTemplateRows: {
+              xs: "repeat(8, 200px)",
+              sm: "repeat(4, 240px)",
+              md: "repeat(2, minmax(270px, 28vw))",
+              lg: "repeat(2, 310px)",
+            },
+            perspective: "1400px",
+            "@media (prefers-reduced-motion: reduce)": {
+              "& .cinematic-tile, & .tile-img, & .tile-sheen, & .tile-frame, & .tile-title, & .tile-arrow":
               {
                 animation: "none !important",
                 transition: "none !important",
               },
-          },
-        }}
-      >
-        <FadingVideo
-          src="https://assets.mixkit.co/videos/preview/mixkit-cooking-in-a-professional-kitchen-41588-large.mp4"
-          className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top z-0"
-          style={{ width: "120%", height: "120%", pointerEvents: "none" }}
-        />
-
-        {/* ── All 8 nav tiles (4 × 2 grid) ── */}
-        {navTiles.map((tile, i) => (
-          <Box
-            key={tile.path}
-            className="cinematic-tile liquid-glass"
-            component={RouterLink}
-            to={tile.path}
-            sx={{
-              position: "relative",
-              zIndex: 1,
-              overflow: "hidden",
-              textDecoration: "none",
-              display: "block",
-              borderRadius: 2,
-              transformStyle: "preserve-3d",
-              animation: `${tileReveal} 880ms cubic-bezier(0.19, 1, 0.22, 1) both`,
-              animationDelay: `${i * 65}ms`,
-              transition:
-                "transform 0.55s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.55s ease, border-color 0.55s ease, opacity 0.4s ease, filter 0.4s ease",
-              "&:focus-visible": {
-                outline: `2px solid ${palette.gold}`,
-                outlineOffset: 4,
-              },
-              "&:hover .tile-img, &:focus-visible .tile-img": {
-                "--tile-scale": "1.15",
-                filter: "saturate(1.08) contrast(1.06)",
-                opacity: 0.95,
-              },
-              "&:hover .tile-frame, &:focus-visible .tile-frame": {
-                opacity: 1,
-                transform: "scale(0.985)",
-              },
-              "&:hover .tile-title, &:focus-visible .tile-title": {
-                transform: "translateY(-3px)",
-                color: palette.gold,
-              },
-              "&:hover .tile-arrow, &:focus-visible .tile-arrow": {
-                transform: "translate3d(6px, 0, 0)",
-              },
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                zIndex: 3,
-                bottom: 14,
-                left: 18,
-                right: 18,
-                height: "2px",
-                background: `linear-gradient(90deg, ${palette.primary.main}, ${palette.gold})`,
-                transform: "scaleX(0)",
-                transformOrigin: "left",
-                transition: "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
-              },
-              "&:hover::after, &:focus-visible::after": {
-                transform: "scaleX(1)",
-              },
-            }}
+            },
+          }}
+        >
+          {/* Scroll Zoom and Fade for FadingVideo */}
+          <ScrollZoomContainer
+            scaleRange={[1, 1.15]}
+            opacityRange={[0.62, 0.0]}
+            scrollRange={[0, 650]}
+            className="absolute inset-0 z-0"
+            style={{ position: "absolute" }}
           >
-            <Box
-              className="tile-img"
-              sx={{
-                "--tile-scale": "1.07",
-                position: "absolute",
-                inset: -8,
-                backgroundImage: `url(${tile.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                opacity: 0.28,
-                filter: "saturate(0.96) contrast(1)",
-                animation: `${tileImageDrift} ${17 + i}s ease-in-out infinite alternate`,
-                transition: "filter 0.55s ease, opacity 0.55s ease",
-                willChange: "transform",
-              }}
+            <FadingVideo
+              src="https://assets.mixkit.co/videos/preview/mixkit-cooking-in-a-professional-kitchen-41588-large.mp4"
+              className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top"
+              style={{ width: "120%", height: "120%", pointerEvents: "none" }}
             />
-            <Box
-              className="tile-sheen"
-              sx={{
-                position: "absolute",
-                zIndex: 2,
-                top: "-28%",
-                bottom: "-28%",
-                width: "34%",
-                left: 0,
-                background:
-                  "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,244,222,0.38) 50%, rgba(255,255,255,0) 100%)",
-                filter: "blur(10px)",
-                animation: `${lightSweep} ${9 + i * 0.4}s ease-in-out infinite`,
-                animationDelay: `${0.6 + i * 0.32}s`,
-                pointerEvents: "none",
-              }}
-            />
-            <Box
-              className="tile-frame"
-              sx={{
-                position: "absolute",
-                zIndex: 2,
-                inset: 12,
-                border: "1px solid rgba(255,255,255,0.24)",
-                borderRadius: 1.5,
-                opacity: 0.55,
-                transition:
-                  "opacity 0.45s ease, transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
-                pointerEvents: "none",
-              }}
-            />
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                zIndex: 3,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                p: { xs: 2.5, md: 3.5 },
+          </ScrollZoomContainer>
+
+          {/* ── All 8 nav tiles (4 × 2 grid) ── */}
+          {navTiles.map((tile, i) => (
+            <motion.div
+              key={tile.path}
+              variants={bentoTileVariants}
+              style={{
+                width: "100%",
+                height: "100%",
+                opacity: activeShatter?.path === tile.path ? 0 : 1,
+                visibility: activeShatter?.path === tile.path ? "hidden" : "visible",
+                transition: "opacity 0.05s ease, visibility 0.05s ease",
               }}
             >
-              <Typography
-                variant="overline"
-                sx={{
-                  color: "#fff",
-                  bgcolor: `${palette.primary.main}CC`,
-                  border: `1px solid ${palette.primary.light}44`,
-                  fontSize: "0.55rem",
-                  letterSpacing: "0.18em",
-                  mb: 0.75,
-                  px: 0.9,
-                  py: 0.3,
-                  borderRadius: 0.75,
-                  display: "inline-flex",
-                  lineHeight: 1.2,
-                  width: "fit-content",
-                  backdropFilter: "blur(4px)",
-                }}
-              >
-                {tile.tagline}
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 1,
-                }}
-              >
-                <Typography
-                  className="tile-title"
-                  variant="h5"
+              <TiltCard>
+                <Box
+                  className="cinematic-tile"
+                  component={RouterLink}
+                  to={tile.path}
+                  onClick={(e) => handleTileClick(e as any, tile)}
                   sx={{
-                    color: "#fff",
-                    fontWeight: 700,
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: { xs: "1.05rem", sm: "1.1rem", md: "1.16rem" },
-                    letterSpacing: "0.01em",
-                    lineHeight: 1.25,
-                    textShadow: "0 3px 14px rgba(0,0,0,0.6)",
+                    position: "relative",
+                    zIndex: 1,
+                    overflow: "hidden",
+                    textDecoration: "none",
+                    display: "block",
+                    borderRadius: 2,
+                    height: "100%",
+                    transformStyle: "preserve-3d",
+                    bgcolor: "#161413",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    boxShadow: "0 6px 24px rgba(0, 0, 0, 0.25)",
                     transition:
-                      "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease",
+                      "box-shadow 0.55s ease, border-color 0.55s ease, transform 0.55s ease",
+                    "&:focus-visible": {
+                      outline: `2px solid ${palette.gold}`,
+                      outlineOffset: 4,
+                    },
+                    "&:hover, &:focus-visible": {
+                      borderColor: palette.gold,
+                      boxShadow: `0 16px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px ${palette.gold}`,
+                    },
+                    "&:hover .tile-img, &:focus-visible .tile-img": {
+                      "--tile-scale": "1.15",
+                      filter: "saturate(1.06) contrast(1.04) brightness(1.02)",
+                      opacity: 0.95,
+                    },
+                    "&:hover .tile-frame, &:focus-visible .tile-frame": {
+                      opacity: 0.8,
+                      transform: "scale(0.985)",
+                      borderColor: palette.gold,
+                    },
+                    "&:hover .tile-title, &:focus-visible .tile-title": {
+                      transform: "translateY(-3px)",
+                      color: palette.gold,
+                    },
+                    "&:hover .tile-arrow, &:focus-visible .tile-arrow": {
+                      transform: "translate3d(6px, 0, 0)",
+                      color: palette.gold,
+                    },
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      zIndex: 3,
+                      bottom: 14,
+                      left: 18,
+                      right: 18,
+                      height: "2px",
+                      background: `linear-gradient(90deg, ${palette.primary.main}, ${palette.gold})`,
+                      transform: "scaleX(0)",
+                      transformOrigin: "left",
+                      transition: "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
+                    },
+                    "&:hover::after, &:focus-visible::after": {
+                      transform: "scaleX(1)",
+                    },
                   }}
                 >
-                  {tile.label}
-                </Typography>
-                <ArrowForwardIcon
-                  className="tile-arrow"
-                  sx={{
-                    color: palette.gold,
-                    fontSize: 20,
-                    transition: "transform 0.3s ease",
-                    flexShrink: 0,
-                  }}
-                />
-              </Box>
-            </Box>
-          </Box>
-        ))}
-      </Box>
+                  <Box
+                    className="tile-img"
+                    sx={{
+                      "--tile-scale": "1.07",
+                      position: "absolute",
+                      inset: -8,
+                      backgroundImage: `url(${tile.image})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      opacity: 1.0,
+                      filter: "saturate(1.04) contrast(1.02)",
+                      animation: `${tileImageDrift} ${17 + i}s ease-in-out infinite alternate`,
+                      transition: "filter 0.55s ease, opacity 0.55s ease",
+                      willChange: "transform",
+                    }}
+                  />
+                  {/* Dark charcoal gradient overlay that is always visible to keep the tile brand-aligned and ensure white text has high contrast */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      zIndex: 2,
+                      background: "linear-gradient(to top, rgba(18, 15, 14, 0.95) 0%, rgba(18, 15, 14, 0.45) 30%, rgba(18, 15, 14, 0) 60%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <Box
+                    className="tile-sheen"
+                    sx={{
+                      position: "absolute",
+                      zIndex: 2,
+                      top: "-28%",
+                      bottom: "-28%",
+                      width: "34%",
+                      left: 0,
+                      background:
+                        "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,244,222,0.38) 50%, rgba(255,255,255,0) 100%)",
+                      filter: "blur(10px)",
+                      animation: `${lightSweep} ${9 + i * 0.4}s ease-in-out infinite`,
+                      animationDelay: `${0.6 + i * 0.32}s`,
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <Box
+                    className="tile-frame"
+                    sx={{
+                      position: "absolute",
+                      zIndex: 2,
+                      inset: 12,
+                      border: `1px solid ${palette.gold}33`,
+                      borderRadius: 1.5,
+                      opacity: 0.55,
+                      transition:
+                        "opacity 0.45s ease, transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      zIndex: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "flex-end",
+                      p: { xs: 2.5, md: 3.5 },
+                    }}
+                  >
+                    <Typography
+                      variant="overline"
+                      sx={{
+                        color: "#fff",
+                        bgcolor: palette.primary.main,
+                        border: `1px solid ${palette.primary.light}33`,
+                        fontSize: "0.55rem",
+                        letterSpacing: "0.18em",
+                        mb: 0.75,
+                        px: 0.9,
+                        py: 0.3,
+                        borderRadius: 0.75,
+                        display: "inline-flex",
+                        lineHeight: 1.2,
+                        width: "fit-content",
+                      }}
+                    >
+                      {tile.tagline}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography
+                        className="tile-title"
+                        variant="h5"
+                        sx={{
+                          color: "#fff",
+                          fontWeight: 700,
+                          fontFamily: "'Playfair Display', serif",
+                          fontSize: { xs: "1.05rem", sm: "1.1rem", md: "1.16rem" },
+                          letterSpacing: "0.01em",
+                          lineHeight: 1.25,
+                          transition:
+                            "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease",
+                        }}
+                      >
+                        {tile.label}
+                      </Typography>
+                      <ArrowForwardIcon
+                        className="tile-arrow"
+                        sx={{
+                          color: palette.gold,
+                          fontSize: 20,
+                          transition: "transform 0.3s ease",
+                          flexShrink: 0,
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              </TiltCard>
+            </motion.div>
+          ))}
+        </Box>
+      </MouseMoveSpotlight>
 
       {/* ─── INTRO / ABOUT TEASER ─── */}
       <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <motion.div
-                initial={{ opacity: 0, x: -40, scale: 0.95 }}
-                whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+              <CinematicReveal
+                type="clip-slide-right"
+                duration={1.1}
+                style={{
+                  width: "100%",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                }}
+                className="h-[300px] md:h-[400px]"
               >
-                <Box
-                  component="img"
-                  loading="lazy"
+                <ParallaxImage
                   src={getImage(
                     "home_about_owner",
                     "/restaurant/owner_and_logo.jpg",
                   )}
                   alt="Corrado's owner with the restaurant logo"
-                  sx={{
-                    width: "100%",
-                    height: { xs: 300, md: 400 },
-                    objectFit: "cover",
-                    borderRadius: 1,
-                  }}
+                  speed={0.15}
                 />
-              </motion.div>
+              </CinematicReveal>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1], delay: 0.15 }}
-              >
+              <CinematicReveal type="slide-up-skew" delay={0.15}>
                 <Typography
                   variant="subtitle2"
                   sx={{
@@ -979,23 +1163,18 @@ export default function Home() {
                 >
                   <BlurText text="A Taste of Italy in Whitby" align="left" />
                 </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
-                >
-                  Since 2010, Corrado's has been the neighbourhood's favourite
-                  destination for authentic Italian cuisine. From our family to
-                  yours, we prepare every dish with fresh ingredients,
-                  time-honoured recipes, and a genuine passion for hospitality.
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
-                >
-                  Whether you're here for a casual weeknight dinner, a special
-                  celebration, or cheering on your team during the big game —
-                  there's always a seat at our table for you.
-                </Typography>
+                <Box sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}>
+                  <TextReveal
+                    text="Since 2010, Corrado's has been the neighbourhood's favourite destination for authentic Italian cuisine. From our family to yours, we prepare every dish with fresh ingredients, time-honoured recipes, and a genuine passion for hospitality."
+                    delay={0.1}
+                  />
+                </Box>
+                <Box sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
+                  <TextReveal
+                    text="Whether you're here for a casual weeknight dinner, a special celebration, or cheering on your team during the big game — there's always a seat at our table for you."
+                    delay={0.2}
+                  />
+                </Box>
                 <Button
                   variant="outlined"
                   color="primary"
@@ -1005,7 +1184,7 @@ export default function Home() {
                 >
                   Our Story
                 </Button>
-              </motion.div>
+              </CinematicReveal>
             </Grid>
           </Grid>
         </Container>
@@ -1051,59 +1230,59 @@ export default function Home() {
               },
             ].map((cat, i) => (
               <Grid key={cat.label} size={{ xs: 12, sm: 6, md: 3 }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.7, delay: i * 0.08, ease: [0.25, 1, 0.5, 1] }}
-                  style={{ height: "100%" }}
-                >
-                  <Card
-                    component={RouterLink}
-                    to="/menus"
-                    sx={{
-                      textDecoration: "none",
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      transition: "transform 0.3s, box-shadow 0.3s",
-                      "&:hover": {
-                        transform: "translateY(-6px)",
-                        boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
-                      },
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      loading="lazy"
-                      image={cat.image}
-                      alt={cat.label}
+                <CinematicReveal type="wipe-gold" delay={i * 0.12} duration={0.8} style={{ height: "100%" }}>
+                  <TiltCard>
+                    <Card
+                      component={RouterLink}
+                      to="/menus"
                       sx={{
-                        height: { xs: 200, sm: 220, md: 240 },
-                        objectFit: "cover",
-                        flexShrink: 0,
+                        textDecoration: "none",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "hidden",
+                        border: "1px solid rgba(0,0,0,0.06)",
+                        boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                        transition: "box-shadow 0.3s ease",
+                        "&:hover": {
+                          boxShadow: "0 16px 36px rgba(0,0,0,0.16)",
+                        },
+                        "&:hover .category-image": {
+                          transform: "scale(1.08)",
+                        },
                       }}
-                    />
-                    <CardContent>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 700, color: palette.charcoal }}
-                      >
-                        {cat.label}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                    >
+                      <Box sx={{ overflow: "hidden", height: { xs: 200, sm: 220, md: 240 }, flexShrink: 0 }}>
+                        <CardMedia
+                          component="img"
+                          loading="lazy"
+                          image={cat.image}
+                          alt={cat.label}
+                          className="category-image"
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transition: "transform 0.5s ease",
+                          }}
+                        />
+                      </Box>
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 700, color: palette.charcoal }}
+                        >
+                          {cat.label}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TiltCard>
+                </CinematicReveal>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-            >
+            <CinematicReveal type="fade-in" delay={0.35} duration={0.6}>
               <Button
                 variant="contained"
                 color="primary"
@@ -1114,7 +1293,7 @@ export default function Home() {
               >
                 View Full Menu
               </Button>
-            </motion.div>
+            </CinematicReveal>
           </Box>
         </Container>
       </Box>
@@ -1130,88 +1309,93 @@ export default function Home() {
           <Grid container spacing={3}>
             {featuredSpecials.map((special, i) => (
               <Grid key={special.id} size={{ xs: 12, md: 4 }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 35 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
-                  style={{ height: "100%" }}
-                >
-                  <Card
-                    sx={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {special.imageUrls?.length > 0 && (
-                      <CardMedia
-                        component="img"
-                        loading="lazy"
-                        height="180"
-                        image={resolveImageUrl(special.imageUrls[0])}
-                        alt={special.title}
-                      />
-                    )}
-                    <CardContent sx={{ flex: 1, p: 3 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          mb: 2,
-                        }}
-                      >
-                        <Chip
-                          label={getSpecialLabel(special)}
-                          size="small"
+                <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
+                  <SpotlightCard glowColor="rgba(190, 89, 83, 0.12)" style={{ height: "100%", borderRadius: "8px" }}>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid rgba(0,0,0,0.06)",
+                        boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                        transition: "box-shadow 0.3s ease",
+                        "&:hover": {
+                          boxShadow: "0 16px 36px rgba(0,0,0,0.14)",
+                        },
+                      }}
+                    >
+                      {special.imageUrls?.length > 0 && (
+                        <Box sx={{ overflow: "hidden", height: 180 }}>
+                          <CardMedia
+                            component="img"
+                            loading="lazy"
+                            image={resolveImageUrl(special.imageUrls[0])}
+                            alt={special.title}
+                            sx={{
+                              height: "100%",
+                              transition: "transform 0.5s ease",
+                              "&:hover": {
+                                transform: "scale(1.06)",
+                              },
+                            }}
+                          />
+                        </Box>
+                      )}
+                      <CardContent sx={{ flex: 1, p: 3 }}>
+                        <Box
                           sx={{
-                            bgcolor: palette.primary.main,
-                            color: "#fff",
-                            fontWeight: 700,
-                            fontSize: "0.7rem",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            mb: 2,
                           }}
-                        />
-                        <Chip
-                          label={
-                            SPECIAL_TYPE_LABELS[special.type] ?? special.type
-                          }
-                          size="small"
-                          variant="outlined"
+                        >
+                          <Chip
+                            label={getSpecialLabel(special)}
+                            size="small"
+                            sx={{
+                              bgcolor: palette.primary.main,
+                              color: "#fff",
+                              fontWeight: 700,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                          <Chip
+                            label={
+                              SPECIAL_TYPE_LABELS[special.type] ?? special.type
+                            }
+                            size="small"
+                            variant="outlined"
+                            sx={{
+                              borderColor: palette.gold,
+                              color: palette.gold,
+                              fontWeight: 600,
+                              fontSize: "0.7rem",
+                            }}
+                          />
+                        </Box>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                          {formatAmpersand(special.title)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
                           sx={{
-                            borderColor: palette.gold,
-                            color: palette.gold,
-                            fontWeight: 600,
-                            fontSize: "0.7rem",
+                            color: palette.text.secondary,
+                            mb: 2,
+                            lineHeight: 1.7,
                           }}
-                        />
-                      </Box>
-                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                        {formatAmpersand(special.title)}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: palette.text.secondary,
-                          mb: 2,
-                          lineHeight: 1.7,
-                        }}
-                      >
-                        {special.description}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                        >
+                          {special.description}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </SpotlightCard>
+                </CinematicReveal>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
+            <CinematicReveal type="fade-in" delay={0.3} duration={0.6}>
               <Button
                 variant="outlined"
                 color="primary"
@@ -1221,7 +1405,7 @@ export default function Home() {
               >
                 View All Specials
               </Button>
-            </motion.div>
+            </CinematicReveal>
           </Box>
         </Container>
       </Box>
@@ -1262,68 +1446,65 @@ export default function Home() {
                 .slice(0, 3)
                 .map((meal, i) => (
                   <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 35 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-80px" }}
-                      transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
-                      style={{ height: "100%" }}
-                    >
-                      <Card
-                        className="liquid-glass-strong"
-                        sx={{
-                          height: "100%",
-                          bgcolor: "rgba(255, 255, 255, 0.05)",
-                          color: "#fff",
-                        }}
-                      >
-                        <CardContent sx={{ p: 3 }}>
-                          <Typography
-                            variant="h6"
-                            fontWeight={700}
-                            sx={{ mb: 1, color: "#fff" }}
-                          >
-                            {formatAmpersand(meal.name)}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "rgba(255, 255, 255, 0.7)", mb: 2 }}
-                          >
-                            {meal.description}
-                          </Typography>
-                          <Chip
-                            label={`Serves ${meal.serves}`}
-                            size="small"
-                            sx={{
-                              mr: 1,
-                              mb: 1,
-                              bgcolor: "rgba(255,255,255,0.15)",
-                              color: "#fff",
-                            }}
-                          />
-                          <Typography
-                            variant="h5"
-                            sx={{
-                              color: palette.gold,
-                              fontWeight: 700,
-                              mt: 2,
-                            }}
-                          >
-                            {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
+                    <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
+                      <ScrollRotate3D style={{ height: "100%" }}>
+                        <Card
+                          className="liquid-glass-strong"
+                          sx={{
+                            height: "100%",
+                            bgcolor: "rgba(255, 255, 255, 0.05)",
+                            color: "#fff",
+                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                            transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+                            "&:hover": {
+                              borderColor: "rgba(255, 255, 255, 0.2)",
+                              boxShadow: "0 22px 45px rgba(0, 0, 0, 0.4)",
+                            },
+                          }}
+                        >
+                          <CardContent sx={{ p: 3 }}>
+                            <Typography
+                              variant="h6"
+                              fontWeight={700}
+                              sx={{ mb: 1, color: "#fff" }}
+                            >
+                              {formatAmpersand(meal.name)}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "rgba(255, 255, 255, 0.7)", mb: 2 }}
+                            >
+                              {meal.description}
+                            </Typography>
+                            <Chip
+                              label={`Serves ${meal.serves}`}
+                              size="small"
+                              sx={{
+                                mr: 1,
+                                mb: 1,
+                                bgcolor: "rgba(255,255,255,0.15)",
+                                color: "#fff",
+                              }}
+                            />
+                            <Typography
+                              variant="h5"
+                              sx={{
+                                color: palette.gold,
+                                fontWeight: 700,
+                                mt: 2,
+                              }}
+                            >
+                              {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </ScrollRotate3D>
+                    </CinematicReveal>
                   </Grid>
                 ))}
             </Grid>
             <Box sx={{ textAlign: "center", mt: 4 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.35 }}
-              >
+              <CinematicReveal type="fade-in" delay={0.35} duration={0.6}>
                 <Button
                   variant="contained"
                   color="primary"
@@ -1334,7 +1515,7 @@ export default function Home() {
                 >
                   View Family Meals
                 </Button>
-              </motion.div>
+              </CinematicReveal>
             </Box>
           </Container>
         </Box>
@@ -1345,12 +1526,7 @@ export default function Home() {
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
-              >
+              <CinematicReveal type="slide-up-skew" duration={0.8}>
                 <Typography
                   variant="subtitle2"
                   sx={{
@@ -1372,22 +1548,18 @@ export default function Home() {
                 >
                   <BlurText text="Host Your Next Event at Corrado's" align="left" />
                 </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}
-                >
-                  From intimate gatherings to large celebrations, we have the
-                  perfect space and menu for your event. Birthday parties,
-                  corporate dinners, sports viewing parties, and more.
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
-                >
-                  Our dedicated event coordinator will work with you to customize
-                  every detail, from menu selection to seating arrangement.
-                  Starting at just $25 per person.
-                </Typography>
+                <Box sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}>
+                  <TextReveal
+                    text="From intimate gatherings to large celebrations, we have the perfect space and menu for your event. Birthday parties, corporate dinners, sports viewing parties, and more."
+                    delay={0.1}
+                  />
+                </Box>
+                <Box sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
+                  <TextReveal
+                    text="Our dedicated event coordinator will work with you to customize every detail, from menu selection to seating arrangement. Starting at just $25 per person."
+                    delay={0.2}
+                  />
+                </Box>
                 <Stack direction="row" spacing={2}>
                   <Button
                     variant="contained"
@@ -1407,31 +1579,29 @@ export default function Home() {
                     Get in Touch
                   </Button>
                 </Stack>
-              </motion.div>
+              </CinematicReveal>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <motion.div
-                initial={{ opacity: 0, x: 40, scale: 0.95 }}
-                whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1], delay: 0.15 }}
+              <CinematicReveal
+                type="clip-slide-left"
+                delay={0.15}
+                duration={1.1}
+                style={{
+                  width: "100%",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                }}
+                className="h-[300px] md:h-[400px]"
               >
-                <Box
-                  component="img"
-                  loading="lazy"
+                <ParallaxImage
                   src={getImage(
                     "home_private_events",
                     "/orrdos/interior-upstairs.jpg",
                   )}
                   alt="Corrado's upstairs dining room — perfect for private events"
-                  sx={{
-                    width: "100%",
-                    height: { xs: 300, md: 400 },
-                    objectFit: "cover",
-                    borderRadius: 1,
-                  }}
+                  speed={-0.12}
                 />
-              </motion.div>
+              </CinematicReveal>
             </Grid>
           </Grid>
         </Container>
@@ -1448,68 +1618,82 @@ export default function Home() {
           <Grid container spacing={3}>
             {featuredEvents.map((event, i) => (
               <Grid key={event.id} size={{ xs: 12, md: 4 }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 35 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
-                  style={{ height: "100%" }}
-                >
-                  <Card sx={{ height: "100%" }}>
-                    {event.imageUrls?.length > 0 && (
-                      <CardMedia
-                        component="img"
-                        loading="lazy"
-                        height="180"
-                        image={resolveImageUrl(event.imageUrls[0])}
-                        alt={event.title}
-                      />
-                    )}
-                    <CardContent sx={{ p: 3 }}>
-                      <Chip
-                        label={EVENT_TYPE_LABELS[event.type] ?? event.type}
-                        size="small"
-                        sx={{
-                          mb: 2,
-                          bgcolor: palette.secondary.main,
-                          color: "#fff",
-                          textTransform: "capitalize",
-                          fontWeight: 600,
-                          fontSize: "0.7rem",
-                        }}
-                      />
-                      <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                        {formatAmpersand(event.title)}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: palette.primary.main,
-                          fontWeight: 600,
-                          mb: 1,
-                        }}
-                      >
-                        {formatEventDateRange(event.eventStartDate)}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: palette.text.secondary, lineHeight: 1.7 }}
-                      >
-                        {event.description}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
+                  <TiltCard>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        border: "1px solid rgba(0,0,0,0.06)",
+                        boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                        transition: "box-shadow 0.3s ease",
+                        "&:hover": {
+                          boxShadow: "0 16px 36px rgba(0,0,0,0.14)",
+                        },
+                        "&:hover .event-image": {
+                          transform: "scale(1.06)",
+                        },
+                      }}
+                    >
+                      {event.imageUrls?.length > 0 && (
+                        <Box sx={{ overflow: "hidden", height: 180 }}>
+                          <CardMedia
+                            component="img"
+                            loading="lazy"
+                            image={resolveImageUrl(event.imageUrls[0])}
+                            alt={event.title}
+                            className="event-image"
+                            sx={{
+                              height: "100%",
+                              width: "100%",
+                              objectFit: "cover",
+                              transition: "transform 0.5s ease",
+                            }}
+                          />
+                        </Box>
+                      )}
+                      <CardContent sx={{ p: 3 }}>
+                        <Chip
+                          label={EVENT_TYPE_LABELS[event.type] ?? event.type}
+                          size="small"
+                          sx={{
+                            mb: 2,
+                            bgcolor: palette.secondary.main,
+                            color: "#fff",
+                            textTransform: "capitalize",
+                            fontWeight: 600,
+                            fontSize: "0.7rem",
+                          }}
+                        />
+                        <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                          {formatAmpersand(event.title)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: palette.primary.main,
+                            fontWeight: 600,
+                            mb: 1,
+                          }}
+                        >
+                          {formatEventDateRange(event.eventStartDate)}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: palette.text.secondary, lineHeight: 1.7 }}
+                        >
+                          {event.description}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </TiltCard>
+                </CinematicReveal>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
+            <CinematicReveal type="fade-in" delay={0.3} duration={0.6}>
               <Button
                 variant="outlined"
                 color="primary"
@@ -1519,7 +1703,7 @@ export default function Home() {
               >
                 View All Events
               </Button>
-            </motion.div>
+            </CinematicReveal>
           </Box>
         </Container>
       </Box>
@@ -1536,33 +1720,44 @@ export default function Home() {
             {(galleryImages.length > 0
               ? galleryImages
               : [
-                  "/orrdos/exterior-building.jpg",
-                  "/orrdos/interior-upstairs.jpg",
-                  "/orrdos/interior-booths.jpg",
-                  "/orrdos/exterior-patio.jpg",
-                ]
+                "/orrdos/exterior-building.jpg",
+                "/orrdos/interior-upstairs.jpg",
+                "/orrdos/interior-booths.jpg",
+                "/orrdos/exterior-patio.jpg",
+              ]
             ).map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0.85, rotate: i % 2 === 0 ? -3 : 3, y: 35 }}
+                  whileInView={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.6, delay: i * 0.08, ease: [0.25, 1, 0.5, 1] }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 90,
+                    damping: 15,
+                    delay: i * 0.08,
+                  }}
                 >
                   <Box
-                    component="img"
-                    loading="lazy"
-                    src={src}
-                    alt={`Gallery image ${i + 1}`}
                     sx={{
                       width: "100%",
                       height: { xs: 160, md: 220 },
-                      objectFit: "cover",
-                      borderRadius: 1,
-                      transition: "transform 0.3s",
-                      "&:hover": { transform: "scale(1.03)" },
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                      transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                      "&:hover": {
+                        boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+                        transform: "translateY(-4px)",
+                      },
                     }}
-                  />
+                  >
+                    <ParallaxImage
+                      src={src}
+                      alt={`Gallery image ${i + 1}`}
+                      speed={0.08}
+                    />
+                  </Box>
                 </motion.div>
               </Grid>
             ))}
@@ -1620,15 +1815,12 @@ export default function Home() {
                 >
                   <BlurText text="Order From Anywhere" align="left" />
                 </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}
-                >
-                  Download the Corrado's app and get your favourite Italian dishes
-                  delivered right to your door. Browse our full menu, customize
-                  your order, track delivery, and earn rewards with every
-                  purchase.
-                </Typography>
+                <Box sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
+                  <TextReveal
+                    text="Download the Corrado's app and get your favourite Italian dishes delivered right to your door. Browse our full menu, customize your order, track delivery, and earn rewards with every purchase."
+                    delay={0.1}
+                  />
+                </Box>
                 <Stack direction="row" spacing={2}>
                   <Tooltip
                     title="Coming soon — stay tuned!"
@@ -1726,12 +1918,7 @@ export default function Home() {
               </motion.div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 60, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 1.0, type: "spring", stiffness: 60, damping: 15 }}
-              >
+              <ScrollRotate3D>
                 <Box
                   sx={{
                     display: "flex",
@@ -1740,6 +1927,8 @@ export default function Home() {
                     height: { xs: 280, md: 400 },
                     bgcolor: palette.background.default,
                     borderRadius: 1,
+                    position: "relative",
+                    transformStyle: "preserve-3d",
                   }}
                 >
                   <Box
@@ -1754,6 +1943,8 @@ export default function Home() {
                       justifyContent: "center",
                       position: "relative",
                       overflow: "hidden",
+                      boxShadow: "0 28px 60px rgba(0,0,0,0.3)",
+                      transformStyle: "preserve-3d",
                     }}
                   >
                     <Box
@@ -1769,8 +1960,61 @@ export default function Home() {
                       }}
                     />
                   </Box>
+                  {/* Floating elements to enhance the 3D parallax effect */}
+                  <motion.div
+                    animate={{ y: [0, -12, 0] }}
+                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                    style={{
+                      position: "absolute",
+                      top: "15%",
+                      left: "12%",
+                      zIndex: 2,
+                      transform: "translateZ(40px)",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        bgcolor: palette.primary.main,
+                        color: "#fff",
+                        p: 1.5,
+                        borderRadius: "50%",
+                        boxShadow: "0 10px 25px rgba(190, 89, 83, 0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <LocalPizzaIcon />
+                    </Box>
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                    style={{
+                      position: "absolute",
+                      bottom: "20%",
+                      right: "12%",
+                      zIndex: 2,
+                      transform: "translateZ(60px)",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        bgcolor: palette.gold,
+                        color: "#fff",
+                        p: 1.5,
+                        borderRadius: "50%",
+                        boxShadow: "0 10px 25px rgba(201, 169, 110, 0.4)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <StarIcon />
+                    </Box>
+                  </motion.div>
                 </Box>
-              </motion.div>
+              </ScrollRotate3D>
             </Grid>
           </Grid>
         </Container>
@@ -1844,20 +2088,50 @@ export default function Home() {
             ].map((feature, i) => (
               <Grid key={i} size={{ xs: 6, sm: 4, md: 3 }}>
                 <motion.div
-                  initial={{ opacity: 0, y: 25 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.6, delay: (i % 4) * 0.08, ease: [0.25, 1, 0.5, 1] }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15,
+                    delay: (i % 4) * 0.08,
+                  }}
                 >
                   <Box sx={{ textAlign: "center", p: 2 }}>
                     <Box
                       sx={{
                         color: palette.primary.main,
                         mb: 1.5,
-                        "& svg": { fontSize: 36 },
+                        display: "flex",
+                        justifyContent: "center",
                       }}
                     >
-                      {feature.icon}
+                      <Magnet strength={4} padding={40}>
+                        <Box
+                          className="liquid-glass"
+                          sx={{
+                            color: palette.primary.main,
+                            p: 2,
+                            borderRadius: "50%",
+                            bgcolor: "rgba(255, 255, 255, 0.5)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 68,
+                            height: 68,
+                            "& svg": { fontSize: 32 },
+                            transition: "background-color 0.3s, color 0.3s, transform 0.3s",
+                            "&:hover": {
+                              bgcolor: palette.primary.main,
+                              color: "#fff",
+                            },
+                          }}
+                        >
+                          {feature.icon}
+                        </Box>
+                      </Magnet>
                     </Box>
                     <Typography
                       variant="h6"
@@ -1880,115 +2154,103 @@ export default function Home() {
       </Box>
 
       {/* ─── TESTIMONIALS ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default, overflow: "hidden" }}>
         <SectionHeader
           subtitle="WHAT OUR GUESTS SAY"
           title="Loved by Families Across Whitby"
         />
-        <Container
-          onMouseEnter={() => setIsReviewsHovered(true)}
-          onMouseLeave={() => setIsReviewsHovered(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
-          >
-            <Grid
-              container
-              spacing={3}
-              sx={{
-                minHeight: { xs: "auto", sm: 280 },
-                opacity: reviewsVisible ? 1 : 0,
-                transition: "opacity 0.3s ease",
-              }}
-            >
-              {visibleReviews.map((t) => (
-                <Grid key={t.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                  <Card
-                    sx={{ height: 240, display: "flex", flexDirection: "column" }}
+        <Box sx={{ width: "100%" }}>
+          <InfiniteMarquee speed={45} direction="left" pauseOnHover={true}>
+            {testimonials.map((t) => (
+              <Box
+                key={t.id}
+                sx={{
+                  width: { xs: 280, sm: 320, md: 350 },
+                  flexShrink: 0,
+                  display: "inline-block",
+                  whiteSpace: "normal",
+                }}
+              >
+                <Card
+                  sx={{
+                    height: 220,
+                    display: "flex",
+                    flexDirection: "column",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                    boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <CardContent
+                    sx={{
+                      p: 3,
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
                   >
-                    <CardContent
+                    <Rating
+                      value={t.rating}
+                      readOnly
+                      size="small"
+                      sx={{ mb: 1.5, flexShrink: 0 }}
+                    />
+                    <Typography
+                      variant="body2"
                       sx={{
-                        p: 3,
+                        color: palette.text.secondary,
+                        fontStyle: "italic",
+                        lineHeight: 1.6,
+                        mb: 2,
                         flex: 1,
-                        display: "flex",
-                        flexDirection: "column",
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: "vertical",
+                        fontSize: "0.85rem",
                       }}
                     >
-                      <Rating
-                        value={t.rating}
-                        readOnly
-                        size="small"
-                        sx={{ mb: 1.5, flexShrink: 0 }}
-                      />
+                      &ldquo;{t.text}&rdquo;
+                    </Typography>
+                    <Box sx={{ flexShrink: 0 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: 700, fontSize: "0.85rem" }}
+                      >
+                        {t.name}
+                      </Typography>
                       <Typography
                         variant="body2"
                         sx={{
                           color: palette.text.secondary,
-                          fontStyle: "italic",
-                          lineHeight: 1.7,
-                          mb: 2,
-                          flex: 1,
-                          overflow: "hidden",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 5,
-                          WebkitBoxOrient: "vertical",
+                          fontSize: "0.75rem",
                         }}
                       >
-                        "{t.text}"
+                        via {t.source}
                       </Typography>
-                      <Box sx={{ flexShrink: 0 }}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 700, fontSize: "0.85rem" }}
-                        >
-                          {t.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: palette.text.secondary,
-                            fontSize: "0.75rem",
-                          }}
-                        >
-                          via {t.source}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-            {/* Dot indicators */}
-            <Box
-              sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 4 }}
-            >
-              {Array.from({ length: totalReviewPages }).map((_, i) => (
-                <Box
-                  key={i}
-                  onClick={() => changeReviewPage(i)}
-                  sx={{
-                    width: reviewPage === i ? 24 : 8,
-                    height: 8,
-                    borderRadius: 999,
-                    bgcolor:
-                      reviewPage === i ? palette.primary.main : palette.warmGray,
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                  }}
-                />
-              ))}
-            </Box>
-          </motion.div>
-        </Container>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
+            ))}
+          </InfiniteMarquee>
+        </Box>
       </Box>
 
       {/* ─── NEWSLETTER SIGNUP ─── */}
       <NewsletterSignup />
 
-      {/* ─── CONTACT STRIP ─── */}
+      {/* ─── PORTAL ZOOM OVERLAY ─── */}
+      {activeShatter && (
+        <ShatterPortalOverlay
+          rect={activeShatter.rect}
+          image={activeShatter.image}
+          label={activeShatter.label}
+          tagline={activeShatter.tagline}
+          previewImages={activeShatter.previewImages}
+          isTriggered={!!activeShatter}
+          onComplete={handleZoomComplete}
+        />
+      )}
     </>
   );
 }

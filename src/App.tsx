@@ -11,7 +11,10 @@ function App() {
   const [splashMounted, setSplashMounted] = useState(true);
 
   useEffect(() => {
-    const hideTimer = window.setTimeout(() => setShowSplash(false), 1900);
+    const hideTimer = window.setTimeout(() => {
+      setShowSplash(false);
+      (window as any).__splash_completed = true;
+    }, 1900);
     const unmountTimer = window.setTimeout(() => setSplashMounted(false), 2450);
 
     return () => {

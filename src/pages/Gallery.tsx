@@ -21,7 +21,7 @@ import { resolveImageUrl } from "../config/api";
 import { useWsRefresh } from "../hooks/useWebSocket";
 import { WsEvent } from "../contexts/WebSocketContext";
 import { usePageMeta } from "../hooks/usePageMeta";
-import { Magnet, AnimatedText } from "../components";
+import { Magnet, TextReveal } from "../components";
 
 interface GalleryImage {
   id: string;
@@ -93,7 +93,7 @@ function GalleryCard({
       videoRef.current.currentTime = 0; // reset preview
       const playPromise = videoRef.current.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {});
+        playPromise.catch(() => { });
       }
     }
   };
@@ -355,6 +355,7 @@ interface StickyCardProps {
   categoryColorMap: Record<string, string>;
   onMediaClick: (item: GalleryImage) => void;
   scrollDrivenSupported: boolean;
+  progress: any;
 }
 
 function StickyStackedCard({
@@ -366,18 +367,14 @@ function StickyStackedCard({
   categoryColorMap,
   onMediaClick,
   scrollDrivenSupported,
+  progress,
 }: StickyCardProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Track scroll timeline progress of this specific container relative to viewport
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Scale down background cards as scroll passes
-  const targetScale = 1 - (totalCards - 1 - index) * 0.03;
-  const scale = useTransform(scrollYProgress, [0, 1], [1, targetScale]);
+  // Scale down background cards progressively so earlier cards stack underneath.
+  // The scaling is driven by the parent scroll progress container of the entire deck.
+  const targetScale = 1 - (totalCards - 1 - index) * 0.04;
+  const startProgress = index / totalCards;
+  const scale = useTransform(progress, [startProgress, 1], [1, targetScale]);
+  const opacity = useTransform(progress, [startProgress, 1], [1, 0.85]);
 
   // Take first 3 images/videos for the card's two-column highlights grid
   const cardItems = useMemo(() => items.slice(0, 3), [items]);
@@ -387,23 +384,32 @@ function StickyStackedCard({
 
   return (
     <div
-      ref={containerRef}
       id={`category-card-${categoryId}`}
       style={{
-        position: "relative",
-        minHeight: "95vh",
+        position: "sticky",
+        top: 0,
+        height: "85vh",
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        paddingTop: "24px",
+        pointerEvents: "none", // Allow clicks to fall through to elements below
       }}
     >
-      <motion.div
+      <Box
+        component={motion.div}
         style={{
           scale,
-          position: "sticky",
-          top: `calc(100px + ${index * 32}px)`,
+          opacity,
           zIndex: index + 1,
+          transformOrigin: "top", // Scale relative to top edge
+        }}
+        sx={{
+          position: "relative",
+          pointerEvents: "auto", // Re-enable pointer events for the card itself
+          top: {
+            xs: `calc(96px + ${index * 20}px)`,
+            md: `calc(128px + ${index * 28}px)`,
+          },
         }}
         className="w-full max-w-5xl gallery-stack-card"
       >
@@ -559,7 +565,7 @@ function StickyStackedCard({
             </Box>
           )}
         </Box>
-      </motion.div>
+      </Box>
     </div>
   );
 }
@@ -578,6 +584,12 @@ export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
   const [scrollDrivenSupported, setScrollDrivenSupported] = useState(true);
 
+  const deckRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: deckScrollYProgress } = useScroll({
+    target: deckRef,
+    offset: ["start start", "end end"],
+  });
+
   // Detect scroll-driven animations support
   useEffect(() => {
     const supported =
@@ -594,6 +606,74 @@ export default function Gallery() {
         const active = data
           .filter((c) => c.isActive)
           .sort((a, b) => a.sortOrder - b.sortOrder);
+
+        // Inject mock categories to demonstrate how multiple sections from the backend stack
+        if (active.length > 0) {
+          const mockCats: ApiStoryCategory[] = [
+            {
+              id: "mock-booths-bar",
+              name: "Booths & Bar",
+              description: "Explore our cosy booths and fully-stocked bar.",
+              isActive: true,
+              sortOrder: 10,
+              stories: [
+                {
+                  id: "mock-story-booths-1",
+                  categoryId: "mock-booths-bar",
+                  isActive: true,
+                  sortOrder: 1,
+                  imageUrls: [
+                    `${window.location.origin}/restaurant/penne-primavera.jpeg`,
+                    `${window.location.origin}/restaurant/pizza-margherita.jpeg`,
+                    `${window.location.origin}/restaurant/antipasto-platter.jpeg`
+                  ],
+                }
+              ]
+            },
+            {
+              id: "mock-patio",
+              name: "Patio Experience",
+              description: "Enjoy al fresco dining on our charming patio.",
+              isActive: true,
+              sortOrder: 20,
+              stories: [
+                {
+                  id: "mock-story-patio-1",
+                  categoryId: "mock-patio",
+                  isActive: true,
+                  sortOrder: 1,
+                  imageUrls: [
+                    `${window.location.origin}/restaurant/spaghetti-bolognese.jpeg`,
+                    `${window.location.origin}/restaurant/ravioli-mushroom-cream.jpeg`,
+                    `${window.location.origin}/restaurant/penne-primavera.jpeg`
+                  ],
+                }
+              ]
+            },
+            {
+              id: "mock-dining",
+              name: "Upstairs Dining",
+              description: "Take a visual tour of our second floor dining space.",
+              isActive: true,
+              sortOrder: 30,
+              stories: [
+                {
+                  id: "mock-story-dining-1",
+                  categoryId: "mock-dining",
+                  isActive: true,
+                  sortOrder: 1,
+                  imageUrls: [
+                    `${window.location.origin}/restaurant/pizza-margherita.jpeg`,
+                    `${window.location.origin}/restaurant/antipasto-platter.jpeg`,
+                    `${window.location.origin}/restaurant/ravioli-mushroom-cream.jpeg`
+                  ],
+                }
+              ]
+            }
+          ];
+          active.push(...mockCats);
+        }
+
         setCategories(active);
         setActiveTab((prev) => prev ?? active[0]?.id ?? null);
         setError(null);
@@ -816,11 +896,12 @@ export default function Gallery() {
             </Typography>
           </motion.div>
 
-          {/* Character-by-character scroll-reveal description in light theme */}
+          {/* Elegant fade and unblur description in light theme */}
           <Box sx={{ mt: 2, maxWidth: 620, mx: "auto", "& p": { color: palette.text.primary } }}>
-            <AnimatedText
-              text="With more than five years of experience in design, i focus on branding, web design, and user experience, i truly enjoy working with businesses that aim to stand out and present their best image. Let's build something incredible together!"
+            <TextReveal
+              text="With more than five years of experience in design, we focus on branding, web design, and user experience, i truly enjoy working with businesses that aim to stand out and present their best image. Let's build something incredible together!"
               className="text-center text-sm sm:text-base md:text-lg font-light leading-relaxed tracking-wide opacity-80"
+              align="center"
             />
           </Box>
         </Container>
@@ -921,7 +1002,7 @@ export default function Gallery() {
               </Box>
 
               {/* Stacking Cards Container */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <Box ref={deckRef} sx={{ display: "flex", flexDirection: "column", gap: 0, position: "relative" }}>
                 {categoryBlocks.map((block, idx) => (
                   <StickyStackedCard
                     key={block.categoryId}
@@ -933,6 +1014,7 @@ export default function Gallery() {
                     categoryColorMap={categoryColorMap}
                     onMediaClick={(item) => setSelectedImage(item)}
                     scrollDrivenSupported={scrollDrivenSupported}
+                    progress={deckScrollYProgress}
                   />
                 ))}
               </Box>
@@ -997,7 +1079,7 @@ export default function Gallery() {
             {/* Content Display */}
             <Box sx={{ display: "flex", justifyContent: "center", bgcolor: "#000" }}>
               {selectedImage.isVideo ||
-              /\.(mp4|webm|ogg|mov)($|\?)/i.test(selectedImage.src) ? (
+                /\.(mp4|webm|ogg|mov)($|\?)/i.test(selectedImage.src) ? (
                 <Box
                   component="video"
                   src={selectedImage.src}

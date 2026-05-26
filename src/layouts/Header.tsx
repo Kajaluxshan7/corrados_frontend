@@ -184,6 +184,7 @@ export default function Header() {
                 justifyContent: 'flex-start',
                 gap: 0.25,
                 pl: 2,
+                width: '100%',
               }}
             >
               {rightNavLinks.map((link) =>
@@ -202,6 +203,7 @@ export default function Header() {
                       border: '1px solid rgba(255,255,255,0.4)',
                       borderRadius: 999,
                       px: 1.6,
+                      ml: 'auto',
                       '&::after': { display: 'none' },
                       '&:hover': {
                         bgcolor: 'rgba(255,255,255,0.12)',

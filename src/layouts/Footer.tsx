@@ -45,6 +45,9 @@ export default function Footer() {
         color: "#fff",
         pt: 8,
         pb: 3,
+        position: "relative",
+        zIndex: 10,
+        borderTop: `4px solid ${palette.primary.main}`, // Clear sharp border line separating content and footer
       }}
     >
       <Container>

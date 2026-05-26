@@ -8,38 +8,38 @@ import { usePageMeta } from "../hooks/usePageMeta";
 const CATEGORIES = [
   {
     id: 'Daily',
-    bg: '#5C1D18', // Brick Red (matches header theme)
-    panel: '#8E3830',
+    bg: '#8E3830', // Terracotta Dark
+    panel: '#A6463C',
     description: 'Fresh handmade pasta, rich marinara sauces, and traditional chef-crafted comfort food prepared daily.',
   },
   {
     id: 'Everyday',
-    bg: '#7A352E', // Warm Crimson
-    panel: '#A65147',
+    bg: '#A3463E', // Warm Clay Red
+    panel: '#B8554D',
     description: 'Our signature wood-fired stone oven pizzas, prepared fresh every day keeping old-world Italian traditions alive.',
   },
   {
     id: 'Weekend',
-    bg: '#4A1C18', // Deep Mahogany
-    panel: '#73312B',
+    bg: '#722F37', // Deep Wine Red
+    panel: '#8F3F4A',
     description: 'Premium weekend dinner selections featuring fresh coastal catch and slow-simmered regional seafood specialties.',
   },
   {
     id: 'Game Time',
-    bg: '#6B351E', // Rust Orange
-    panel: '#945233',
+    bg: '#A25330', // Burnt Copper / Rust Orange
+    panel: '#B96A47',
     description: 'Perfect shareable platters, stone-baked pizzas, and savory appetizers designed to elevate your game day experience.',
   },
   {
     id: 'Daytime',
-    bg: '#523E33', // Warm Chestnut
-    panel: '#755D50',
+    bg: '#AE544E', // Dusty Terracotta Red
+    panel: '#C66962',
     description: 'Light, satisfying lunch features and mid-day combinations crafted for active afternoons.',
   },
   {
     id: "Chef's Special",
-    bg: '#4A121A', // Deep Wine Red
-    panel: '#731F2A',
+    bg: '#631C24', // Deep Black-Cherry Wine Red
+    panel: '#7B2E37',
     description: 'Exclusive culinary creations, fine wine pairings, and hand-crafted seasonal masterworks directly from our head chef.',
   },
 ];
@@ -201,7 +201,7 @@ export default function Specials() {
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
   // Preload all food images on mount
   useEffect(() => {
@@ -211,10 +211,13 @@ export default function Specials() {
     });
   }, []);
 
-  // Handle mobile screen check
+  // Handle responsive screen size check
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
+      const w = window.innerWidth;
+      if (w < 640) setScreenSize('mobile');
+      else if (w < 1024) setScreenSize('tablet');
+      else setScreenSize('desktop');
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -262,65 +265,113 @@ export default function Specials() {
   };
 
   const getRoleStyles = (role: 'center' | 'left' | 'right' | 'back' | 'hidden') => {
-    const baseWidth = isMobile ? '82vw' : '420px';
-    const baseHeight = isMobile ? '52vh' : '64vh';
+    let cardWidth = '420px';
+    let cardHeight = '64vh';
+    let centerTop = '50%';
+
+    if (screenSize === 'mobile') {
+      cardWidth = '260px';
+      cardHeight = '44vh';
+      centerTop = '42%';
+    } else if (screenSize === 'tablet') {
+      cardWidth = '320px';
+      cardHeight = '48vh';
+      centerTop = '45%';
+    }
 
     switch (role) {
       case 'center':
         return {
           left: '50%',
-          top: '50%',
+          top: centerTop,
           transform: 'translate(-50%, -50%) scale(1)',
           filter: 'blur(0px)',
           opacity: 1,
           zIndex: 20,
-          width: baseWidth,
-          height: baseHeight,
+          width: cardWidth,
+          height: cardHeight,
         };
-      case 'left':
+      case 'left': {
+        let leftVal = '18%';
+        let opacityVal = 0.55;
+        let scaleVal = 0.78;
+        let blurVal = '3px';
+
+        if (screenSize === 'mobile') {
+          leftVal = '-10%';
+          opacityVal = 0.4;
+          scaleVal = 0.72;
+          blurVal = '4px';
+        } else if (screenSize === 'tablet') {
+          leftVal = '8%';
+          opacityVal = 0.45;
+          scaleVal = 0.75;
+          blurVal = '4px';
+        }
+
         return {
-          left: isMobile ? '6%' : '18%',
-          top: '50%',
-          transform: 'translate(-50%, -50%) scale(0.78)',
-          filter: 'blur(3px)',
-          opacity: 0.55,
+          left: leftVal,
+          top: centerTop,
+          transform: `translate(-50%, -50%) scale(${scaleVal})`,
+          filter: `blur(${blurVal})`,
+          opacity: opacityVal,
           zIndex: 10,
-          width: baseWidth,
-          height: baseHeight,
+          width: cardWidth,
+          height: cardHeight,
         };
-      case 'right':
+      }
+      case 'right': {
+        let leftVal = '82%';
+        let opacityVal = 0.55;
+        let scaleVal = 0.78;
+        let blurVal = '3px';
+
+        if (screenSize === 'mobile') {
+          leftVal = '110%';
+          opacityVal = 0.4;
+          scaleVal = 0.72;
+          blurVal = '4px';
+        } else if (screenSize === 'tablet') {
+          leftVal = '92%';
+          opacityVal = 0.45;
+          scaleVal = 0.75;
+          blurVal = '4px';
+        }
+
         return {
-          left: isMobile ? '94%' : '82%',
-          top: '50%',
-          transform: 'translate(-50%, -50%) scale(0.78)',
-          filter: 'blur(3px)',
-          opacity: 0.55,
+          left: leftVal,
+          top: centerTop,
+          transform: `translate(-50%, -50%) scale(${scaleVal})`,
+          filter: `blur(${blurVal})`,
+          opacity: opacityVal,
           zIndex: 10,
-          width: baseWidth,
-          height: baseHeight,
+          width: cardWidth,
+          height: cardHeight,
         };
+      }
       case 'back':
         return {
           left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%) scale(0.62)',
+          top: centerTop,
+          transform: screenSize === 'desktop' ? 'translate(-50%, -50%) scale(0.62)' : `translate(-50%, -50%) scale(${screenSize === 'mobile' ? 0.55 : 0.6})`,
           filter: 'blur(6px)',
-          opacity: 0.3,
+          opacity: screenSize === 'mobile' ? 0.15 : 0.2,
           zIndex: 5,
-          width: baseWidth,
-          height: baseHeight,
+          width: cardWidth,
+          height: cardHeight,
         };
       case 'hidden':
       default:
         return {
           left: '50%',
-          top: '50%',
+          top: centerTop,
           transform: 'translate(-50%, -50%) scale(0.45)',
           filter: 'blur(10px)',
           opacity: 0,
+          visibility: 'hidden' as const,
           zIndex: 0,
-          width: baseWidth,
-          height: baseHeight,
+          width: cardWidth,
+          height: cardHeight,
         };
     }
   };
@@ -342,6 +393,15 @@ export default function Specials() {
           fontFamily: "'Inter', sans-serif",
         }}
       >
+        {/* Top Vignette transition from Header color to transparent */}
+        <div
+          className="absolute inset-x-0 top-0 h-24 pointer-events-none z-10"
+          style={{
+            background: `linear-gradient(to bottom, #BE5953 0%, rgba(190, 89, 83, 0) 100%)`,
+            opacity: 0.75,
+          }}
+        />
+
         {/* Grain overlay */}
         <div
           className="absolute inset-0 pointer-events-none z-50 opacity-40"
@@ -356,12 +416,12 @@ export default function Specials() {
         <div
           className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-2 transition-all duration-700"
           style={{
-            top: '22%',
+            top: '11%',
             fontFamily: "'Anton', sans-serif",
-            fontSize: 'clamp(70px, 22vw, 300px)',
+            fontSize: 'clamp(50px, 12vw, 180px)',
             color: 'white',
-            opacity: 0.08,
-            letterSpacing: '-0.03em',
+            opacity: 0.07,
+            letterSpacing: '0.04em',
             whiteSpace: 'nowrap',
             lineHeight: 1,
           }}
@@ -369,8 +429,8 @@ export default function Specials() {
           {getCategoryLabel(CATEGORIES[activeCategoryIndex].id)}
         </div>
 
-        {/* Category Tabs (Section changer above the cards - top center) */}
-        <div className="absolute top-6 sm:top-8 left-1/2 -translate-x-1/2 flex items-center gap-4 sm:gap-8 z-40 max-w-[90vw] overflow-x-auto scrollbar-none py-2">
+        {/* Vertical Category Navigation (Desktop only) */}
+        <div className="hidden lg:flex absolute left-12 md:left-16 top-1/2 -translate-y-1/2 flex-col gap-6 z-40">
           {CATEGORIES.map((cat, idx) => {
             const isActive = idx === activeCategoryIndex;
             return (
@@ -378,19 +438,21 @@ export default function Specials() {
                 key={cat.id}
                 disabled={isAnimating}
                 onClick={() => handleTabClick(idx)}
-                className={`relative whitespace-nowrap py-1 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer ${
-                  isActive ? 'text-white scale-105' : 'text-white/40 hover:text-white/70 scale-95'
-                }`}
+                className="group flex items-center gap-4 text-left cursor-pointer transition-all duration-300"
               >
-                {cat.id}
+                {/* Visual Line Indicator */}
                 <span
-                  className={`absolute bottom-0 left-0 right-0 h-[2px] transition-transform duration-300 origin-center ${
-                    isActive ? 'scale-x-100' : 'scale-x-0'
+                  className={`h-[2px] transition-all duration-500 ${
+                    isActive ? 'w-10 bg-[#C9A96E]' : 'w-4 bg-white/20 group-hover:w-8 group-hover:bg-white/50'
                   }`}
-                  style={{
-                    backgroundColor: '#B95D54',
-                  }}
                 />
+                <span
+                  className={`text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 ${
+                    isActive ? 'text-white scale-105' : 'text-white/40 group-hover:text-white/85'
+                  }`}
+                >
+                  {cat.id}
+                </span>
               </button>
             );
           })}
@@ -413,74 +475,63 @@ export default function Specials() {
                 }}
                 style={{
                   ...style,
-                  transitionProperty: 'transform, filter, opacity, left, top, width, height',
+                  transitionProperty: 'transform, filter, opacity, left, top, width, height, visibility',
                   transitionDuration: '650ms',
                   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
                   willChange: 'transform, filter, opacity',
                 }}
               >
-                {/* Floating Glass Card (entire card floats on center role) */}
+                {/* Floating Premium Card (entire card floats on center role) */}
                 <div
-                  className={`relative w-full h-full rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col justify-between ${
-                    role === 'center' ? 'animate-float' : ''
+                  className={`specials-card relative w-full h-full rounded-2xl overflow-hidden flex flex-col justify-between ${
+                    role === 'center' ? 'animate-float is-center' : ''
                   }`}
-                  style={{
-                    backgroundColor: CATEGORIES[activeCategoryIndex].panel + '2b', // hex transparency (17%)
-                    backdropFilter: 'blur(16px)',
-                    WebkitBackdropFilter: 'blur(16px)',
-                  }}
                 >
                   {/* Top-gradient highlight */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/8 to-transparent pointer-events-none" />
+                  <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
                   {/* Food Image (Fits card nicely as a cover banner) */}
-                  <div className="w-full h-[48%] relative overflow-hidden">
+                  <div className="specials-card-img-container">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-cover select-none"
+                      className="specials-card-img select-none"
                       draggable={false}
                     />
-                    {/* Shadow overlay at the bottom of the image for contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#161413] via-transparent to-transparent pointer-events-none" />
                   </div>
 
-                  {/* Card Details (Lower section) */}
-                  <div className="p-5 sm:p-6 md:p-8 flex-1 flex flex-col justify-between z-10">
-                    <div className="flex flex-col gap-2">
-                      {item.badge && (
-                        <span className="w-fit px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase bg-white/20 text-white border border-white/10">
-                          {item.badge}
-                        </span>
-                      )}
+                  {/* Card Details (Scrollable area for title and description) */}
+                  <div className="specials-card-details scrollbar-none">
+                    {item.badge && (
+                      <span className="w-fit px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase bg-[#C9A96E]/10 text-[#C9A96E] border border-[#C9A96E]/20">
+                        {item.badge}
+                      </span>
+                    )}
 
-                      <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-white leading-tight">
-                        {item.title}
-                      </h2>
+                    <h2 className="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">
+                      {item.title}
+                    </h2>
 
-                      <p className="text-[11px] sm:text-xs text-white/80 line-clamp-3 leading-relaxed font-normal">
-                        {item.subtitle}
-                      </p>
-                    </div>
+                    <p className="text-[10px] sm:text-xs text-stone-100 leading-relaxed font-normal">
+                      {item.subtitle}
+                    </p>
+                  </div>
 
-                    <div className="flex flex-col gap-3">
-                      <div className="h-[1px] w-full bg-white/10" />
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-xl sm:text-2xl font-black text-white">
-                          {item.price}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(businessInfo.orderUrl, '_blank');
-                          }}
-                          className="flex items-center gap-1 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full bg-white text-black font-semibold text-[11px] sm:text-xs tracking-wider uppercase hover:bg-neutral-100 hover:shadow-md active:scale-95 transition-all duration-150 cursor-pointer"
-                        >
-                          Order Now
-                        </button>
-                      </div>
-                    </div>
+                  {/* Bottom Bar (Fixed price and Order button container) */}
+                  <div className="specials-card-bottom">
+                    <span className="text-base sm:text-lg font-black text-[#C9A96E]">
+                      {item.price}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(businessInfo.orderUrl, '_blank');
+                      }}
+                      className="specials-card-button flex items-center gap-1.5 bg-[#C9A96E] text-stone-950 text-[9px] sm:text-[11px] hover:bg-white hover:scale-[1.03] active:scale-97 cursor-pointer shadow-sm hover:shadow"
+                    >
+                      Order Now
+                    </button>
                   </div>
                 </div>
               </div>
@@ -489,35 +540,62 @@ export default function Specials() {
         </div>
 
         {/* Bottom Left Content */}
-        <div className="absolute bottom-6 left-4 sm:bottom-12 sm:left-12 md:left-16 z-30 max-w-[280px] sm:max-w-[420px] text-white">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-white/60 block">
+        <div className="absolute bottom-4 sm:bottom-8 lg:bottom-12 left-1/2 lg:left-16 -translate-x-1/2 lg:translate-x-0 w-[90vw] lg:w-auto max-w-[420px] z-30 text-center lg:text-left flex flex-col items-center lg:items-start text-white">
+          {/* Mobile/Tablet Category Tabs */}
+          <div className="lg:hidden flex items-center justify-center gap-4 overflow-x-auto scrollbar-none py-1 mb-3 max-w-full w-full">
+            {CATEGORIES.map((cat, idx) => {
+              const isActive = idx === activeCategoryIndex;
+              return (
+                <button
+                  key={cat.id}
+                  disabled={isAnimating}
+                  onClick={() => handleTabClick(idx)}
+                  className={`relative whitespace-nowrap pb-1 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer ${
+                    isActive ? 'text-white' : 'text-white/40 hover:text-white/70'
+                  }`}
+                >
+                  {cat.id}
+                  <span
+                    className={`absolute bottom-0 left-0 right-0 h-[2px] transition-transform duration-300 origin-center ${
+                      isActive ? 'scale-x-100' : 'scale-x-0'
+                    }`}
+                    style={{
+                      backgroundColor: '#C9A96E', // Gold indicator line
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="hidden lg:block text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#C9A96E]">
             {getCategoryLabel(CATEGORIES[activeCategoryIndex].id)}
           </span>
-          <div className="h-3 sm:h-4" /> {/* Spacer for proper gap between heading and description */}
-          <p className="text-xs sm:text-sm md:text-base text-white/90 leading-relaxed font-medium tracking-wide">
+          <div className="h-3 sm:h-4" /> {/* Spacer for proper gap between heading/tabs and description */}
+          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-white leading-relaxed font-semibold tracking-wide max-w-[340px] sm:max-w-[420px]">
             “{CATEGORIES[activeCategoryIndex].description}”
           </p>
-          <div className="h-5 sm:h-7" /> {/* Spacer for proper gap above arrows */}
+          <div className="h-3 lg:h-7" /> {/* Spacer for proper gap above arrows */}
 
           {/* Large outline navigation buttons */}
           <div className="flex gap-3">
             <button
               onClick={() => navigateCategory('prev')}
-              className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
+              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
             >
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.25} />
+               <ArrowLeft className="w-4 h-4 sm:w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.25} />
             </button>
             <button
               onClick={() => navigateCategory('next')}
-              className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
+              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
             >
-              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.25} />
+              <ArrowRight className="w-4 h-4 sm:w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.25} />
             </button>
           </div>
         </div>
 
         {/* Bottom Right CTA Link */}
-        <div className="absolute bottom-6 right-4 sm:bottom-12 sm:right-12 md:right-16 z-30">
+        <div className="hidden lg:block absolute bottom-6 right-4 sm:bottom-12 sm:right-12 md:right-16 z-30">
           <a
             href={businessInfo.orderUrl}
             target="_blank"
@@ -574,7 +652,7 @@ export default function Specials() {
               target="_blank"
               rel="noopener noreferrer"
               sx={{
-                bgcolor: "#B95D54", // warm tomato red
+                bgcolor: "#BE5953", // brand terracotta red
                 color: "#fff",
                 fontWeight: 700,
                 px: 5,
@@ -582,10 +660,10 @@ export default function Specials() {
                 borderRadius: 999,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                boxShadow: "0 10px 25px -5px rgba(185, 93, 84, 0.4)",
+                boxShadow: "0 10px 25px -5px rgba(190, 89, 83, 0.4)",
                 "&:hover": {
-                  bgcolor: "#A24E46",
-                  boxShadow: "0 12px 30px -5px rgba(185, 93, 84, 0.5)",
+                  bgcolor: "#8E3830", // brand terracotta dark
+                  boxShadow: "0 12px 30px -5px rgba(190, 89, 83, 0.5)",
                 },
               }}
             >

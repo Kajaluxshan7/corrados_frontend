@@ -9,3 +9,5 @@ export { default as Magnet } from './Magnet';
 export { default as AnimatedText } from './AnimatedText';
 export { default as FadingVideo } from './FadingVideo';
 export { default as BlurText } from './BlurText';
+export * from './MotionWrappers';
+

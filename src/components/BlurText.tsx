@@ -26,25 +26,24 @@ export default function BlurText({ text, className, align = "center" }: BlurText
       }}
     >
       {words.map((word, i) => {
-        const delay = (i * 100) / 1000; // delay in seconds
+        const delay = (i * 35) / 1000; // rapid 35ms stagger
 
         return (
           <motion.span
             key={i}
-            initial={{ filter: "blur(10px)", opacity: 0, y: 50 }}
+            initial={{ filter: "blur(5px)", opacity: 0, y: 15 }}
             animate={
               isInView
                 ? {
-                    filter: ["blur(10px)", "blur(5px)", "blur(0px)"],
-                    opacity: [0, 0.5, 1],
-                    y: [50, -5, 0],
+                    filter: "blur(0px)",
+                    opacity: 1,
+                    y: 0,
                   }
                 : {}
             }
             transition={{
-              duration: 0.7, // 0.35s * 2 steps
-              times: [0, 0.5, 1],
-              ease: "easeOut",
+              duration: 0.6,
+              ease: [0.16, 1, 0.3, 1], // premium cubic-bezier easing curve
               delay: delay,
             }}
             style={{
