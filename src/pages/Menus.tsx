@@ -151,11 +151,11 @@ function MenuCard({ pdf }: MenuCardProps) {
       </Box>
 
       {/* Card footer */}
-      <Box sx={{ p: { xs: 2.2, md: 2.8 } }}>
+      <Box sx={{ p: { xs: 2.5, md: 3 } }}>
         <Typography
           variant="subtitle1"
           sx={{
-            fontFamily: "Kanit, sans-serif",
+            fontFamily: "'Inter', sans-serif",
             fontWeight: 700,
             color: palette.text.primary,
             fontSize: "1.05rem",
@@ -195,13 +195,14 @@ function MenuCard({ pdf }: MenuCardProps) {
             py: 1,
             px: 2,
             borderRadius: "9999px",
-            border: `1.5px solid ${palette.primary.main}55`,
-            color: palette.primary.main,
+            bgcolor: palette.primary.main,
+            color: "#fff",
             fontSize: "0.75rem",
             fontWeight: 700,
             letterSpacing: "0.1em",
             textTransform: "uppercase",
             transition: "all 0.25s ease",
+            "&:hover": { bgcolor: palette.primary.dark },
           }}
         >
           <OpenInNewIcon sx={{ fontSize: 14 }} />
@@ -289,7 +290,7 @@ export default function Menus() {
                 fontSize: "0.72rem",
                 display: "block",
                 mb: 1,
-                fontFamily: "Kanit, sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontWeight: 600,
               }}
             >

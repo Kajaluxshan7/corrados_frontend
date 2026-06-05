@@ -44,7 +44,7 @@ export default function Footer() {
         bgcolor: palette.charcoal,
         color: "#fff",
         pt: 8,
-        pb: 3,
+        pb: 8,
         position: "relative",
         zIndex: 10,
         borderTop: `4px solid ${palette.primary.main}`, // Clear sharp border line separating content and footer
@@ -68,7 +68,7 @@ export default function Footer() {
             </Box>
             <Typography
               variant="body2"
-              sx={{ color: "#bbb", mb: 3, maxWidth: 300, lineHeight: 1.8 }}
+              sx={{ color: "rgba(255,255,255,0.6)", mb: 3, maxWidth: 300, lineHeight: 1.8 }}
             >
               Authentic Italian cuisine in the heart of Whitby. Family-owned
               since 2010, we bring the warmth of Italy to every plate.
@@ -96,11 +96,15 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     aria-label={s.name}
                     sx={{
-                      color: "#999",
-                      border: "1px solid #444",
+                      color: "rgba(255,255,255,0.5)",
+                      border: "1px solid rgba(255,255,255,0.12)",
                       "&:hover": {
                         color: palette.primary.main,
                         borderColor: palette.primary.main,
+                      },
+                      "&:focus-visible": {
+                        outline: `2px solid ${palette.gold}`,
+                        outlineOffset: 2,
                       },
                     }}
                     size="small"
@@ -127,7 +131,7 @@ export default function Footer() {
                   component={RouterLink}
                   to={link.path}
                   sx={{
-                    color: "#bbb",
+                    color: "rgba(255,255,255,0.6)",
                     textDecoration: "none",
                     fontSize: "0.875rem",
                     "&:hover": { color: palette.primary.main },
@@ -156,7 +160,7 @@ export default function Footer() {
                     component={RouterLink}
                     to={link.path}
                     sx={{
-                      color: "#bbb",
+                      color: "rgba(255,255,255,0.6)",
                       textDecoration: "none",
                       fontSize: "0.875rem",
                       "&:hover": { color: palette.primary.main },
@@ -173,7 +177,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     sx={{
-                      color: "#bbb",
+                      color: "rgba(255,255,255,0.6)",
                       textDecoration: "none",
                       fontSize: "0.875rem",
                       "&:hover": { color: palette.primary.main },
@@ -200,7 +204,7 @@ export default function Footer() {
                 <PlaceIcon
                   sx={{ color: palette.primary.main, fontSize: 20, mt: 0.3 }}
                 />
-                <Typography variant="body2" sx={{ color: "#bbb" }}>
+                <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.6)" }}>
                   {businessInfo.address}
                 </Typography>
               </Box>
@@ -211,7 +215,7 @@ export default function Footer() {
                   href={`tel:${businessInfo.phone}`}
                   variant="body2"
                   sx={{
-                    color: "#bbb",
+                    color: "rgba(255,255,255,0.6)",
                     textDecoration: "none",
                     "&:hover": { color: "#fff" },
                   }}
@@ -226,7 +230,7 @@ export default function Footer() {
                   href={`mailto:${businessInfo.email}`}
                   variant="body2"
                   sx={{
-                    color: "#bbb",
+                    color: "rgba(255,255,255,0.6)",
                     textDecoration: "none",
                     "&:hover": { color: "#fff" },
                   }}
@@ -238,7 +242,7 @@ export default function Footer() {
                 <AccessTimeIcon
                   sx={{ color: palette.primary.main, fontSize: 20 }}
                 />
-                <Typography variant="body2" sx={{ color: "#bbb" }}>
+                <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.6)" }}>
                   {businessInfo.hours}
                 </Typography>
               </Box>
@@ -246,7 +250,7 @@ export default function Footer() {
           </Grid>
         </Grid>
 
-        <Divider sx={{ borderColor: "#444", my: 4 }} />
+        <Divider sx={{ borderColor: "rgba(255,255,255,0.1)", my: 4 }} />
 
         {/* Bottom bar */}
         <Box
@@ -260,21 +264,21 @@ export default function Footer() {
         >
           <Typography
             variant="body2"
-            sx={{ color: "#888", fontSize: "0.8rem" }}
+            sx={{ color: "rgba(255,255,255,0.45)", fontSize: "0.8rem" }}
           >
             &copy; {new Date().getFullYear()} Corrado's Restaurant and Bar. All
             rights reserved.
           </Typography>
           <Typography
             variant="body2"
-            sx={{ color: "#666", fontSize: "0.75rem" }}
+            sx={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem" }}
           >
             38 Baldwin Street, Whitby, ON &nbsp;|&nbsp; Casual Italian Dining
             &nbsp;|&nbsp; Est. 2010
           </Typography>
           <Typography
             variant="body2"
-            sx={{ color: "#666", fontSize: "0.75rem" }}
+            sx={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem" }}
           >
             Designed by{' '}
             <Box

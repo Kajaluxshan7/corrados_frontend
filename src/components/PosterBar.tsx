@@ -263,7 +263,7 @@ export default function PosterBar() {
             />
             <Typography
               sx={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: { xs: "0.52rem", md: "0.62rem" },
                 fontWeight: 700,
                 color: palette.primary.dark,
@@ -420,7 +420,7 @@ export default function PosterBar() {
                     sx={{
                       fontWeight: 700,
                       color: "#fff",
-                      fontFamily: "'Playfair Display', serif",
+                      fontFamily: "'Inter', sans-serif",
                       letterSpacing: "0.02em",
                     }}
                   >

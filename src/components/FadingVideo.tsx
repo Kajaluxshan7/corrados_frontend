@@ -10,6 +10,7 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
   const fadingOutRef = useRef<boolean>(false);
+  const loopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const FADE_MS = 500;
 
@@ -84,7 +85,7 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
     video.style.opacity = "0";
 
     // Loop manually after 100ms
-    setTimeout(() => {
+    loopTimerRef.current = setTimeout(() => {
       const v = videoRef.current;
       if (!v) return;
 
@@ -100,11 +101,14 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
     }, 100);
   };
 
-  // Cleanup active animation frames on unmount
+  // Cleanup active animation frames and timers on unmount
   useEffect(() => {
     return () => {
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
+      }
+      if (loopTimerRef.current !== null) {
+        clearTimeout(loopTimerRef.current);
       }
     };
   }, []);

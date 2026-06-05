@@ -73,7 +73,7 @@ export default function NewsletterSignup() {
             sx={{
               color: palette.text.primary,
               fontWeight: 700,
-              fontFamily: '"AmpersandFix", "Playfair Display", serif',
+              fontFamily: "'Inter', sans-serif",
               fontSize: { xs: "1.75rem", md: "2.25rem" },
               mb: 1.5,
               lineHeight: 1.2,
@@ -102,8 +102,8 @@ export default function NewsletterSignup() {
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 1.5,
-                bgcolor: "#e8f5e9",
-                border: "1px solid #c8e6c9",
+                bgcolor: "rgba(201,169,110,0.10)",
+                border: `1px solid rgba(201,169,110,0.28)`,
                 borderRadius: 2,
                 px: 3,
                 py: 2,
@@ -112,9 +112,9 @@ export default function NewsletterSignup() {
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 <CheckCircleOutlineIcon
-                  sx={{ color: "#2e7d32", fontSize: 28 }}
+                  sx={{ color: palette.gold, fontSize: 28 }}
                 />
-                <Typography sx={{ color: "#1b5e20", fontWeight: 600 }}>
+                <Typography sx={{ color: palette.text.primary, fontWeight: 600 }}>
                   You're subscribed! We'll be in touch soon.
                 </Typography>
               </Box>
@@ -122,7 +122,7 @@ export default function NewsletterSignup() {
                 size="small"
                 onClick={() => setStatus("idle")}
                 sx={{
-                  color: "#1b5e20",
+                  color: palette.primary.main,
                   textTransform: "none",
                   fontWeight: 600,
                 }}

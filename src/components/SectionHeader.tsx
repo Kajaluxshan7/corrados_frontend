@@ -26,7 +26,7 @@ export default function SectionHeader({
       <Box
         sx={{
           textAlign: align,
-          mb: 5,
+          mb: { xs: 5, md: 6 },
           maxWidth: align === "center" ? 700 : "none",
           mx: align === "center" ? "auto" : 0,
         }}
@@ -50,7 +50,9 @@ export default function SectionHeader({
             color: light ? "#fff" : palette.charcoal,
             mb: 2,
             fontSize: { xs: "1.75rem", md: "2.25rem" },
+            fontFamily: "'Inter', sans-serif",
             fontWeight: 700,
+            letterSpacing: "-0.01em",
             display: "flex",
             justifyContent: align === "center" ? "center" : "flex-start",
           }}
@@ -61,7 +63,8 @@ export default function SectionHeader({
           <Typography
             variant="body1"
             sx={{
-              color: light ? "#ccc" : palette.text.secondary,
+              fontFamily: "'Inter', sans-serif",
+              color: light ? "rgba(255,255,255,0.72)" : palette.text.secondary,
               maxWidth: 600,
               mx: align === "center" ? "auto" : 0,
               lineHeight: 1.7,

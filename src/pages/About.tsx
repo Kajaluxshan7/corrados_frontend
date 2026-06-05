@@ -49,9 +49,9 @@ export default function About() {
       />
 
       {/* ── Heritage / Story ─────────────────────────────────────────────── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
         <Container>
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={{ xs: 4, md: 8 }} alignItems="center">
             {/* Text column */}
             <Grid size={{ xs: 12, md: 6 }}>
               <motion.div {...fadeUp(0.05)}>
@@ -219,9 +219,9 @@ export default function About() {
       </Box>
 
       {/* ── Visit / CTA ───────────────────────────────────────────────────── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <Container>
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={{ xs: 4, md: 8 }} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
               <ClipReveal direction="right" delay={0.1} duration={0.95} style={{ borderRadius: 8, height: { xs: 300, md: 400 } as never }}>
                 <Box

@@ -119,7 +119,7 @@ export default function ToonHub() {
           className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-2"
           style={{
             top: '18%',
-            fontFamily: "'Anton', sans-serif",
+            fontFamily: "'Inter', sans-serif",
             fontSize: 'clamp(90px, 28vw, 380px)',
             fontWeight: 900,
             color: 'white',
@@ -175,13 +175,17 @@ export default function ToonHub() {
           </p>
           <div className="flex gap-4">
             <button
+              type="button"
               onClick={() => navigate('prev')}
+              aria-label="Previous figure"
               className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white text-white hover:scale-[1.08] hover:bg-white/12 transition-all duration-150 cursor-pointer"
             >
               <ArrowLeft size={26} strokeWidth={2.25} />
             </button>
             <button
+              type="button"
               onClick={() => navigate('next')}
+              aria-label="Next figure"
               className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white text-white hover:scale-[1.08] hover:bg-white/12 transition-all duration-150 cursor-pointer"
             >
               <ArrowRight size={26} strokeWidth={2.25} />
@@ -195,7 +199,7 @@ export default function ToonHub() {
             href="#"
             className="flex items-center gap-2 text-white opacity-95 hover:opacity-100 transition-opacity duration-200 uppercase tracking-tight no-underline"
             style={{
-              fontFamily: "'Anton', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 'clamp(20px, 4vw, 56px)',
               fontWeight: 400,
               lineHeight: 1,

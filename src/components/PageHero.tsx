@@ -83,7 +83,7 @@ export default function PageHero({
         sx={{
           position: "absolute",
           inset: 0,
-          bgcolor: `rgba(30, 25, 22, ${overlay})`,
+          bgcolor: `rgba(18, 15, 14, ${overlay})`,
           zIndex: 1,
         }}
       />
@@ -94,10 +94,12 @@ export default function PageHero({
           variant="h2"
           sx={{
             color: "#fff",
-            fontWeight: 700,
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 800,
             mb: 2,
-            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem", lg: "3.75rem" },
             textShadow: "0 2px 20px rgba(0,0,0,0.3)",
+            letterSpacing: "0.01em",
           }}
         >
           {formatAmpersand(title)}
@@ -106,12 +108,14 @@ export default function PageHero({
           <Typography
             variant="h6"
             sx={{
-              color: "#ddd",
+              color: "rgba(255,255,255,0.82)",
+              fontFamily: "'Inter', sans-serif",
               fontWeight: 400,
               maxWidth: 600,
               mx: "auto",
               mb: 3,
               fontSize: { xs: "1rem", md: "1.15rem" },
+              lineHeight: 1.6,
             }}
           >
             {formatAmpersand(subtitle)}
