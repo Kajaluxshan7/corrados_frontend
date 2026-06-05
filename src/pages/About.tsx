@@ -40,9 +40,9 @@ export default function About() {
       />
 
       {/* Heritage / Story */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <Container>
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={{ xs: 4, md: 8 }} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
               <Typography
                 variant="subtitle2"
@@ -114,9 +114,10 @@ export default function About() {
                 alt="Corrado's signature dishes — pizzas and mains on the table"
                 sx={{
                   width: "100%",
-                  height: { xs: 300, md: 450 },
+                  height: { xs: 300, md: 480 },
                   objectFit: "cover",
-                  borderRadius: 1,
+                  borderRadius: 3,
+                  boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
                 }}
               />
             </Grid>
@@ -125,7 +126,7 @@ export default function About() {
       </Box>
 
       {/* What We Offer */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.cream }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
         <Container>
           <Box sx={{ textAlign: "center", mb: 6 }}>
             <Typography
@@ -202,7 +203,7 @@ export default function About() {
                   }}
                 >
                   <Box
-                    sx={{ overflow: "hidden", height: { xs: 160, md: 180 } }}
+                    sx={{ overflow: "hidden", height: { xs: 180, md: 220 } }}
                   >
                     <Box
                       component="img"
@@ -217,7 +218,7 @@ export default function About() {
                       }}
                     />
                   </Box>
-                  <CardContent sx={{ p: 2.5 }}>
+                  <CardContent sx={{ p: 3 }}>
                     <Box
                       sx={{
                         display: "flex",
@@ -249,9 +250,20 @@ export default function About() {
 
       {/* Quick Facts */}
       <Box
-        sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.charcoal, color: "#fff" }}
+        sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.charcoal, color: "#fff", position: "relative", overflow: "hidden" }}
       >
-        <Container>
+        <Box sx={{
+          position: "absolute", inset: 0,
+          background: "radial-gradient(ellipse at 50% 100%, rgba(201,169,110,0.08) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+        <Container sx={{ position: "relative" }}>
+          <Box sx={{ textAlign: "center", mb: { xs: 5, md: 6 } }}>
+            <Box sx={{ width: 48, height: 3, bgcolor: palette.gold, mx: "auto", mb: 2, borderRadius: 2 }} />
+            <Typography variant="h4" sx={{ color: "#fff", fontWeight: 700, fontSize: { xs: "1.5rem", md: "2rem" } }}>
+              By the Numbers
+            </Typography>
+          </Box>
           <Grid container spacing={4} justifyContent="center">
             {[
               { value: "2010", label: "Established" },
@@ -260,20 +272,22 @@ export default function About() {
               { value: "4.5★", label: "Average Rating" },
             ].map((stat, i) => (
               <Grid key={i} size={{ xs: 6, sm: 3 }}>
-                <Box sx={{ textAlign: "center" }}>
+                <Box sx={{ textAlign: "center", px: 2 }}>
                   <Typography
-                    variant="h3"
+                    variant="h2"
                     sx={{
-                      color: palette.primary.main,
-                      fontWeight: 700,
-                      fontSize: { xs: "2rem", md: "2.5rem" },
+                      color: palette.gold,
+                      fontWeight: 800,
+                      fontSize: { xs: "2.5rem", md: "3.25rem" },
+                      lineHeight: 1,
+                      mb: 1,
                     }}
                   >
                     {stat.value}
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: "#bbb", mt: 0.5, letterSpacing: "0.05em" }}
+                    sx={{ color: "rgba(255,255,255,0.6)", letterSpacing: "0.12em", textTransform: "uppercase", fontSize: "0.75rem" }}
                   >
                     {stat.label}
                   </Typography>
@@ -285,9 +299,9 @@ export default function About() {
       </Box>
 
       {/* Visit / CTA */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <Container>
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={{ xs: 4, md: 8 }} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 component="img"
@@ -296,9 +310,10 @@ export default function About() {
                 alt="Corrado's signature Italian entrée — slow-roasted pork with jus"
                 sx={{
                   width: "100%",
-                  height: { xs: 300, md: 400 },
+                  height: { xs: 300, md: 420 },
                   objectFit: "cover",
-                  borderRadius: 1,
+                  borderRadius: 3,
+                  boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
                 }}
               />
             </Grid>

@@ -42,6 +42,7 @@ const FALLBACK_IMAGES: Record<string, string> = {
   combo: '/restaurant/family-meal-takeout.jpeg',
   daily_special: '/restaurant/shrimp-fettuccine.jpeg',
 };
+const FALLBACK_DEFAULT = '/restaurant/family-meal-takeout.jpeg';
 
 // Site-image keys for admin-managed meal card images
 const MEAL_IMAGE_KEYS: Record<string, string> = {
@@ -80,12 +81,13 @@ function MealCard({
   getImage: (key: string, fallback: string) => string;
 }) {
   const siteImageKey = MEAL_IMAGE_KEYS[meal.name];
+  const typeFallback = FALLBACK_IMAGES[meal.mealType] ?? FALLBACK_DEFAULT;
   const imageUrl =
-    meal.imageUrls.length > 0
+    meal.imageUrls?.length > 0
       ? resolveImageUrl(meal.imageUrls[0])
       : siteImageKey
-        ? getImage(siteImageKey, FALLBACK_IMAGES[meal.mealType])
-        : FALLBACK_IMAGES[meal.mealType];
+        ? getImage(siteImageKey, typeFallback)
+        : typeFallback;
 
   const priceDisplay =
     Number(meal.basePrice) === 0
@@ -176,7 +178,7 @@ function MealCard({
             mb: 1,
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 700, flex: 1 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, fontFamily: "'Inter', sans-serif", flex: 1 }}>
             {meal.name}
           </Typography>
           <Chip
@@ -222,7 +224,7 @@ function MealCard({
             </Typography>
             <List dense sx={{ flex: 1 }}>
               {meal.items.map((item, idx) => (
-                <ListItem key={idx} disableGutters sx={{ py: 0.3 }}>
+                <ListItem key={idx} disableGutters sx={{ py: 0.5 }}>
                   <ListItemIcon sx={{ minWidth: 28 }}>
                     <CheckCircleIcon
                       sx={{ fontSize: 16, color: palette.secondary.main }}
@@ -308,7 +310,7 @@ function MealCard({
                   rel="noopener noreferrer"
                   size="small"
                   startIcon={<PictureAsPdfIcon />}
-                  endIcon={<OpenInNewIcon sx={{ fontSize: '0.75rem !important' }} />}
+                  endIcon={<OpenInNewIcon sx={{ fontSize: '0.8rem' }} />}
                   variant="outlined"
                   color="primary"
                   sx={{ fontSize: '0.72rem', textTransform: 'none', borderRadius: 999 }}
@@ -366,7 +368,7 @@ export default function FamilyMeals() {
         )}
       />
 
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
         <Container>
           {error && (
             <Alert
@@ -458,19 +460,28 @@ export default function FamilyMeals() {
           <Box
             sx={{
               mt: 4,
-              py: 5,
-              px: 4,
-              bgcolor: palette.cream,
-              borderRadius: 1,
+              py: { xs: 6, md: 8 },
+              px: { xs: 3, md: 6 },
+              bgcolor: palette.charcoal,
+              borderRadius: 3,
               textAlign: 'center',
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <Box sx={{
+              position: "absolute", inset: 0, pointerEvents: "none",
+              background: "radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.10) 0%, transparent 65%)",
+            }} />
+            <Box sx={{ width: 48, height: 3, bgcolor: palette.gold, mx: "auto", mb: 3, borderRadius: 2 }} />
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
-                mb: 1,
+                mb: 1.5,
                 fontSize: { xs: "1.5rem", md: "2rem" },
+                color: "#fff",
+                position: "relative",
               }}
             >
               Order Your Family Meal Today
@@ -478,10 +489,11 @@ export default function FamilyMeals() {
             <Typography
               variant="body1"
               sx={{
-                color: palette.text.secondary,
-                mb: 3,
+                color: "rgba(255,255,255,0.65)",
+                mb: 4,
                 maxWidth: 500,
                 mx: "auto",
+                position: "relative",
               }}
             >
               Available for dine-in, takeout, and delivery. Order online or call
@@ -491,6 +503,7 @@ export default function FamilyMeals() {
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
               justifyContent="center"
+              sx={{ position: "relative" }}
             >
               <Button
                 variant="contained"
@@ -506,10 +519,14 @@ export default function FamilyMeals() {
               </Button>
               <Button
                 variant="outlined"
-                color="primary"
                 size="large"
                 component="a"
                 href={`tel:${businessInfo.phone}`}
+                sx={{
+                  borderColor: "rgba(255,255,255,0.35)",
+                  color: "#fff",
+                  "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.08)" },
+                }}
               >
                 Call {businessInfo.phone}
               </Button>

@@ -45,8 +45,6 @@ interface GalleryCardProps {
   item: GalleryImage;
   categoryColorMap: Record<string, string>;
   onClick: () => void;
-  scrollDrivenSupported: boolean;
-  index: number;
 }
 
 function GalleryCard({
@@ -202,7 +200,7 @@ function GalleryCard({
                 alignItems: "center",
                 justifyContent: "center",
                 border: "1.5px solid rgba(255,255,255,0.45)",
-                opacity: isHovered ? 0.25 : 1,
+                opacity: isHovered ? 0.75 : 1,
                 transition: "opacity 0.3s ease",
               }}
             >
@@ -255,7 +253,7 @@ function GalleryCard({
             fontSize: { xs: "0.75rem", md: "0.85rem" },
             fontWeight: 600,
             lineHeight: 1.3,
-            fontFamily: "Outfit, Inter, sans-serif",
+            fontFamily: "'Inter', sans-serif",
           }}
         >
           {item.alt}
@@ -354,7 +352,6 @@ interface StickyCardProps {
   totalCards: number;
   categoryColorMap: Record<string, string>;
   onMediaClick: (item: GalleryImage) => void;
-  scrollDrivenSupported: boolean;
   progress: any;
 }
 
@@ -366,7 +363,6 @@ function StickyStackedCard({
   totalCards,
   categoryColorMap,
   onMediaClick,
-  scrollDrivenSupported,
   progress,
 }: StickyCardProps) {
   // Scale down background cards progressively so earlier cards stack underneath.
@@ -430,7 +426,7 @@ function StickyStackedCard({
                 color: palette.primary.main,
                 fontWeight: 900,
                 fontSize: { xs: "2.5rem", md: "4rem" },
-                fontFamily: "Kanit, sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 lineHeight: 0.9,
               }}
             >
@@ -454,7 +450,7 @@ function StickyStackedCard({
                 sx={{
                   color: palette.text.primary,
                   fontWeight: 700,
-                  fontFamily: "Kanit, sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: { xs: "1.2rem", md: "1.8rem" },
                   textTransform: "uppercase",
                 }}
@@ -465,30 +461,31 @@ function StickyStackedCard({
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <button
+            <Box
+              component="button"
               onClick={() => onMediaClick(items[0])}
-              style={{
+              sx={{
                 borderRadius: "9999px",
                 border: `2px solid ${palette.primary.main}`,
                 color: palette.primary.main,
                 textTransform: "uppercase",
                 letterSpacing: "0.15em",
+                fontFamily: "'Inter', sans-serif",
                 fontWeight: 600,
-                padding: "8px 20px",
+                py: "8px",
+                px: "20px",
                 fontSize: "0.75rem",
                 cursor: "pointer",
                 background: "transparent",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = `${palette.primary.main}12`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
+                transition: "all 0.25s ease",
+                "&:hover": {
+                  bgcolor: palette.primary.main,
+                  color: "#fff",
+                },
               }}
             >
               View Media
-            </button>
+            </Box>
           </Box>
         </Box>
 
@@ -521,8 +518,6 @@ function StickyStackedCard({
                   item={cardItems[0]}
                   categoryColorMap={categoryColorMap}
                   onClick={() => onMediaClick(cardItems[0])}
-                  scrollDrivenSupported={scrollDrivenSupported}
-                  index={0}
                 />
               </Box>
             )}
@@ -538,8 +533,6 @@ function StickyStackedCard({
                   item={cardItems[1]}
                   categoryColorMap={categoryColorMap}
                   onClick={() => onMediaClick(cardItems[1])}
-                  scrollDrivenSupported={scrollDrivenSupported}
-                  index={1}
                 />
               </Box>
             )}
@@ -559,8 +552,6 @@ function StickyStackedCard({
                 item={cardItems[2]}
                 categoryColorMap={categoryColorMap}
                 onClick={() => onMediaClick(cardItems[2])}
-                scrollDrivenSupported={scrollDrivenSupported}
-                index={2}
               />
             </Box>
           )}
@@ -582,23 +573,11 @@ export default function Gallery() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-  const [scrollDrivenSupported, setScrollDrivenSupported] = useState(true);
-
   const deckRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: deckScrollYProgress } = useScroll({
     target: deckRef,
     offset: ["start start", "end end"],
   });
-
-  // Detect scroll-driven animations support
-  useEffect(() => {
-    const supported =
-      typeof window !== "undefined" &&
-      window.CSS &&
-      window.CSS.supports &&
-      window.CSS.supports("(animation-timeline: view()) and (animation-range: entry)");
-    setScrollDrivenSupported(supported);
-  }, []);
 
   const loadGallery = useCallback(() => {
     fetchStoryCategories()
@@ -859,11 +838,11 @@ export default function Gallery() {
               sx={{
                 color: palette.primary.main,
                 fontWeight: 700,
-                letterSpacing: 4,
+                letterSpacing: "0.22em",
                 fontSize: { xs: "0.75rem", sm: "0.85rem" },
                 mb: 2,
                 display: "block",
-                fontFamily: "Kanit, sans-serif",
+                fontFamily: "'Inter', sans-serif",
               }}
             >
               INSIDE CORRADO'S
@@ -880,7 +859,7 @@ export default function Gallery() {
               sx={{
                 fontSize: { xs: "2.8rem", sm: "4rem", md: "5.5rem" },
                 fontWeight: 900,
-                fontFamily: "Kanit, sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 textTransform: "uppercase",
                 letterSpacing: -1,
                 color: palette.text.primary,
@@ -983,7 +962,7 @@ export default function Gallery() {
                       minWidth: "auto",
                       px: 3,
                       color: "rgba(45, 41, 38, 0.6)",
-                      fontFamily: "Kanit, sans-serif",
+                      fontFamily: "'Inter', sans-serif",
                       fontWeight: 600,
                       textTransform: "uppercase",
                     },
@@ -1013,7 +992,6 @@ export default function Gallery() {
                     totalCards={categoryBlocks.length}
                     categoryColorMap={categoryColorMap}
                     onMediaClick={(item) => setSelectedImage(item)}
-                    scrollDrivenSupported={scrollDrivenSupported}
                     progress={deckScrollYProgress}
                   />
                 ))}
@@ -1136,7 +1114,7 @@ export default function Gallery() {
                 sx={{
                   color: palette.text.primary,
                   fontWeight: 600,
-                  fontFamily: "Playfair Display, serif",
+                  fontFamily: "'Inter', sans-serif",
                   lineHeight: 1.4,
                 }}
               >

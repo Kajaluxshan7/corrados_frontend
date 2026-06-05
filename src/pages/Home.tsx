@@ -309,6 +309,15 @@ const bentoTileVariants = {
   },
 };
 
+interface NavTile {
+  label: string;
+  path: string;
+  tagline: string;
+  key: string;
+  image: string;
+  previewImages: string[];
+}
+
 export default function Home() {
   usePageMeta({
     title: "Authentic Italian Dining in Whitby, ON",
@@ -347,7 +356,7 @@ export default function Home() {
     }
   }, []);
 
-  const handleTileClick = (e: React.MouseEvent<HTMLAnchorElement>, tile: any) => {
+  const handleTileClick = (e: React.MouseEvent<HTMLAnchorElement>, tile: NavTile) => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
       return;
@@ -927,172 +936,153 @@ export default function Home() {
                   className="cinematic-tile"
                   component={RouterLink}
                   to={tile.path}
-                  onClick={(e) => handleTileClick(e as any, tile)}
+                  onClick={(e) => handleTileClick(e as React.MouseEvent<HTMLAnchorElement>, tile)}
                   sx={{
                     position: "relative",
                     zIndex: 1,
                     overflow: "hidden",
                     textDecoration: "none",
                     display: "block",
-                    borderRadius: 2,
+                    borderRadius: "16px",
                     height: "100%",
                     transformStyle: "preserve-3d",
                     bgcolor: "#161413",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    boxShadow: "0 6px 24px rgba(0, 0, 0, 0.25)",
-                    transition:
-                      "box-shadow 0.55s ease, border-color 0.55s ease, transform 0.55s ease",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3)",
+                    transition: "box-shadow 0.5s ease, border-color 0.5s ease, transform 0.5s ease",
                     "&:focus-visible": {
-                      outline: `2px solid ${palette.gold}`,
+                      outline: `2px solid #C9A96E`,
                       outlineOffset: 4,
                     },
                     "&:hover, &:focus-visible": {
-                      borderColor: palette.gold,
-                      boxShadow: `0 16px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px ${palette.gold}`,
+                      borderColor: "rgba(201,169,110,0.45)",
+                      boxShadow: "0 20px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,169,110,0.35)",
                     },
                     "&:hover .tile-img, &:focus-visible .tile-img": {
-                      "--tile-scale": "1.15",
-                      filter: "saturate(1.06) contrast(1.04) brightness(1.02)",
-                      opacity: 0.95,
-                    },
-                    "&:hover .tile-frame, &:focus-visible .tile-frame": {
-                      opacity: 0.8,
-                      transform: "scale(0.985)",
-                      borderColor: palette.gold,
+                      "--tile-scale": "1.12",
+                      filter: "saturate(1.08) contrast(1.04) brightness(1.04)",
                     },
                     "&:hover .tile-title, &:focus-visible .tile-title": {
-                      transform: "translateY(-3px)",
                       color: palette.gold,
                     },
                     "&:hover .tile-arrow, &:focus-visible .tile-arrow": {
                       transform: "translate3d(6px, 0, 0)",
                       color: palette.gold,
                     },
-                    "&::after": {
-                      content: '""',
-                      position: "absolute",
-                      zIndex: 3,
-                      bottom: 14,
-                      left: 18,
-                      right: 18,
-                      height: "2px",
-                      background: `linear-gradient(90deg, ${palette.primary.main}, ${palette.gold})`,
-                      transform: "scaleX(0)",
-                      transformOrigin: "left",
-                      transition: "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
-                    },
-                    "&:hover::after, &:focus-visible::after": {
-                      transform: "scaleX(1)",
+                    "&:hover .tile-badge, &:focus-visible .tile-badge": {
+                      bgcolor: "rgba(201,169,110,0.18)",
+                      borderColor: "rgba(201,169,110,0.45)",
+                      color: palette.gold,
                     },
                   }}
                 >
+                  {/* Full-bleed photo */}
                   <Box
                     className="tile-img"
                     sx={{
-                      "--tile-scale": "1.07",
+                      "--tile-scale": "1.06",
                       position: "absolute",
                       inset: -8,
                       backgroundImage: `url(${tile.image})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
-                      opacity: 1.0,
                       filter: "saturate(1.04) contrast(1.02)",
                       animation: `${tileImageDrift} ${17 + i}s ease-in-out infinite alternate`,
-                      transition: "filter 0.55s ease, opacity 0.55s ease",
+                      transition: "filter 0.55s ease",
                       willChange: "transform",
                     }}
                   />
-                  {/* Dark charcoal gradient overlay that is always visible to keep the tile brand-aligned and ensure white text has high contrast */}
+                  {/* Cinematic dark gradient — strong bottom scrim like Specials cards */}
                   <Box
                     sx={{
                       position: "absolute",
                       inset: 0,
                       zIndex: 2,
-                      background: "linear-gradient(to top, rgba(18, 15, 14, 0.95) 0%, rgba(18, 15, 14, 0.45) 30%, rgba(18, 15, 14, 0) 60%)",
+                      background: "linear-gradient(to top, rgba(18,15,14,0.97) 0%, rgba(18,15,14,0.6) 38%, rgba(18,15,14,0.1) 65%, transparent 100%)",
                       pointerEvents: "none",
                     }}
                   />
-                  <Box
-                    className="tile-sheen"
-                    sx={{
-                      position: "absolute",
-                      zIndex: 2,
-                      top: "-28%",
-                      bottom: "-28%",
-                      width: "34%",
-                      left: 0,
-                      background:
-                        "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,244,222,0.38) 50%, rgba(255,255,255,0) 100%)",
-                      filter: "blur(10px)",
-                      animation: `${lightSweep} ${9 + i * 0.4}s ease-in-out infinite`,
-                      animationDelay: `${0.6 + i * 0.32}s`,
-                      pointerEvents: "none",
-                    }}
-                  />
-                  <Box
-                    className="tile-frame"
-                    sx={{
-                      position: "absolute",
-                      zIndex: 2,
-                      inset: 12,
-                      border: `1px solid ${palette.gold}33`,
-                      borderRadius: 1.5,
-                      opacity: 0.55,
-                      transition:
-                        "opacity 0.45s ease, transform 0.45s cubic-bezier(0.19, 1, 0.22, 1)",
-                      pointerEvents: "none",
-                    }}
-                  />
+                  {/* Grain texture overlay (matches Specials page) */}
                   <Box
                     sx={{
                       position: "absolute",
                       inset: 0,
                       zIndex: 3,
+                      opacity: 0.18,
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")`,
+                      backgroundSize: "200px 200px",
+                      backgroundRepeat: "repeat",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  {/* Gold sheen sweep */}
+                  <Box
+                    className="tile-sheen"
+                    sx={{
+                      position: "absolute",
+                      zIndex: 4,
+                      top: "-28%",
+                      bottom: "-28%",
+                      width: "34%",
+                      left: 0,
+                      background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(201,169,110,0.22) 50%, rgba(255,255,255,0) 100%)",
+                      filter: "blur(12px)",
+                      animation: `${lightSweep} ${9 + i * 0.4}s ease-in-out infinite`,
+                      animationDelay: `${0.6 + i * 0.32}s`,
+                      pointerEvents: "none",
+                    }}
+                  />
+                  {/* Content */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      zIndex: 5,
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "flex-end",
-                      p: { xs: 2.5, md: 3.5 },
+                      p: { xs: 2.5, md: 3 },
+                      gap: 0.75,
                     }}
                   >
-                    <Typography
-                      variant="overline"
-                      sx={{
-                        color: "#fff",
-                        bgcolor: palette.primary.main,
-                        border: `1px solid ${palette.primary.light}33`,
-                        fontSize: "0.55rem",
-                        letterSpacing: "0.18em",
-                        mb: 0.75,
-                        px: 0.9,
-                        py: 0.3,
-                        borderRadius: 0.75,
-                        display: "inline-flex",
-                        lineHeight: 1.2,
-                        width: "fit-content",
-                      }}
-                    >
-                      {tile.tagline}
-                    </Typography>
+                    {/* Gold pill badge — matches Specials card badge */}
                     <Box
+                      className="tile-badge"
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 1,
+                        display: "inline-flex",
+                        width: "fit-content",
+                        px: 1.25,
+                        py: 0.3,
+                        borderRadius: "999px",
+                        border: "1px solid rgba(201,169,110,0.25)",
+                        bgcolor: "rgba(201,169,110,0.10)",
+                        transition: "bgcolor 0.3s ease, borderColor 0.3s ease, color 0.3s ease",
                       }}
                     >
+                      <Typography sx={{
+                        color: palette.gold,
+                        fontSize: "0.52rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.18em",
+                        textTransform: "uppercase",
+                        lineHeight: 1.2,
+                      }}>
+                        {tile.tagline}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
                       <Typography
                         className="tile-title"
                         variant="h5"
                         sx={{
-                          color: "#fff",
+                          color: "#ffffff",
                           fontWeight: 700,
-                          fontFamily: "'Playfair Display', serif",
-                          fontSize: { xs: "1.05rem", sm: "1.1rem", md: "1.16rem" },
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: { xs: "1.08rem", sm: "1.12rem", md: "1.2rem" },
                           letterSpacing: "0.01em",
-                          lineHeight: 1.25,
-                          transition:
-                            "transform 0.45s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease",
+                          lineHeight: 1.2,
+                          transition: "color 0.3s ease",
+                          textShadow: "0 2px 8px rgba(0,0,0,0.6)",
                         }}
                       >
                         {tile.label}
@@ -1101,8 +1091,8 @@ export default function Home() {
                         className="tile-arrow"
                         sx={{
                           color: palette.gold,
-                          fontSize: 20,
-                          transition: "transform 0.3s ease",
+                          fontSize: 19,
+                          transition: "transform 0.3s ease, color 0.3s ease",
                           flexShrink: 0,
                         }}
                       />
@@ -1560,7 +1550,7 @@ export default function Home() {
                     delay={0.2}
                   />
                 </Box>
-                <Stack direction="row" spacing={2}>
+                <Stack direction="row" spacing={2} sx={{ flexWrap: { xs: "wrap", sm: "nowrap" } }}>
                   <Button
                     variant="contained"
                     color="primary"
@@ -2173,7 +2163,7 @@ export default function Home() {
               >
                 <Card
                   sx={{
-                    height: 220,
+                    minHeight: 220,
                     display: "flex",
                     flexDirection: "column",
                     border: "1px solid rgba(0,0,0,0.06)",

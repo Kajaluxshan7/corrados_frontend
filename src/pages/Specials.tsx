@@ -417,7 +417,7 @@ export default function Specials() {
           className="absolute inset-x-0 flex items-center justify-center pointer-events-none select-none z-2 transition-all duration-700"
           style={{
             top: '11%',
-            fontFamily: "'Anton', sans-serif",
+            fontFamily: "'Inter', sans-serif",
             fontSize: 'clamp(50px, 12vw, 180px)',
             color: 'white',
             opacity: 0.07,
@@ -580,13 +580,17 @@ export default function Specials() {
           {/* Large outline navigation buttons */}
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={() => navigateCategory('prev')}
+              aria-label="Previous category"
               className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
             >
                <ArrowLeft className="w-4 h-4 sm:w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.25} />
             </button>
             <button
+              type="button"
               onClick={() => navigateCategory('next')}
+              aria-label="Next category"
               className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
             >
               <ArrowRight className="w-4 h-4 sm:w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.25} />
@@ -602,7 +606,7 @@ export default function Specials() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-white opacity-70 hover:opacity-100 hover:scale-[1.02] active:scale-98 transition-all duration-300 uppercase tracking-tight no-underline"
             style={{
-              fontFamily: "'Anton', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               fontSize: 'clamp(20px, 3.5vw, 52px)',
               fontWeight: 400,
               lineHeight: 1,

@@ -262,7 +262,7 @@ export default function Contact() {
         )}
       />
 
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
         <Container>
           <Grid container spacing={5}>
             {/* ─── Contact Info ─────────────────────────────────────────── */}
@@ -426,10 +426,10 @@ export default function Contact() {
 
             {/* ─── Contact Form ─────────────────────────────────────────── */}
             <Grid size={{ xs: 12, md: 7 }}>
-              <Card>
+              <Card sx={{ boxShadow: "0 8px 40px rgba(0,0,0,0.10)", borderRadius: 3 }}>
                 <CardContent
                   sx={{
-                    p: { xs: 3, md: 4 },
+                    p: { xs: 3, md: 5 },
                     borderTop: `3px solid ${palette.primary.main}`,
                   }}
                 >

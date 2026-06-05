@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: "Instrument Serif", serif;
-  --font-body: "Barlow", sans-serif;
-  --radius-default: 9999px;
+  --font-display: "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 20px 48px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12);
 }
 
 /*

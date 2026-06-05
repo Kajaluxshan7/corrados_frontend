@@ -32,4 +32,9 @@ export const palette = {
   ivory: "#FDF8F4", // Ivory base
   charcoal: "#2D2926", // Deep text
   navy: "#243A7D", // Brand navy blue — from logo-white-on-blue.png
+  // Semantic tokens
+  textMuted: "rgba(255,255,255,0.6)",   // muted text on dark backgrounds
+  borderDark: "rgba(255,255,255,0.08)", // subtle borders on dark backgrounds
+  borderLight: "rgba(0,0,0,0.08)",      // subtle borders on light backgrounds
+  overlay: "rgba(18,15,14,0.95)",       // cinematic dark overlay
 } as const;

@@ -139,7 +139,7 @@ export default function Events() {
         )}
       />
 
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
         <Container>
           {loading && (
             <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
@@ -188,7 +188,7 @@ export default function Events() {
                     <Box
                       sx={{
                         height: "100%",
-                        borderRadius: 1,
+                        borderRadius: 2,
                         overflow: "hidden",
                         boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
                         transition:
@@ -321,19 +321,28 @@ export default function Events() {
           <Box
             sx={{
               mt: 8,
-              py: 5,
-              px: 4,
-              bgcolor: palette.cream,
-              borderRadius: 1,
+              py: { xs: 6, md: 8 },
+              px: { xs: 3, md: 6 },
+              bgcolor: palette.charcoal,
+              borderRadius: 3,
               textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <Box sx={{
+              position: "absolute", inset: 0, pointerEvents: "none",
+              background: "radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.10) 0%, transparent 65%)",
+            }} />
+            <Box sx={{ width: 48, height: 3, bgcolor: palette.gold, mx: "auto", mb: 3, borderRadius: 2 }} />
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
-                mb: 1,
+                mb: 1.5,
                 fontSize: { xs: "1.5rem", md: "2rem" },
+                color: "#fff",
+                position: "relative",
               }}
             >
               Planning a Private Event?
@@ -341,10 +350,11 @@ export default function Events() {
             <Typography
               variant="body1"
               sx={{
-                color: palette.text.secondary,
-                mb: 3,
+                color: "rgba(255,255,255,0.65)",
+                mb: 4,
                 maxWidth: 550,
                 mx: "auto",
+                position: "relative",
               }}
             >
               From intimate dinners to large celebrations, we can customize any
@@ -354,6 +364,7 @@ export default function Events() {
               direction={{ xs: "column", sm: "row" }}
               spacing={2}
               justifyContent="center"
+              sx={{ position: "relative" }}
             >
               <Button
                 variant="contained"
@@ -361,15 +372,21 @@ export default function Events() {
                 component={RouterLink}
                 to="/party-menus"
                 size="large"
+                sx={{ px: 4 }}
               >
                 View Party Menus
               </Button>
               <Button
                 variant="outlined"
-                color="primary"
                 component={RouterLink}
                 to="/contact"
                 size="large"
+                sx={{
+                  px: 4,
+                  borderColor: "rgba(255,255,255,0.35)",
+                  color: "#fff",
+                  "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.08)" },
+                }}
               >
                 Contact Us
               </Button>

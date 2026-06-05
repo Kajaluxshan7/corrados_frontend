@@ -64,7 +64,7 @@ export default function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   const navBtnSx = (path: string) => ({
-    color: isActive(path) ? '#fff' : 'rgba(255,255,255,0.78)',
+    color: isActive(path) ? '#fff' : 'rgba(255,255,255,0.6)',
     fontWeight: isActive(path) ? 700 : 500,
     fontSize: '0.72rem',
     textTransform: 'uppercase' as const,
@@ -248,7 +248,7 @@ export default function Header() {
                 <Typography
                   sx={{
                     color: '#fff',
-                    fontFamily: '"AmpersandFix", "Playfair Display", Georgia, serif',
+                    fontFamily: "'Inter', sans-serif",
                     fontWeight: 700,
                     fontSize: { xs: '1.05rem', sm: '1.2rem' },
                     lineHeight: 1,
@@ -283,15 +283,16 @@ export default function Header() {
                   fontWeight: 700,
                   fontSize: '0.7rem',
                   px: 2,
-                  bgcolor: '#fff',
-                  color: palette.primary.main,
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.5)',
                   borderRadius: 999,
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' },
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', borderColor: '#fff' },
                 }}
               >
                 Order
               </Button>
-              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#fff' }}>
+              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: '#fff' }} aria-label="Open navigation menu">
                 <MenuIcon />
               </IconButton>
             </Box>
@@ -359,7 +360,7 @@ export default function Header() {
             alt="Corrado's Restaurant and Bar"
             sx={{ height: 48, width: 'auto' }}
           />
-          <IconButton onClick={() => setDrawerOpen(false)}>
+          <IconButton onClick={() => setDrawerOpen(false)} aria-label="Close navigation menu">
             <CloseIcon />
           </IconButton>
         </Box>

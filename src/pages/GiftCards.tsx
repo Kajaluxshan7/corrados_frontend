@@ -79,83 +79,81 @@ export default function GiftCards() {
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               {/* Gift card visual */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <Box
                   sx={{
                     width: "100%",
-                    maxWidth: 420,
+                    maxWidth: 440,
                     aspectRatio: "1.6 / 1",
-                    bgcolor: palette.charcoal,
-                    borderRadius: 2,
-                    p: 4,
+                    background: `linear-gradient(135deg, #1a1613 0%, ${palette.charcoal} 60%, #2e2420 100%)`,
+                    borderRadius: 4,
+                    p: { xs: 3.5, md: 4.5 },
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
                     position: "relative",
                     overflow: "hidden",
+                    boxShadow: "0 32px 80px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.2)",
                   }}
                 >
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      width: 120,
-                      height: 120,
-                      bgcolor: palette.primary.main,
-                      borderRadius: "0 0 0 100%",
-                      opacity: 0.3,
-                    }}
-                  />
-                  <Box>
-                    <Typography
-                      sx={{
-                        color: palette.primary.main,
-                        fontFamily: '"AmpersandFix", "Playfair Display", serif',
-                        fontWeight: 700,
-                        fontSize: "1.5rem",
-                      }}
-                    >
+                  {/* Decorative gold arc top-right */}
+                  <Box sx={{
+                    position: "absolute", top: -40, right: -40,
+                    width: 180, height: 180,
+                    border: `2px solid ${palette.gold}`,
+                    borderRadius: "50%",
+                    opacity: 0.18,
+                  }} />
+                  <Box sx={{
+                    position: "absolute", top: -10, right: -10,
+                    width: 100, height: 100,
+                    border: `1px solid ${palette.gold}`,
+                    borderRadius: "50%",
+                    opacity: 0.12,
+                  }} />
+                  {/* Subtle grain overlay */}
+                  <Box sx={{
+                    position: "absolute", inset: 0, pointerEvents: "none",
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")`,
+                    backgroundSize: "200px 200px", opacity: 0.6,
+                  }} />
+                  <Box sx={{ position: "relative" }}>
+                    <Typography sx={{
+                      color: palette.gold,
+                      fontFamily: "'Inter', sans-serif",
+                      fontWeight: 800,
+                      fontSize: { xs: "1.4rem", md: "1.6rem" },
+                      letterSpacing: "0.05em",
+                    }}>
                       CORRADO'S
                     </Typography>
-                    <Typography
-                      sx={{
-                        color: "#888",
-                        fontSize: "0.75rem",
-                        letterSpacing: "0.15em",
-                      }}
-                    >
-                      RESTAURANT{" "}
-                      <span style={{ fontFamily: '"Lato", sans-serif' }}>
-                        &amp;
-                      </span>{" "}
-                      BAR
+                    <Typography sx={{
+                      color: "rgba(255,255,255,0.45)",
+                      fontSize: "0.7rem",
+                      letterSpacing: "0.22em",
+                      mt: 0.25,
+                    }}>
+                      RESTAURANT &amp; BAR
                     </Typography>
                   </Box>
-                  <Box>
-                    <Typography
-                      sx={{
-                        color: palette.gold,
-                        fontSize: "0.7rem",
-                        letterSpacing: "0.15em",
-                        mb: 0.5,
-                      }}
-                    >
-                      GIFT CARD
+                  <Box sx={{ position: "relative" }}>
+                    <Box sx={{ width: 36, height: 2, bgcolor: palette.gold, mb: 1.5, opacity: 0.7 }} />
+                    <Typography sx={{
+                      color: "rgba(255,255,255,0.5)",
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.22em",
+                      mb: 0.5,
+                      textTransform: "uppercase",
+                    }}>
+                      Gift Card
                     </Typography>
-                    <Typography
-                      sx={{
-                        color: "#fff",
-                        fontFamily: '"AmpersandFix", "Playfair Display", serif',
-                        fontWeight: 700,
-                        fontSize: "2rem",
-                      }}
-                    >
+                    <Typography sx={{
+                      color: "#fff",
+                      fontFamily: "'Inter', sans-serif",
+                      fontWeight: 700,
+                      fontSize: { xs: "1.8rem", md: "2.2rem" },
+                      letterSpacing: "-0.01em",
+                    }}>
                       $50.00
                     </Typography>
                   </Box>
@@ -167,7 +165,7 @@ export default function GiftCards() {
       </Box>
 
       {/* Occasions */}
-      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.cream }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
         <SectionHeader
           subtitle="PERFECT FOR EVERY OCCASION"
           title="When to Gift Corrado's"
@@ -209,20 +207,21 @@ export default function GiftCards() {
               <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
                 <Box
                   sx={{
-                    borderRadius: 1,
+                    borderRadius: 3,
                     overflow: "hidden",
                     bgcolor: "#fff",
                     height: "100%",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
                     transition: "transform 0.35s ease, box-shadow 0.35s ease",
                     "&:hover": {
                       transform: "translateY(-6px)",
-                      boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+                      boxShadow: "0 16px 40px rgba(0,0,0,0.16)",
                     },
                     "&:hover img": { transform: "scale(1.06)" },
                   }}
                 >
                   <Box
-                    sx={{ overflow: "hidden", height: { xs: 130, md: 150 } }}
+                    sx={{ overflow: "hidden", height: { xs: 160, md: 180 } }}
                   >
                     <Box
                       component="img"
@@ -237,7 +236,7 @@ export default function GiftCards() {
                       }}
                     />
                   </Box>
-                  <Box sx={{ textAlign: "center", p: 2.5 }}>
+                  <Box sx={{ textAlign: "center", p: 3 }}>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
                       {item.title}
                     </Typography>
