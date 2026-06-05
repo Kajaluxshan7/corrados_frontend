@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { FloatingOrbs, GrainOverlay, SplitWordReveal } from '../components';
 import {
   Box,
   Container,
@@ -384,6 +386,12 @@ export default function FamilyMeals() {
 
           {/* ─── Family Combo Packages ─── */}
           <Box sx={{ mb: { xs: 6, md: 8 } }}>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
               <DinnerDiningIcon sx={{ color: palette.primary.main, fontSize: 32 }} />
               <Box>
@@ -394,10 +402,11 @@ export default function FamilyMeals() {
                   For the Whole Family
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  Family Combo Packages
+                  <SplitWordReveal text="Family Combo Packages" delay={0.1} stagger={0.09} />
                 </Typography>
               </Box>
             </Box>
+            </motion.div>
 
             <Grid container spacing={3}>
               {loading
@@ -406,9 +415,17 @@ export default function FamilyMeals() {
                       <MealCardSkeleton />
                     </Grid>
                   ))
-                : combos.map((meal) => (
+                : combos.map((meal, i) => (
                     <Grid key={meal.id} size={{ xs: 12, md: 6 }}>
-                      <MealCard meal={meal} getImage={getImage} />
+                      <motion.div
+                        initial={{ opacity: 0, y: 36 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        style={{ height: "100%" }}
+                      >
+                        <MealCard meal={meal} getImage={getImage} />
+                      </motion.div>
                     </Grid>
                   ))}
             </Grid>
@@ -433,7 +450,7 @@ export default function FamilyMeals() {
                     Available Every Week
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    Daily &amp; Weekly Specials
+                    <SplitWordReveal text="Daily & Weekly Specials" delay={0.1} stagger={0.09} />
                   </Typography>
                 </Box>
               </Box>
@@ -445,9 +462,17 @@ export default function FamilyMeals() {
                         <MealCardSkeleton />
                       </Grid>
                     ))
-                  : dailySpecials.map((meal) => (
+                  : dailySpecials.map((meal, i) => (
                       <Grid key={meal.id} size={{ xs: 12, sm: 6, md: 4 }}>
-                        <MealCard meal={meal} getImage={getImage} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 36 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, margin: "-50px" }}
+                          transition={{ duration: 0.5, delay: i * 0.09, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          style={{ height: "100%" }}
+                        >
+                          <MealCard meal={meal} getImage={getImage} />
+                        </motion.div>
                       </Grid>
                     ))}
               </Grid>
@@ -455,30 +480,43 @@ export default function FamilyMeals() {
           )}
 
           {/* ─── Order CTA ─── */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
           <Box
             sx={{
               mt: 4,
               py: 5,
               px: 4,
-              bgcolor: palette.cream,
+              bgcolor: palette.charcoal,
+              color: "#fff",
               borderRadius: 1,
               textAlign: 'center',
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <FloatingOrbs colors={["#BE5953", "#8B2020", "#C9A84C"]} count={3} opacity={0.28} blur={80} />
+            <GrainOverlay opacity={0.06} />
+            <Box sx={{ position: "relative", zIndex: 2 }}>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
                 mb: 1,
                 fontSize: { xs: "1.5rem", md: "2rem" },
+                color: "#fff",
               }}
             >
-              Order Your Family Meal Today
+              <SplitWordReveal text="Order Your Family Meal Today" delay={0.05} stagger={0.08} style={{ color: "#fff" }} />
             </Typography>
             <Typography
               variant="body1"
               sx={{
-                color: palette.text.secondary,
+                color: "rgba(255,255,255,0.8)",
                 mb: 3,
                 maxWidth: 500,
                 mx: "auto",
@@ -506,7 +544,7 @@ export default function FamilyMeals() {
               </Button>
               <Button
                 variant="outlined"
-                color="primary"
+                sx={{ borderColor: "rgba(255,255,255,0.4)", color: "#fff", "&:hover": { borderColor: "#fff" } }}
                 size="large"
                 component="a"
                 href={`tel:${businessInfo.phone}`}
@@ -514,7 +552,9 @@ export default function FamilyMeals() {
                 Call {businessInfo.phone}
               </Button>
             </Stack>
+            </Box>
           </Box>
+          </motion.div>
         </Container>
       </Box>
     </>

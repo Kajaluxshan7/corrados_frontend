@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FloatingOrbs, GrainOverlay, SplitWordReveal } from "../components";
 import {
   Box,
   Container,
@@ -183,8 +185,16 @@ export default function Events() {
               </Box>
 
               <Grid container spacing={3}>
-                {filtered.map((event) => (
+                <AnimatePresence mode="popLayout">
+                {filtered.map((event, i) => (
                   <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 36 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                      transition={{ duration: 0.45, delay: i * 0.07, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      style={{ height: "100%" }}
+                    >
                     <Box
                       sx={{
                         height: "100%",
@@ -300,8 +310,10 @@ export default function Events() {
                         )}
                       </Box>
                     </Box>
+                    </motion.div>
                   </Grid>
                 ))}
+                </AnimatePresence>
               </Grid>
 
               {filtered.length === 0 && !loading && (
@@ -318,30 +330,43 @@ export default function Events() {
           )}
 
           {/* Private event CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
           <Box
             sx={{
               mt: 8,
               py: 5,
               px: 4,
-              bgcolor: palette.cream,
+              bgcolor: palette.charcoal,
               borderRadius: 1,
               textAlign: "center",
+              color: "#fff",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <FloatingOrbs colors={["#BE5953", "#8B1A1A", "#C9A84C"]} count={3} opacity={0.3} blur={80} />
+            <GrainOverlay opacity={0.06} />
+            <Box sx={{ position: "relative", zIndex: 2 }}>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
                 mb: 1,
                 fontSize: { xs: "1.5rem", md: "2rem" },
+                color: "#fff",
               }}
             >
-              Planning a Private Event?
+              <SplitWordReveal text="Planning a Private Event?" delay={0.05} stagger={0.08} style={{ color: "#fff" }} />
             </Typography>
             <Typography
               variant="body1"
               sx={{
-                color: palette.text.secondary,
+                color: "rgba(255,255,255,0.8)",
                 mb: 3,
                 maxWidth: 550,
                 mx: "auto",
@@ -366,7 +391,7 @@ export default function Events() {
               </Button>
               <Button
                 variant="outlined"
-                color="primary"
+                sx={{ borderColor: "rgba(255,255,255,0.4)", color: "#fff", "&:hover": { borderColor: "#fff" } }}
                 component={RouterLink}
                 to="/contact"
                 size="large"
@@ -374,7 +399,9 @@ export default function Events() {
                 Contact Us
               </Button>
             </Stack>
+            </Box>
           </Box>
+          </motion.div>
         </Container>
       </Box>
     </>

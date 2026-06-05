@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+import { FloatingOrbs, GrainOverlay, SplitWordReveal } from "../components";
 import {
   Box,
   Container,
@@ -113,7 +115,7 @@ export default function PartyMenus() {
 
           {!loading && menus.length > 0 && (
             <Grid container spacing={3}>
-              {menus.map((menu) => {
+              {menus.map((menu, i) => {
                 const imgSrc = getMenuImage(menu);
                 const tc = titleColor(menu.menuType);
                 const sortedSections = [...(menu.sections ?? [])].sort(
@@ -122,6 +124,13 @@ export default function PartyMenus() {
 
                 return (
                   <Grid key={menu.id} size={{ xs: 12, md: 6 }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    style={{ height: "100%" }}
+                  >
                     <Box
                       sx={{
                         borderRadius: "4px",
@@ -455,6 +464,7 @@ export default function PartyMenus() {
                         )}
                       </Box>
                     </Box>
+                  </motion.div>
                   </Grid>
                 );
               })}
@@ -462,30 +472,43 @@ export default function PartyMenus() {
           )}
 
           {/* Contact CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
           <Box
             sx={{
               mt: 8,
               py: 5,
               px: 4,
-              bgcolor: palette.cream,
+              bgcolor: palette.charcoal,
+              color: "#fff",
               borderRadius: 1,
               textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            <FloatingOrbs colors={["#BE5953", "#8B2020", "#C9A84C"]} count={3} opacity={0.28} blur={80} />
+            <GrainOverlay opacity={0.06} />
+            <Box sx={{ position: "relative", zIndex: 2 }}>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
                 mb: 1,
                 fontSize: { xs: "1.5rem", md: "2rem" },
+                color: "#fff",
               }}
             >
-              Ready to Plan Your Event?
+              <SplitWordReveal text="Ready to Plan Your Event?" delay={0.05} stagger={0.08} style={{ color: "#fff" }} />
             </Typography>
             <Typography
               variant="body1"
               sx={{
-                color: palette.text.secondary,
+                color: "rgba(255,255,255,0.8)",
                 mb: 3,
                 maxWidth: 550,
                 mx: "auto",
@@ -529,7 +552,9 @@ export default function PartyMenus() {
                 Email Us
               </Button>
             </Stack>
+            </Box>
           </Box>
+          </motion.div>
         </Container>
       </Box>
     </>

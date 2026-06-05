@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useSpring, useTransform, useScroll, useInView } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useScroll, useInView, useVelocity, useAnimationFrame } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 
 // 1. TiltCard - Gorgeous 3D Tilt Hover Effect
@@ -998,6 +998,375 @@ export function ShatterPortalOverlay({
           );
         })}
       </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. SplitWordReveal — Each word slides up from an overflow-hidden mask
+//     The premier "modern agency" text effect. Respects reduced-motion.
+// ─────────────────────────────────────────────────────────────────────────────
+export function SplitWordReveal({
+  text,
+  className = "",
+  style = {},
+  delay = 0,
+  stagger = 0.08,
+  duration = 0.65,
+  as: Tag = "span",
+}: {
+  text: string;
+  className?: string;
+  style?: React.CSSProperties;
+  delay?: number;
+  stagger?: number;
+  duration?: number;
+  as?: React.ElementType;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref as React.RefObject<Element>, { once: true, margin: "-40px" });
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+
+  const words = text.split(" ");
+  const TagComponent = Tag as React.ElementType;
+
+  return (
+    <TagComponent
+      ref={ref}
+      className={className}
+      style={{ display: "inline", ...style }}
+      aria-label={text}
+    >
+      {words.map((word, i) => (
+        <span
+          key={i}
+          style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom" }}
+        >
+          <motion.span
+            style={{ display: "inline-block" }}
+            initial={reduced ? false : { y: "110%", opacity: 0 }}
+            animate={inView || reduced ? { y: 0, opacity: 1 } : {}}
+            transition={{
+              duration: reduced ? 0 : duration,
+              delay: reduced ? 0 : delay + i * stagger,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            {word}
+          </motion.span>
+          {i < words.length - 1 && " "}
+        </span>
+      ))}
+    </TagComponent>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 12. ClipReveal — Clip-path wipe that reveals content like a curtain lifting
+//     Direction: "up" | "left" | "right". Ultra-cinematic image reveals.
+// ─────────────────────────────────────────────────────────────────────────────
+export function ClipReveal({
+  children,
+  direction = "up",
+  delay = 0,
+  duration = 0.9,
+  className = "",
+  style = {},
+}: {
+  children: React.ReactNode;
+  direction?: "up" | "left" | "right";
+  delay?: number;
+  duration?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+
+  const clipMap = {
+    up:    { hidden: "inset(100% 0 0 0)", visible: "inset(0% 0 0 0)" },
+    left:  { hidden: "inset(0 100% 0 0)", visible: "inset(0 0% 0 0)" },
+    right: { hidden: "inset(0 0 0 100%)", visible: "inset(0 0 0 0%)" },
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{ overflow: "hidden", ...style }}
+    >
+      <motion.div
+        initial={reduced ? false : { clipPath: clipMap[direction].hidden }}
+        animate={inView || reduced ? { clipPath: clipMap[direction].visible } : {}}
+        transition={{
+          duration: reduced ? 0 : duration,
+          delay: reduced ? 0 : delay,
+          ease: [0.76, 0, 0.24, 1],
+        }}
+        style={{ width: "100%", height: "100%" }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 13. FloatingOrbs — Ambient blurred gradient orbs that drift slowly
+//     Drop into any section as a background layer (position: absolute, inset 0)
+// ─────────────────────────────────────────────────────────────────────────────
+export function FloatingOrbs({
+  colors = ["#BE5953", "#8B2020", "#C9A84C", "#5C2A2A"],
+  count = 4,
+  opacity = 0.28,
+  blur = 80,
+}: {
+  colors?: string[];
+  count?: number;
+  opacity?: number;
+  blur?: number;
+}) {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+
+  const orbs = Array.from({ length: count }, (_, i) => ({
+    color: colors[i % colors.length],
+    size: 280 + (i * 60),
+    x: [15, 25, 70, 55][i % 4],
+    y: [20, 65, 40, 80][i % 4],
+    duration: 14 + i * 3.5,
+    xRange: [(-12 - i * 4), (12 + i * 4)] as [number, number],
+    yRange: [(-10 - i * 3), (10 + i * 3)] as [number, number],
+    delay: i * 2.2,
+  }));
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 0,
+      }}
+    >
+      {orbs.map((orb, i) => (
+        <motion.div
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${orb.x}%`,
+            top: `${orb.y}%`,
+            width: orb.size,
+            height: orb.size,
+            borderRadius: "50%",
+            background: orb.color,
+            opacity,
+            filter: `blur(${blur}px)`,
+            transform: "translate(-50%, -50%)",
+          }}
+          animate={reduced ? {} : {
+            x: orb.xRange,
+            y: orb.yRange,
+          }}
+          transition={{
+            duration: orb.duration,
+            repeat: Infinity,
+            repeatType: "mirror",
+            ease: "easeInOut",
+            delay: orb.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 14. GrainOverlay — SVG turbulence noise texture for tactile depth
+//     Overlay on any section: <GrainOverlay /> inside position:relative container
+// ─────────────────────────────────────────────────────────────────────────────
+export function GrainOverlay({
+  opacity = 0.055,
+  blendMode = "overlay",
+}: {
+  opacity?: number;
+  blendMode?: React.CSSProperties["mixBlendMode"];
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        opacity,
+        mixBlendMode: blendMode,
+        zIndex: 1,
+      }}
+    >
+      <filter id="grain-noise">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.65"
+          numOctaves="3"
+          stitchTiles="stitch"
+        />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#grain-noise)" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. CountUp — Smooth animated number counter that triggers on scroll-in
+//     Supports suffix ("+", "★", " Days"), prefix ("$"), and decimal
+// ─────────────────────────────────────────────────────────────────────────────
+export function CountUp({
+  from = 0,
+  to,
+  suffix = "",
+  prefix = "",
+  decimals = 0,
+  duration = 1.8,
+  delay = 0,
+  className = "",
+  style = {},
+}: {
+  from?: number;
+  to: number;
+  suffix?: string;
+  prefix?: string;
+  decimals?: number;
+  duration?: number;
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const [display, setDisplay] = useState(from);
+  const [started, setStarted] = useState(false);
+  const [reduced, setReduced] = useState(false);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+
+  useEffect(() => {
+    if (!inView || started) return;
+    setStarted(true);
+    if (reduced) { setDisplay(to); return; }
+
+    let startTime: number | null = null;
+    const totalMs = duration * 1000;
+    const delayMs = delay * 1000;
+
+    const tick = (ts: number) => {
+      if (!startTime) startTime = ts;
+      const elapsed = ts - startTime - delayMs;
+      if (elapsed < 0) { rafRef.current = requestAnimationFrame(tick); return; }
+      const progress = Math.min(elapsed / totalMs, 1);
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setDisplay(from + (to - from) * eased);
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+      else setDisplay(to);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [inView, started, from, to, duration, delay, reduced]);
+
+  return (
+    <span ref={ref} className={className} style={style}>
+      {prefix}{display.toFixed(decimals)}{suffix}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 16. ScrollVelocityText — Marquee whose speed reacts to scroll velocity
+//     Text drifts at base speed; scrolling faster makes it race.
+// ─────────────────────────────────────────────────────────────────────────────
+export function ScrollVelocityText({
+  text,
+  baseVelocity = 3,
+  className = "",
+  style = {},
+}: {
+  text: string;
+  baseVelocity?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const baseX = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
+  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], { clamp: false });
+  const [reduced, setReduced] = useState(false);
+  const directionFactor = useRef(1);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener("change", h);
+    return () => mq.removeEventListener("change", h);
+  }, []);
+
+  useAnimationFrame((_, delta) => {
+    if (reduced) return;
+    let moveBy = directionFactor.current * baseVelocity * (delta / 1000) * 60;
+    const vf = velocityFactor.get();
+    if (vf < 0) directionFactor.current = -1;
+    else if (vf > 0) directionFactor.current = 1;
+    moveBy += directionFactor.current * moveBy * Math.abs(vf);
+    baseX.set(baseX.get() + moveBy);
+  });
+
+  const x = useTransform(baseX, (v) => `${v % 100}%`);
+  const repeated = `${text}  ·  `.repeat(8);
+
+  return (
+    <div
+      className={className}
+      style={{ overflow: "hidden", whiteSpace: "nowrap", display: "flex", flexWrap: "nowrap", ...style }}
+    >
+      <motion.div style={{ display: "flex", whiteSpace: "nowrap", x }}>
+        <span style={{ display: "block", paddingRight: "2rem" }}>{repeated}</span>
+        <span style={{ display: "block", paddingRight: "2rem" }}>{repeated}</span>
+      </motion.div>
     </div>
   );
 }

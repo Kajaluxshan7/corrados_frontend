@@ -1,4 +1,6 @@
 import { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { SplitWordReveal } from '../components';
 import {
   Box,
   Container,
@@ -267,6 +269,12 @@ export default function Contact() {
           <Grid container spacing={5}>
             {/* ─── Contact Info ─────────────────────────────────────────── */}
             <Grid size={{ xs: 12, md: 5 }}>
+              <motion.div
+                initial={{ opacity: 0, x: -48 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
               <Typography
                 variant="subtitle2"
                 sx={{
@@ -283,9 +291,10 @@ export default function Contact() {
                   fontWeight: 700,
                   mb: 3,
                   fontSize: { xs: "1.5rem", md: "2rem" },
+                  lineHeight: 1.22,
                 }}
               >
-                Visit Us Today
+                <SplitWordReveal text="Visit Us Today" delay={0.15} stagger={0.1} duration={0.7} />
               </Typography>
 
               <Stack spacing={3}>
@@ -422,10 +431,17 @@ export default function Contact() {
                   Order Online
                 </Button>
               </Box>
+              </motion.div>
             </Grid>
 
             {/* ─── Contact Form ─────────────────────────────────────────── */}
             <Grid size={{ xs: 12, md: 7 }}>
+              <motion.div
+                initial={{ opacity: 0, x: 48 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
               <Card>
                 <CardContent
                   sx={{
@@ -751,12 +767,19 @@ export default function Contact() {
                   </Box>
                 </CardContent>
               </Card>
+              </motion.div>
             </Grid>
           </Grid>
         </Container>
       </Box>
 
       {/* Google Maps embed */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
       <Box sx={{ height: { xs: 300, md: 400 }, bgcolor: palette.warmGray }}>
         <Box
           component="iframe"
@@ -770,6 +793,7 @@ export default function Contact() {
           referrerPolicy="no-referrer-when-downgrade"
         />
       </Box>
+      </motion.div>
 
       {/* Toast */}
       <Snackbar
