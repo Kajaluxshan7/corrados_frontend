@@ -8,20 +8,22 @@ import {
   Dialog,
   IconButton,
   Chip,
-  CircularProgress,
+  Skeleton,
+  Grid,
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { palette } from "../theme";
+import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
+import { motion } from "framer-motion";
+import { palette, fonts } from "../theme";
 import { fetchStoryCategories, type ApiStoryCategory } from "../services/api";
 import { resolveImageUrl } from "../config/api";
 import { useWsRefresh } from "../hooks/useWebSocket";
 import { WsEvent } from "../contexts/WebSocketContext";
 import { usePageMeta } from "../hooks/usePageMeta";
-import { Magnet, TextReveal } from "../components";
+import { Magnet, TextReveal, EmptyState } from "../components";
 
 interface GalleryImage {
   id: string;
@@ -134,13 +136,15 @@ function GalleryCard({
       aria-label={`View ${item.alt}`}
       style={tiltStyle}
       sx={{
+        position: "relative",
         width: "100%",
-        height: "100%",
-        borderRadius: "28px",
+        borderRadius: "16px",
         overflow: "hidden",
-        "&:hover img": { transform: "scale(1.01)" },
-        "&:hover video": { transform: "scale(1.01)" },
+        "&:hover img": { transform: "scale(1.04)" },
+        "&:hover video": { transform: "scale(1.04)" },
         "&:hover .overlay": { opacity: 1, transform: "translateY(0)" },
+        "&:hover .zoom-icon": { opacity: 1, transform: "translate(-50%, -50%) scale(1)" },
+        "&:focus-visible .overlay": { opacity: 1, transform: "translateY(0)" },
       }}
     >
       {isVideo ? (
@@ -154,10 +158,9 @@ function GalleryCard({
           onTimeUpdate={handleTimeUpdate}
           sx={{
             width: "100%",
-            height: "100%",
-            objectFit: "cover",
+            height: "auto",
             display: "block",
-            transition: "transform 0.45s ease",
+            transition: "transform 0.55s cubic-bezier(0.16,1,0.3,1)",
           }}
         />
       ) : (
@@ -168,10 +171,9 @@ function GalleryCard({
           loading="lazy"
           sx={{
             width: "100%",
-            height: "100%",
-            objectFit: "cover",
+            height: "auto",
             display: "block",
-            transition: "transform 0.45s ease",
+            transition: "transform 0.55s cubic-bezier(0.16,1,0.3,1)",
           }}
         />
       )}
@@ -301,7 +303,7 @@ function MarqueeTile({ item, onClick }: { item: GalleryImage; onClick: () => voi
       onClick={onClick}
       onMouseEnter={() => isVideo && videoRef.current?.play()}
       onMouseLeave={() => isVideo && videoRef.current?.pause()}
-      sx={{ mr: 2, cursor: "pointer", boxShadow: "0 8px 24px rgba(190, 89, 83, 0.04)" }}
+      sx={{ mr: 2, cursor: "pointer", boxShadow: "0 8px 24px rgba(45,41,38,0.10)" }}
     >
       {isVideo ? (
         <video
@@ -343,223 +345,6 @@ function MarqueeTile({ item, onClick }: { item: GalleryImage; onClick: () => voi
   );
 }
 
-// Inner Subcomponent for Sticky Stacking Category Cards
-interface StickyCardProps {
-  categoryName: string;
-  categoryId: string;
-  items: GalleryImage[];
-  index: number;
-  totalCards: number;
-  categoryColorMap: Record<string, string>;
-  onMediaClick: (item: GalleryImage) => void;
-  progress: any;
-}
-
-function StickyStackedCard({
-  categoryName,
-  categoryId,
-  items,
-  index,
-  totalCards,
-  categoryColorMap,
-  onMediaClick,
-  progress,
-}: StickyCardProps) {
-  // Scale down background cards progressively so earlier cards stack underneath.
-  // The scaling is driven by the parent scroll progress container of the entire deck.
-  const targetScale = 1 - (totalCards - 1 - index) * 0.04;
-  const startProgress = index / totalCards;
-  const scale = useTransform(progress, [startProgress, 1], [1, targetScale]);
-  const opacity = useTransform(progress, [startProgress, 1], [1, 0.85]);
-
-  // Take first 3 images/videos for the card's two-column highlights grid
-  const cardItems = useMemo(() => items.slice(0, 3), [items]);
-
-  // Format index string (e.g. 01, 02)
-  const formatIndex = (index + 1).toString().padStart(2, "0");
-
-  return (
-    <div
-      id={`category-card-${categoryId}`}
-      style={{
-        position: "sticky",
-        top: 0,
-        height: "85vh",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        pointerEvents: "none", // Allow clicks to fall through to elements below
-      }}
-    >
-      <Box
-        component={motion.div}
-        style={{
-          scale,
-          opacity,
-          zIndex: index + 1,
-          transformOrigin: "top", // Scale relative to top edge
-        }}
-        sx={{
-          position: "relative",
-          pointerEvents: "auto", // Re-enable pointer events for the card itself
-          top: {
-            xs: `calc(96px + ${index * 20}px)`,
-            md: `calc(128px + ${index * 28}px)`,
-          },
-        }}
-        className="w-full max-w-5xl gallery-stack-card"
-      >
-        {/* Card Header Row */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            borderBottom: "1px solid rgba(190, 89, 83, 0.15)",
-            pb: 2,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 2 }}>
-            <Typography
-              variant="h3"
-              sx={{
-                color: palette.primary.main,
-                fontWeight: 900,
-                fontSize: { xs: "2.5rem", md: "4rem" },
-                fontFamily: "'Inter', sans-serif",
-                lineHeight: 0.9,
-              }}
-            >
-              {formatIndex}
-            </Typography>
-            <Box>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: palette.gold,
-                  textTransform: "uppercase",
-                  fontWeight: 600,
-                  letterSpacing: 2,
-                  display: "block",
-                }}
-              >
-                Category Highlights
-              </Typography>
-              <Typography
-                variant="h5"
-                sx={{
-                  color: palette.text.primary,
-                  fontWeight: 700,
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: { xs: "1.2rem", md: "1.8rem" },
-                  textTransform: "uppercase",
-                }}
-              >
-                {categoryName}
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box
-              component="button"
-              onClick={() => onMediaClick(items[0])}
-              sx={{
-                borderRadius: "9999px",
-                border: `2px solid ${palette.primary.main}`,
-                color: palette.primary.main,
-                textTransform: "uppercase",
-                letterSpacing: "0.15em",
-                fontFamily: "'Inter', sans-serif",
-                fontWeight: 600,
-                py: "8px",
-                px: "20px",
-                fontSize: "0.75rem",
-                cursor: "pointer",
-                background: "transparent",
-                transition: "all 0.25s ease",
-                "&:hover": {
-                  bgcolor: palette.primary.main,
-                  color: "#fff",
-                },
-              }}
-            >
-              View Media
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Card Two-Column Media Grid (Left 40%, Right 60%) */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "4.2fr 5.8fr" },
-            gap: { xs: 2, md: 3 },
-            mt: 3,
-          }}
-        >
-          {/* Left Column (40% width): 2 stacked media items */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: { xs: 2, md: 3 },
-            }}
-          >
-            {cardItems[0] && (
-              <Box
-                sx={{
-                  height: { xs: 160, sm: 200, md: "clamp(130px, 15vw, 230px)" },
-                  borderRadius: "28px",
-                  overflow: "hidden",
-                }}
-              >
-                <GalleryCard
-                  item={cardItems[0]}
-                  categoryColorMap={categoryColorMap}
-                  onClick={() => onMediaClick(cardItems[0])}
-                />
-              </Box>
-            )}
-            {cardItems[1] && (
-              <Box
-                sx={{
-                  height: { xs: 200, sm: 250, md: "clamp(160px, 20vw, 340px)" },
-                  borderRadius: "28px",
-                  overflow: "hidden",
-                }}
-              >
-                <GalleryCard
-                  item={cardItems[1]}
-                  categoryColorMap={categoryColorMap}
-                  onClick={() => onMediaClick(cardItems[1])}
-                />
-              </Box>
-            )}
-          </Box>
-
-          {/* Right Column (60% width): 1 tall media item */}
-          {cardItems[2] && (
-            <Box
-              sx={{
-                height: { xs: 250, sm: 350, md: "100%" },
-                minHeight: { xs: 200, md: 400 },
-                borderRadius: "28px",
-                overflow: "hidden",
-              }}
-            >
-              <GalleryCard
-                item={cardItems[2]}
-                categoryColorMap={categoryColorMap}
-                onClick={() => onMediaClick(cardItems[2])}
-              />
-            </Box>
-          )}
-        </Box>
-      </Box>
-    </div>
-  );
-}
 
 export default function Gallery() {
   usePageMeta({
@@ -573,11 +358,6 @@ export default function Gallery() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-  const deckRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: deckScrollYProgress } = useScroll({
-    target: deckRef,
-    offset: ["start start", "end end"],
-  });
 
   const loadGallery = useCallback(() => {
     fetchStoryCategories()
@@ -586,75 +366,8 @@ export default function Gallery() {
           .filter((c) => c.isActive)
           .sort((a, b) => a.sortOrder - b.sortOrder);
 
-        // Inject mock categories to demonstrate how multiple sections from the backend stack
-        if (active.length > 0) {
-          const mockCats: ApiStoryCategory[] = [
-            {
-              id: "mock-booths-bar",
-              name: "Booths & Bar",
-              description: "Explore our cosy booths and fully-stocked bar.",
-              isActive: true,
-              sortOrder: 10,
-              stories: [
-                {
-                  id: "mock-story-booths-1",
-                  categoryId: "mock-booths-bar",
-                  isActive: true,
-                  sortOrder: 1,
-                  imageUrls: [
-                    `${window.location.origin}/restaurant/penne-primavera.jpeg`,
-                    `${window.location.origin}/restaurant/pizza-margherita.jpeg`,
-                    `${window.location.origin}/restaurant/antipasto-platter.jpeg`
-                  ],
-                }
-              ]
-            },
-            {
-              id: "mock-patio",
-              name: "Patio Experience",
-              description: "Enjoy al fresco dining on our charming patio.",
-              isActive: true,
-              sortOrder: 20,
-              stories: [
-                {
-                  id: "mock-story-patio-1",
-                  categoryId: "mock-patio",
-                  isActive: true,
-                  sortOrder: 1,
-                  imageUrls: [
-                    `${window.location.origin}/restaurant/spaghetti-bolognese.jpeg`,
-                    `${window.location.origin}/restaurant/ravioli-mushroom-cream.jpeg`,
-                    `${window.location.origin}/restaurant/penne-primavera.jpeg`
-                  ],
-                }
-              ]
-            },
-            {
-              id: "mock-dining",
-              name: "Upstairs Dining",
-              description: "Take a visual tour of our second floor dining space.",
-              isActive: true,
-              sortOrder: 30,
-              stories: [
-                {
-                  id: "mock-story-dining-1",
-                  categoryId: "mock-dining",
-                  isActive: true,
-                  sortOrder: 1,
-                  imageUrls: [
-                    `${window.location.origin}/restaurant/pizza-margherita.jpeg`,
-                    `${window.location.origin}/restaurant/antipasto-platter.jpeg`,
-                    `${window.location.origin}/restaurant/ravioli-mushroom-cream.jpeg`
-                  ],
-                }
-              ]
-            }
-          ];
-          active.push(...mockCats);
-        }
-
         setCategories(active);
-        setActiveTab((prev) => prev ?? active[0]?.id ?? null);
+        // Default to "All" (null) so guests see the full gallery first.
         setError(null);
       })
       .catch(() => {
@@ -670,89 +383,33 @@ export default function Gallery() {
 
   useWsRefresh(WsEvent.STORY_UPDATED, loadGallery);
 
-  // Build flat image list from stories and inject mock videos
+  // Build flat image list from stories (data-driven; no mock/external media).
   const allImages = useMemo<GalleryImage[]>(() => {
     const images: GalleryImage[] = [];
     for (const cat of categories) {
       for (const story of (cat.stories ?? [])
         .filter((s) => s.isActive)
         .sort((a, b) => a.sortOrder - b.sortOrder)) {
-        for (const url of story.imageUrls ?? []) {
+        (story.imageUrls ?? []).forEach((url, idx) => {
           images.push({
             id: `${story.id}-${url}`,
             src: resolveImageUrl(url),
-            alt: cat.name,
+            // Descriptive alt: category + position, rather than bare category name.
+            alt: `${cat.name} — Corrado's Restaurant (photo ${idx + 1})`,
             categoryId: cat.id,
             categoryName: cat.name,
           });
-        }
+        });
       }
     }
-
-    // Append cinematic mock videos to demonstrate video previews and lightbox play
-    const btsCat = categories.find(
-      (c) =>
-        c.name.toLowerCase().includes("behind") ||
-        c.name.toLowerCase().includes("scenes"),
-    );
-    const foodCat = categories.find(
-      (c) =>
-        c.name.toLowerCase().includes("food") ||
-        c.name.toLowerCase().includes("drink"),
-    );
-
-    if (btsCat) {
-      images.push({
-        id: "mock-video-bts-1",
-        src: "https://assets.mixkit.co/videos/preview/mixkit-chef-preparing-a-fresh-vegetable-salad-41584-large.mp4",
-        alt: "Chef Preparing Culinary Fresh Salad",
-        categoryId: btsCat.id,
-        categoryName: btsCat.name,
-        isVideo: true,
-      });
-    }
-
-    if (foodCat) {
-      images.push({
-        id: "mock-video-food-1",
-        src: "https://assets.mixkit.co/videos/preview/mixkit-cooking-in-a-professional-kitchen-41588-large.mp4",
-        alt: "Searing Hot Seafood in Pan",
-        categoryId: foodCat.id,
-        categoryName: foodCat.name,
-        isVideo: true,
-      });
-      images.push({
-        id: "mock-video-food-2",
-        src: "https://assets.mixkit.co/videos/preview/mixkit-pouring-red-wine-into-a-glass-in-slow-motion-42289-large.mp4",
-        alt: "Pouring Rich Italian Red Wine",
-        categoryId: foodCat.id,
-        categoryName: foodCat.name,
-        isVideo: true,
-      });
-    }
-
     return images;
   }, [categories]);
 
-  // Group media into categories for the Stacking Cards view
-  const categoryBlocks = useMemo(() => {
-    const map: Record<string, { categoryName: string; categoryId: string; items: GalleryImage[] }> = {};
-    allImages.forEach((img) => {
-      if (!map[img.categoryId]) {
-        map[img.categoryId] = {
-          categoryName: img.categoryName,
-          categoryId: img.categoryId,
-          items: [],
-        };
-      }
-      map[img.categoryId].items.push(img);
-    });
-
-    // Return sorted blocks based on categories order
-    return categories
-      .map((cat) => map[cat.id])
-      .filter((block): block is NonNullable<typeof block> => !!block);
-  }, [allImages, categories]);
+  // Filter the masonry grid by the active category tab (null = "All").
+  const filteredImages = useMemo(
+    () => (activeTab ? allImages.filter((img) => img.categoryId === activeTab) : allImages),
+    [allImages, activeTab],
+  );
 
   // Build color map
   const categoryColorMap = useMemo(() => {
@@ -801,13 +458,9 @@ export default function Gallery() {
     };
   }, [allImages]);
 
-  // Smooth scroll handler when tabs are clicked
-  const handleTabClick = (categoryId: string) => {
-    setActiveTab(categoryId);
-    const element = document.getElementById(`category-card-${categoryId}`);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+  // Tab selection filters the masonry grid. "all" maps to null (show everything).
+  const handleTabClick = (value: string) => {
+    setActiveTab(value === "all" ? null : value);
   };
 
   return (
@@ -858,12 +511,11 @@ export default function Gallery() {
               variant="h1"
               sx={{
                 fontSize: { xs: "2.8rem", sm: "4rem", md: "5.5rem" },
-                fontWeight: 900,
-                fontFamily: "'Inter', sans-serif",
-                textTransform: "uppercase",
-                letterSpacing: -1,
+                fontWeight: 800,
+                fontFamily: fonts.display,
+                letterSpacing: "-0.01em",
                 color: palette.text.primary,
-                lineHeight: 1.0,
+                lineHeight: 1.05,
                 mb: 3,
                 textShadow: "0 2px 20px rgba(190, 89, 83, 0.08)",
                 background: `linear-gradient(180deg, ${palette.text.primary} 0%, ${palette.primary.main} 100%)`,
@@ -878,7 +530,7 @@ export default function Gallery() {
           {/* Elegant fade and unblur description in light theme */}
           <Box sx={{ mt: 2, maxWidth: 620, mx: "auto", "& p": { color: palette.text.primary } }}>
             <TextReveal
-              text="With more than five years of experience in design, we focus on branding, web design, and user experience, i truly enjoy working with businesses that aim to stand out and present their best image. Let's build something incredible together!"
+              text="Step inside Corrado's through our lens — handmade pasta and stone-oven pizza fresh from the kitchen, warm dining rooms, our patio in summer, and the celebrations we're proud to host. A taste of the experience that awaits you."
               className="text-center text-sm sm:text-base md:text-lg font-light leading-relaxed tracking-wide opacity-80"
               align="center"
             />
@@ -936,9 +588,18 @@ export default function Gallery() {
       <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <Container>
           {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-              <CircularProgress color="primary" />
-            </Box>
+            <Grid container spacing={2}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Grid key={i} size={{ xs: 6, sm: 4 }}>
+                  <Skeleton
+                    variant="rounded"
+                    animation="wave"
+                    height={i % 3 === 0 ? 280 : 200}
+                    sx={{ borderRadius: 3 }}
+                  />
+                </Grid>
+              ))}
+            </Grid>
           )}
 
           {error && (
@@ -952,60 +613,60 @@ export default function Gallery() {
               {/* Category tab anchors */}
               <Box sx={{ mb: 8, borderBottom: 1, borderColor: "rgba(190, 89, 83, 0.12)", display: "flex", justifyContent: "center" }}>
                 <Tabs
-                  value={activeTab ?? false}
+                  value={activeTab ?? "all"}
                   onChange={(_, v) => handleTabClick(v)}
                   variant="scrollable"
                   scrollButtons="auto"
+                  allowScrollButtonsMobile
                   sx={{
                     "& .MuiTab-root": {
-                      fontSize: "0.85rem",
+                      fontSize: "0.8rem",
                       minWidth: "auto",
                       px: 3,
-                      color: "rgba(45, 41, 38, 0.6)",
+                      color: "rgba(45, 41, 38, 0.55)",
                       fontFamily: "'Inter', sans-serif",
                       fontWeight: 600,
+                      letterSpacing: "0.08em",
                       textTransform: "uppercase",
+                      transition: "color 0.25s ease",
                     },
                     "& .Mui-selected": {
                       color: `${palette.primary.main} !important`,
                     },
                     "& .MuiTabs-indicator": {
+                      height: 3,
+                      borderRadius: "3px 3px 0 0",
                       backgroundColor: palette.primary.main,
                     },
                   }}
                 >
+                  <Tab label="All" value="all" />
                   {tabList.map((cat) => (
                     <Tab key={cat.value} label={cat.label} value={cat.value} />
                   ))}
                 </Tabs>
               </Box>
 
-              {/* Stacking Cards Container */}
-              <Box ref={deckRef} sx={{ display: "flex", flexDirection: "column", gap: 0, position: "relative" }}>
-                {categoryBlocks.map((block, idx) => (
-                  <StickyStackedCard
-                    key={block.categoryId}
-                    categoryId={block.categoryId}
-                    categoryName={block.categoryName}
-                    items={block.items}
-                    index={idx}
-                    totalCards={categoryBlocks.length}
-                    categoryColorMap={categoryColorMap}
-                    onMediaClick={(item) => setSelectedImage(item)}
-                    progress={deckScrollYProgress}
-                  />
-                ))}
-              </Box>
-
-              {categoryBlocks.length === 0 && (
-                <Box sx={{ textAlign: "center", py: 6 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{ color: "rgba(45, 41, 38, 0.4)" }}
-                  >
-                    No images in this category yet. Check back soon!
-                  </Typography>
+              {filteredImages.length > 0 ? (
+                /* Premium masonry "spotlight" grid — every photo, hover-dims the rest */
+                <Box className="gallery-grid">
+                  {filteredImages.map((item) => (
+                    <Box className="gallery-card-wrapper" key={item.id}>
+                      <GalleryCard
+                        item={item}
+                        categoryColorMap={categoryColorMap}
+                        onClick={() => setSelectedImage(item)}
+                      />
+                    </Box>
+                  ))}
                 </Box>
+              ) : (
+                <EmptyState
+                  icon={<PhotoLibraryOutlinedIcon />}
+                  title="Our gallery is being curated"
+                  description="We're adding fresh photos of our dishes, dining rooms and events. Check back soon for a closer look."
+                  action={{ label: "View the Menu", to: "/menus" }}
+                />
               )}
             </>
           )}

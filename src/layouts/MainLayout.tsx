@@ -15,8 +15,8 @@ function WsStatusBanner() {
     <Collapse in={!connected}>
       <Box
         sx={{
-          bgcolor: "#b45309",
-          color: "#fff",
+          bgcolor: "warning.main",
+          color: "warning.contrastText",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

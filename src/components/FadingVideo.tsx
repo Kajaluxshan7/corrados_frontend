@@ -1,12 +1,16 @@
 import { useEffect, useRef, useCallback } from "react";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 interface FadingVideoProps {
   src: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Optional still frame shown before play / when motion is reduced. */
+  poster?: string;
 }
 
-export default function FadingVideo({ src, className, style }: FadingVideoProps) {
+export default function FadingVideo({ src, className, style, poster }: FadingVideoProps) {
+  const reducedMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
   const fadingOutRef = useRef<boolean>(false);
@@ -113,10 +117,27 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
     };
   }, []);
 
+  // Honor reduced-motion: skip the (heavy, decorative) autoplaying video and
+  // show a static poster — or nothing — so we don't fetch a large clip the
+  // user has asked us not to animate.
+  if (reducedMotion) {
+    if (!poster) return null;
+    return (
+      <img
+        src={poster}
+        alt=""
+        aria-hidden
+        className={className}
+        style={{ opacity: 1, ...style }}
+      />
+    );
+  }
+
   return (
     <video
       ref={videoRef}
       src={src}
+      poster={poster}
       className={className}
       style={{
         opacity: 0,
@@ -125,7 +146,9 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
       autoPlay
       muted
       playsInline
-      preload="auto"
+      // metadata (not auto) — avoids eagerly buffering the whole external clip
+      // on first paint; autoPlay still streams what it needs to start.
+      preload="metadata"
       onLoadedData={handleLoadedData}
       onTimeUpdate={handleTimeUpdate}
       onEnded={handleEnded}

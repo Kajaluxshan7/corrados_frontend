@@ -1,6 +1,6 @@
 import { Box, Typography, Container } from '@mui/material';
 import type { ReactNode } from 'react';
-import { palette } from '../theme';
+import { palette, fonts } from '../theme';
 import { formatAmpersand } from "../utils/formatAmpersand";
 import BlurText from './BlurText';
 
@@ -49,10 +49,10 @@ export default function SectionHeader({
           sx={{
             color: light ? "#fff" : palette.charcoal,
             mb: 2,
-            fontSize: { xs: "1.75rem", md: "2.25rem" },
-            fontFamily: "'Inter', sans-serif",
+            fontSize: { xs: "2rem", md: "2.6rem" },
+            fontFamily: fonts.display,
             fontWeight: 700,
-            letterSpacing: "-0.01em",
+            letterSpacing: "-0.005em",
             display: "flex",
             justifyContent: align === "center" ? "center" : "flex-start",
           }}

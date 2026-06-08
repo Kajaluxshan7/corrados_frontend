@@ -1,6 +1,6 @@
 import { Box, Container, Typography, Button, Grid, Stack } from '@mui/material';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-import { PageHero, SectionHeader } from '../components';
+import { PageHero, SectionHeader, Section } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 import { useSiteImages } from '../hooks/useSiteImages';
@@ -21,7 +21,7 @@ export default function GiftCards() {
         backgroundImage={getImage('hero_gift_cards', '/restaurant/chocolate-cup-dessert.jpeg')}
       />
 
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Section tone="default" container={false}>
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
@@ -162,10 +162,10 @@ export default function GiftCards() {
             </Grid>
           </Grid>
         </Container>
-      </Box>
+      </Section>
 
       {/* Occasions */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
+      <Section tone="cream" container={false}>
         <SectionHeader
           subtitle="PERFECT FOR EVERY OCCASION"
           title="When to Gift Corrado's"
@@ -252,7 +252,7 @@ export default function GiftCards() {
             ))}
           </Grid>
         </Container>
-      </Box>
+      </Section>
 
       {/* Purchase CTA */}
       <Box

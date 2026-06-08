@@ -9,7 +9,7 @@ import {
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { motion, AnimatePresence } from "framer-motion";
-import { PageHero, BlurText, TextReveal } from "../components";
+import { PageHero, BlurText, TextReveal, CardGridSkeleton, EmptyState } from "../components";
 import { businessInfo } from "../data";
 import { palette } from "../theme";
 import { fetchDigitalMenuPdfs, type ApiDigitalMenuPdf } from "../services/api";
@@ -222,11 +222,13 @@ export default function Menus() {
   const { getImage } = useSiteImages();
   const [digitalPdfs, setDigitalPdfs] = useState<ApiDigitalMenuPdf[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDigitalMenuPdfs()
       .then((data) => setDigitalPdfs(data))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   useWsRefresh(WsEvent.DIGITAL_MENU_UPDATED, () => {
@@ -336,13 +338,15 @@ export default function Menus() {
             </Box>
           </Box>
 
-          {digitalPdfs.length === 0 ? (
-            <Box sx={{ textAlign: "center", py: 8 }}>
-              <PictureAsPdfIcon sx={{ fontSize: 52, color: `${palette.primary.main}55`, mb: 2 }} />
-              <Typography variant="body1" sx={{ color: "rgba(45, 41, 38, 0.55)" }}>
-                Our menus are being updated. Check back soon!
-              </Typography>
-            </Box>
+          {loading ? (
+            <CardGridSkeleton count={8} columns={{ xs: 12, sm: 6, md: 4 }} imageHeight={220} />
+          ) : digitalPdfs.length === 0 ? (
+            <EmptyState
+              icon={<PictureAsPdfIcon />}
+              title="Menus are being updated"
+              description="Our team is refreshing the menu right now. In the meantime, you can start an order online."
+              action={{ label: "Order Online", href: businessInfo.orderUrl }}
+            />
           ) : (
             <>
               {/* Category Filter Pills */}

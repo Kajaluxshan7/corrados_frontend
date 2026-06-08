@@ -19,8 +19,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
-import { PageHero, SocialIcon } from '../components';
+import { PageHero, SocialIcon, FileUpload } from '../components';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 import { API_BASE_URL } from '../config/api';
@@ -258,7 +257,7 @@ export default function Contact() {
         subtitle="We'd love to hear from you. Get in touch with us for reservations, inquiries, or feedback."
         backgroundImage={getImage(
           "hero_contact",
-          "/restaurant/antipasto-platter.jpeg",
+          "/orrdos/exterior-building.jpg",
         )}
       />
 
@@ -621,67 +620,15 @@ export default function Contact() {
 
                           {/* CV upload */}
                           <Grid size={{ xs: 12 }}>
-                            <Box
-                              sx={{
-                                p: { xs: 2, sm: 2.25 },
-                                border: `1px dashed ${resumeError ? palette.primary.main : palette.warmGray}`,
-                                borderRadius: 1.5,
-                                bgcolor: palette.background.default,
-                              }}
-                            >
-                              <Stack
-                                direction={{ xs: "column", sm: "row" }}
-                                spacing={2}
-                                alignItems={{ xs: "flex-start", sm: "center" }}
-                                justifyContent="space-between"
-                              >
-                                <Box>
-                                  <Typography
-                                    variant="subtitle2"
-                                    sx={{ mb: 0.35 }}
-                                  >
-                                    Resume / CV
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    sx={{
-                                      color: resumeFileName
-                                        ? palette.text.primary
-                                        : palette.text.secondary,
-                                    }}
-                                  >
-                                    {resumeFileName ||
-                                      "Upload your CV in PDF, DOC, or DOCX format."}
-                                  </Typography>
-                                  <Typography
-                                    variant="caption"
-                                    sx={{
-                                      color: resumeError
-                                        ? palette.primary.main
-                                        : palette.text.secondary,
-                                    }}
-                                  >
-                                    {resumeError ||
-                                      "Accepted formats: PDF, DOC, DOCX · Max 5 MB"}
-                                  </Typography>
-                                </Box>
-                                <Button
-                                  component="label"
-                                  variant="outlined"
-                                  startIcon={<UploadFileOutlinedIcon />}
-                                  sx={{ flexShrink: 0 }}
-                                >
-                                  Choose File
-                                  <input
-                                    hidden
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                    onChange={handleResumeChange}
-                                  />
-                                </Button>
-                              </Stack>
-                            </Box>
+                            <FileUpload
+                              label="Resume / CV"
+                              fileName={resumeFileName}
+                              error={resumeError}
+                              helperText="Accepted formats: PDF, DOC, DOCX · Max 5 MB"
+                              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                              onChange={handleResumeChange}
+                              inputRef={fileInputRef}
+                            />
                           </Grid>
                         </>
                       )}

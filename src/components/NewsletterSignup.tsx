@@ -12,7 +12,7 @@ import {
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { subscribeNewsletter } from "../services/api";
-import { palette } from "../theme";
+import { palette, fonts } from "../theme";
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState("");
@@ -73,10 +73,10 @@ export default function NewsletterSignup() {
             sx={{
               color: palette.text.primary,
               fontWeight: 700,
-              fontFamily: "'Inter', sans-serif",
-              fontSize: { xs: "1.75rem", md: "2.25rem" },
+              fontFamily: fonts.display,
+              fontSize: { xs: "2rem", md: "2.6rem" },
               mb: 1.5,
-              lineHeight: 1.2,
+              lineHeight: 1.15,
             }}
           >
             Get Exclusive Specials &amp; Updates

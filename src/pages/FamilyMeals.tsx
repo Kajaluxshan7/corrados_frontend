@@ -24,7 +24,8 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DinnerDiningIcon from '@mui/icons-material/DinnerDining';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
-import { PageHero } from '../components';
+import { PageHero, EmptyState } from '../components';
+import RestaurantOutlinedIcon from '@mui/icons-material/RestaurantOutlined';
 import { businessInfo } from '../data';
 import { palette } from '../theme';
 import { useSiteImages } from '../hooks/useSiteImages';
@@ -416,9 +417,12 @@ export default function FamilyMeals() {
             </Grid>
 
             {!loading && combos.length === 0 && !error && (
-              <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                Family combo packages are being updated — check back soon.
-              </Typography>
+              <EmptyState
+                icon={<RestaurantOutlinedIcon />}
+                title="Family meals are being updated"
+                description="We're refreshing our combo packages. In the meantime, you can order any of our dishes online."
+                action={{ label: "Order Online", href: businessInfo.orderUrl }}
+              />
             )}
           </Box>
 

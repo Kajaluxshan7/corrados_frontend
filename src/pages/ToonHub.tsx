@@ -41,6 +41,18 @@ export default function ToonHub() {
     }, 650);
   }, [isAnimating]);
 
+  // Keyboard navigation (a11y): ←/→ browse the carousel.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); navigate('prev'); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); navigate('next'); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [navigate]);
+
   // Derived roles
   const getRole = (index: number) => {
     if (index === activeIndex) return 'center';
@@ -138,7 +150,12 @@ export default function ToonHub() {
         </div>
 
         {/* 4. Carousel */}
-        <div className="absolute inset-0 z-3">
+        <div
+          className="absolute inset-0 z-3"
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="Figurine showcase — use the left and right arrow keys to browse"
+        >
           {IMAGES.map((img, i) => {
             const role = getRole(i);
             const style = getRoleStyles(role);
@@ -193,11 +210,13 @@ export default function ToonHub() {
           </div>
         </div>
 
-        {/* 6. Bottom-right link "DISCOVER IT" */}
+        {/* 6. Bottom-right "DISCOVER IT" — advances the carousel */}
         <div className="absolute bottom-6 right-4 sm:bottom-20 sm:right-10 z-60">
-          <a
-            href="#"
-            className="flex items-center gap-2 text-white opacity-95 hover:opacity-100 transition-opacity duration-200 uppercase tracking-tight no-underline"
+          <button
+            type="button"
+            onClick={() => navigate('next')}
+            aria-label="Discover the next figure"
+            className="flex items-center gap-2 text-white opacity-95 hover:opacity-100 transition-opacity duration-200 uppercase tracking-tight bg-transparent border-0 cursor-pointer"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: 'clamp(20px, 4vw, 56px)',
@@ -207,7 +226,7 @@ export default function ToonHub() {
           >
             DISCOVER IT
             <ArrowRight className="w-5 h-5 sm:w-8 sm:h-8" strokeWidth={2.25} />
-          </a>
+          </button>
         </div>
       </div>
     </div>
