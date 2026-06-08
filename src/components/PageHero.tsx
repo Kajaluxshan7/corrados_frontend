@@ -1,8 +1,9 @@
 import { Box, Typography, Container, Button } from '@mui/material';
 import type { ReactNode } from 'react';
 import { Link as RouterLink } from "react-router-dom";
-import { palette } from "../theme";
+import { palette, fonts } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 interface PageHeroProps {
   title: string;
@@ -27,6 +28,7 @@ export default function PageHero({
   parallax = false,
   kenBurns = false,
 }: PageHeroProps) {
+  const reducedMotion = useReducedMotion();
   // Determine if we use the dual-layer background (for parallax/Ken Burns) or single-layer
   const useDualLayer = backgroundImage && (parallax || kenBurns);
 
@@ -72,7 +74,7 @@ export default function PageHero({
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              animation: kenBurns ? "kenBurns 24s ease-in-out infinite" : undefined,
+              animation: (kenBurns && !reducedMotion) ? "kenBurns 24s ease-in-out infinite" : undefined,
             }}
           />
         </Box>
@@ -94,12 +96,12 @@ export default function PageHero({
           variant="h2"
           sx={{
             color: "#fff",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: fonts.display,
             fontWeight: 800,
             mb: 2,
-            fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem", lg: "3.75rem" },
-            textShadow: "0 2px 20px rgba(0,0,0,0.3)",
-            letterSpacing: "0.01em",
+            fontSize: { xs: "2.1rem", sm: "2.6rem", md: "3.1rem", lg: "3.9rem" },
+            textShadow: "0 2px 20px rgba(0,0,0,0.35)",
+            letterSpacing: "-0.005em",
           }}
         >
           {formatAmpersand(title)}

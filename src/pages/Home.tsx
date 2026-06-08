@@ -1,5 +1,5 @@
 import { keyframes } from "@emotion/react";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, lazy, Suspense } from "react";
 import {
   Box,
   Container,
@@ -37,7 +37,6 @@ import ShopIcon from "@mui/icons-material/Shop";
 import {
   SectionHeader,
   NewsletterSignup,
-  FadingVideo,
   BlurText,
   TiltCard,
   ParallaxImage,
@@ -48,8 +47,6 @@ import {
   Magnet,
   CinematicReveal,
   MouseMoveSpotlight,
-  ScrollZoomContainer,
-  ShatterPortalOverlay,
 } from "../components";
 import { motion } from "framer-motion";
 import { testimonials } from "../data";
@@ -75,6 +72,10 @@ import {
   SPECIAL_TYPE_LABELS,
   SPECIAL_POPUP_FALLBACK_IMAGES,
 } from "../constants/menus";
+
+// Heavy click-transition effect — lazy-loaded so it stays out of the initial
+// Home bundle and only downloads when a tile is actually clicked (Phase 3).
+const ShatterPortalOverlay = lazy(() => import("../components/ShatterPortalOverlay"));
 
 // navTiles defaults used as fallbacks when admin hasn't set a custom image
 const NAV_TILE_DEFAULTS: Record<string, string> = {
@@ -848,11 +849,11 @@ export default function Home() {
           </>
         )}
       </Dialog>
-      {/* Navigation tile bento grid — 4×2 grid with custom JS fading video background wrapped in MouseMoveSpotlight */}
+      {/* Navigation tile bento grid — 4×2 grid on a warm ivory backdrop with a soft cursor-follow glow */}
       <MouseMoveSpotlight
-        glowColor="rgba(255, 255, 255, 0.12)"
+        glowColor="rgba(201, 169, 110, 0.16)"
         size={900}
-        style={{ width: "100%", height: "100%", backgroundColor: "#12100E" }}
+        style={{ width: "100%", height: "100%", backgroundColor: palette.ivory }}
       >
         <Box
           ref={bentoGridRef}
@@ -903,20 +904,40 @@ export default function Home() {
             },
           }}
         >
-          {/* Scroll Zoom and Fade for FadingVideo */}
-          <ScrollZoomContainer
-            scaleRange={[1, 1.15]}
-            opacityRange={[0.62, 0.0]}
-            scrollRange={[0, 650]}
-            className="absolute inset-0 z-0"
-            style={{ position: "absolute" }}
+          {/* Soft warm ambiance backdrop — light, premium, and far lighter than a video */}
+          <Box
+            aria-hidden
+            sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              overflow: "hidden",
+            }}
           >
-            <FadingVideo
-              src="https://assets.mixkit.co/videos/preview/mixkit-cooking-in-a-professional-kitchen-41588-large.mp4"
-              className="absolute left-1/2 top-0 -translate-x-1/2 object-cover object-top"
-              style={{ width: "120%", height: "120%", pointerEvents: "none" }}
+            <Box
+              sx={{
+                position: "absolute",
+                top: "-18%",
+                left: "-12%",
+                width: "60%",
+                height: "75%",
+                background: `radial-gradient(circle, ${palette.primary.main}1A 0%, rgba(0,0,0,0) 70%)`,
+                animation: "float 16s ease-in-out infinite",
+              }}
             />
-          </ScrollZoomContainer>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: "-22%",
+                right: "-12%",
+                width: "62%",
+                height: "78%",
+                background: `radial-gradient(circle, ${palette.gold}24 0%, rgba(0,0,0,0) 70%)`,
+                animation: "float 20s ease-in-out infinite reverse",
+              }}
+            />
+          </Box>
 
           {/* ── All 8 nav tiles (4 × 2 grid) ── */}
           {navTiles.map((tile, i) => (
@@ -947,16 +968,16 @@ export default function Home() {
                     height: "100%",
                     transformStyle: "preserve-3d",
                     bgcolor: "#161413",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3)",
+                    border: "1px solid rgba(45,41,38,0.08)",
+                    boxShadow: "0 8px 28px rgba(45,41,38,0.16), 0 2px 8px rgba(45,41,38,0.10)",
                     transition: "box-shadow 0.5s ease, border-color 0.5s ease, transform 0.5s ease",
                     "&:focus-visible": {
                       outline: `2px solid #C9A96E`,
                       outlineOffset: 4,
                     },
                     "&:hover, &:focus-visible": {
-                      borderColor: "rgba(201,169,110,0.45)",
-                      boxShadow: "0 20px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,169,110,0.35)",
+                      borderColor: "rgba(201,169,110,0.55)",
+                      boxShadow: "0 24px 56px rgba(45,41,38,0.22), 0 0 0 1px rgba(201,169,110,0.45)",
                     },
                     "&:hover .tile-img, &:focus-visible .tile-img": {
                       "--tile-scale": "1.12",
@@ -1106,7 +1127,7 @@ export default function Home() {
       </MouseMoveSpotlight>
 
       {/* ─── INTRO / ABOUT TEASER ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
@@ -1181,7 +1202,7 @@ export default function Home() {
       </Box>
 
       {/* ─── FEATURED MENU CATEGORIES ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.cream }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
         <SectionHeader
           subtitle="OUR MENU"
           title="Explore Our Kitchen"
@@ -1232,10 +1253,10 @@ export default function Home() {
                         flexDirection: "column",
                         overflow: "hidden",
                         border: "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                        boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
                         transition: "box-shadow 0.3s ease",
                         "&:hover": {
-                          boxShadow: "0 16px 36px rgba(0,0,0,0.16)",
+                          boxShadow: "0 20px 44px rgba(45,41,38,0.16)",
                         },
                         "&:hover .category-image": {
                           transform: "scale(1.08)",
@@ -1289,7 +1310,7 @@ export default function Home() {
       </Box>
 
       {/* ─── DAILY SPECIALS PREVIEW ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <SectionHeader
           subtitle="DAILY SPECIALS"
           title="Something Special Every Day"
@@ -1307,10 +1328,10 @@ export default function Home() {
                         display: "flex",
                         flexDirection: "column",
                         border: "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                        boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
                         transition: "box-shadow 0.3s ease",
                         "&:hover": {
-                          boxShadow: "0 16px 36px rgba(0,0,0,0.14)",
+                          boxShadow: "0 20px 44px rgba(45,41,38,0.14)",
                         },
                       }}
                     >
@@ -1403,31 +1424,19 @@ export default function Home() {
       {/* ─── FAMILY MEALS HIGHLIGHT ─── */}
       <Box
         sx={{
-          py: { xs: 8, md: 10 },
-          bgcolor: palette.charcoal,
+          py: { xs: 8, md: 12 },
           position: "relative",
           overflow: "hidden",
+          background: `linear-gradient(135deg, ${palette.ivory} 0%, ${palette.cream} 55%, #F2DFDB 100%)`,
+          borderTop: `1px solid ${palette.warmGray}`,
+          borderBottom: `1px solid ${palette.warmGray}`,
         }}
       >
-        <FadingVideo
-          src="https://assets.mixkit.co/videos/preview/mixkit-chef-preparing-a-fresh-vegetable-salad-41584-large.mp4"
-          className="absolute left-1/2 top-0 -translate-x-1/2 object-cover z-0"
-          style={{ width: "120%", height: "120%", pointerEvents: "none" }}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            bgcolor: "rgba(12, 10, 9, 0.88)",
-            zIndex: 0,
-          }}
-        />
         <Box sx={{ position: "relative", zIndex: 1 }}>
           <SectionHeader
             subtitle="FAMILY MEALS"
             title="Share the Table, Share the Love"
             description="Ready-to-enjoy family meal packages perfect for every occasion. From classic Italian dinners to pizza party packs."
-            light
           />
           <Container>
             <Grid container spacing={3}>
@@ -1439,16 +1448,16 @@ export default function Home() {
                     <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
                       <ScrollRotate3D style={{ height: "100%" }}>
                         <Card
-                          className="liquid-glass-strong"
                           sx={{
                             height: "100%",
-                            bgcolor: "rgba(255, 255, 255, 0.05)",
-                            color: "#fff",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+                            bgcolor: "#fff",
+                            border: "1px solid rgba(45,41,38,0.06)",
+                            boxShadow: "0 8px 24px rgba(45,41,38,0.08)",
+                            transition: "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
                             "&:hover": {
-                              borderColor: "rgba(255, 255, 255, 0.2)",
-                              boxShadow: "0 22px 45px rgba(0, 0, 0, 0.4)",
+                              transform: "translateY(-6px)",
+                              borderColor: "rgba(201,169,110,0.45)",
+                              boxShadow: "0 24px 56px rgba(45,41,38,0.16), 0 0 22px rgba(201,169,110,0.12)",
                             },
                           }}
                         >
@@ -1456,13 +1465,13 @@ export default function Home() {
                             <Typography
                               variant="h6"
                               fontWeight={700}
-                              sx={{ mb: 1, color: "#fff" }}
+                              sx={{ mb: 1, color: palette.charcoal }}
                             >
                               {formatAmpersand(meal.name)}
                             </Typography>
                             <Typography
                               variant="body2"
-                              sx={{ color: "rgba(255, 255, 255, 0.7)", mb: 2 }}
+                              sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.7 }}
                             >
                               {meal.description}
                             </Typography>
@@ -1472,14 +1481,15 @@ export default function Home() {
                               sx={{
                                 mr: 1,
                                 mb: 1,
-                                bgcolor: "rgba(255,255,255,0.15)",
-                                color: "#fff",
+                                bgcolor: "rgba(190,89,83,0.10)",
+                                color: palette.primary.main,
+                                fontWeight: 600,
                               }}
                             />
                             <Typography
                               variant="h5"
                               sx={{
-                                color: palette.gold,
+                                color: palette.primary.main,
                                 fontWeight: 700,
                                 mt: 2,
                               }}
@@ -1512,7 +1522,7 @@ export default function Home() {
       </Box>
 
       {/* ─── PARTY / CATERING HIGHLIGHT ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.cream }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
@@ -1598,7 +1608,7 @@ export default function Home() {
       </Box>
 
       {/* ─── EVENTS TEASER ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <SectionHeader
           subtitle="UPCOMING EVENTS"
           title="What's Happening at Corrado's"
@@ -1616,10 +1626,10 @@ export default function Home() {
                         display: "flex",
                         flexDirection: "column",
                         border: "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                        boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
                         transition: "box-shadow 0.3s ease",
                         "&:hover": {
-                          boxShadow: "0 16px 36px rgba(0,0,0,0.14)",
+                          boxShadow: "0 20px 44px rgba(45,41,38,0.14)",
                         },
                         "&:hover .event-image": {
                           transform: "scale(1.06)",
@@ -1699,7 +1709,7 @@ export default function Home() {
       </Box>
 
       {/* ─── GALLERY TEASER ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.cream }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
         <SectionHeader
           subtitle="GALLERY"
           title="A Glimpse Inside Corrado's"
@@ -1734,10 +1744,10 @@ export default function Home() {
                       height: { xs: 160, md: 220 },
                       borderRadius: 2,
                       overflow: "hidden",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                      boxShadow: "0 6px 22px rgba(45,41,38,0.07)",
                       transition: "box-shadow 0.3s ease, transform 0.3s ease",
                       "&:hover": {
-                        boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+                        boxShadow: "0 18px 40px rgba(45,41,38,0.15)",
                         transform: "translateY(-4px)",
                       },
                     }}
@@ -1774,7 +1784,7 @@ export default function Home() {
       </Box>
 
       {/* ─── MOBILE APPS SECTION ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
         <Container>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
@@ -2011,7 +2021,7 @@ export default function Home() {
       </Box>
 
       {/* ─── WHY CHOOSE US ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.cream }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
         <SectionHeader
           subtitle="WHY CORRADO'S"
           title="What Makes Us Special"
@@ -2144,7 +2154,7 @@ export default function Home() {
       </Box>
 
       {/* ─── TESTIMONIALS ─── */}
-      <Box sx={{ py: { xs: 8, md: 10 }, bgcolor: palette.background.default, overflow: "hidden" }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, overflow: "hidden" }}>
         <SectionHeader
           subtitle="WHAT OUR GUESTS SAY"
           title="Loved by Families Across Whitby"
@@ -2167,7 +2177,7 @@ export default function Home() {
                     display: "flex",
                     flexDirection: "column",
                     border: "1px solid rgba(0,0,0,0.06)",
-                    boxShadow: "0 4px 18px rgba(0,0,0,0.04)",
+                    boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
                   }}
                 >
                   <CardContent
@@ -2229,17 +2239,19 @@ export default function Home() {
       {/* ─── NEWSLETTER SIGNUP ─── */}
       <NewsletterSignup />
 
-      {/* ─── PORTAL ZOOM OVERLAY ─── */}
+      {/* ─── PORTAL ZOOM OVERLAY (lazy-loaded on tile click) ─── */}
       {activeShatter && (
-        <ShatterPortalOverlay
-          rect={activeShatter.rect}
-          image={activeShatter.image}
-          label={activeShatter.label}
-          tagline={activeShatter.tagline}
-          previewImages={activeShatter.previewImages}
-          isTriggered={!!activeShatter}
-          onComplete={handleZoomComplete}
-        />
+        <Suspense fallback={null}>
+          <ShatterPortalOverlay
+            rect={activeShatter.rect}
+            image={activeShatter.image}
+            label={activeShatter.label}
+            tagline={activeShatter.tagline}
+            previewImages={activeShatter.previewImages}
+            isTriggered={!!activeShatter}
+            onComplete={handleZoomComplete}
+          />
+        </Suspense>
       )}
     </>
   );

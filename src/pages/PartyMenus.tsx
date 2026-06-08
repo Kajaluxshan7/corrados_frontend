@@ -10,15 +10,15 @@ import {
   Button,
   Divider,
   Stack,
-  CircularProgress,
   Alert,
 } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import CelebrationOutlinedIcon from "@mui/icons-material/CelebrationOutlined";
 import { Link as RouterLink } from "react-router-dom";
-import { PageHero } from "../components";
+import { PageHero, CardGridSkeleton, EmptyState } from "../components";
 import { businessInfo } from "../data";
 import { palette } from "../theme";
 import { fetchPartyMenus, type ApiPartyMenu } from "../services/api";
@@ -87,11 +87,7 @@ export default function PartyMenus() {
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
         <Container>
-          {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-              <CircularProgress color="primary" />
-            </Box>
-          )}
+          {loading && <CardGridSkeleton count={4} columns={{ xs: 12, md: 6 }} imageHeight={220} />}
 
           {error && (
             <Alert severity="error" sx={{ mb: 4 }}>
@@ -100,17 +96,12 @@ export default function PartyMenus() {
           )}
 
           {!loading && !error && menus.length === 0 && (
-            <Typography
-              variant="body1"
-              sx={{
-                textAlign: "center",
-                py: 10,
-                color: palette.text.secondary,
-              }}
-            >
-              No party packages available right now. Please contact us to
-              discuss your event.
-            </Typography>
+            <EmptyState
+              icon={<CelebrationOutlinedIcon />}
+              title="Let's plan something special"
+              description="Our party packages are being refreshed. Reach out and we'll tailor a menu to your celebration."
+              action={{ label: "Contact Us", to: "/contact" }}
+            />
           )}
 
           {!loading && menus.length > 0 && (

@@ -117,7 +117,7 @@ export default function PosterBar() {
             justifyContent: "center",
             flexShrink: 0,
             height: BAR_HEIGHT,
-            px: "10px",
+            px: { xs: "7px", md: "11px" },
             cursor: clickable ? "zoom-in" : "default",
             pointerEvents: clickable ? "auto" : "none",
           }}
@@ -125,15 +125,17 @@ export default function PosterBar() {
           <Box
             sx={{
               position: "relative",
-              height: "calc(100% - 28px)",
-              borderRadius: "6px",
+              height: "calc(100% - 30px)",
+              bgcolor: "#fff",
+              borderRadius: "8px",
               overflow: "hidden",
-              boxShadow: "0 4px 16px rgba(190, 89, 83, 0.08)",
-              border: `1px solid ${palette.warmGray}`,
-              transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease",
+              boxShadow: "0 6px 18px rgba(45,41,38,0.10), 0 1px 3px rgba(45,41,38,0.06)",
+              border: `1px solid rgba(45,41,38,0.06)`,
+              transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease",
               "&:hover": clickable ? {
-                transform: "translateY(-5px) scale(1.04)",
-                boxShadow: `0 10px 24px rgba(190, 89, 83, 0.15), 0 0 0 1.5px ${palette.primary.main}44`,
+                transform: "translateY(-6px) scale(1.045)",
+                borderColor: `${palette.gold}88`,
+                boxShadow: `0 16px 32px rgba(45,41,38,0.16), 0 0 0 1.5px ${palette.gold}66`,
               } : {},
             }}
           >
@@ -183,21 +185,22 @@ export default function PosterBar() {
           overflow: "hidden",
           position: "relative",
           isolation: "isolate",
-          /* Brand-aligned background — matches site cream light sections */
+          /* Warm, on-brand backdrop — terracotta + gold glows on ivory/cream,
+             cohesive with the light premium home (no off-brand green tint). */
           background: `
-            radial-gradient(ellipse at 15% 50%, rgba(190,89,83,0.12) 0%, transparent 60%),
-            radial-gradient(ellipse at 85% 50%, rgba(44,85,48,0.08) 0%, transparent 60%),
-            linear-gradient(180deg, ${palette.cream} 0%, #FAF6F0 50%, ${palette.cream} 100%)
+            radial-gradient(ellipse at 12% 50%, rgba(190,89,83,0.10) 0%, transparent 62%),
+            radial-gradient(ellipse at 88% 50%, rgba(201,169,110,0.12) 0%, transparent 62%),
+            linear-gradient(180deg, #FBF7F1 0%, ${palette.cream} 100%)
           `,
-          /* Gold top + bottom accent lines */
+          /* Refined gold hairlines top + bottom */
           "&::before": {
             content: '""',
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
-            height: "1.5px",
-            background: `linear-gradient(90deg, transparent 0%, ${palette.gold}88 30%, ${palette.gold} 50%, ${palette.gold}88 70%, transparent 100%)`,
+            height: "1px",
+            background: `linear-gradient(90deg, transparent 0%, ${palette.gold}66 25%, ${palette.gold} 50%, ${palette.gold}66 75%, transparent 100%)`,
             zIndex: 3,
             pointerEvents: "none",
           },
@@ -207,8 +210,8 @@ export default function PosterBar() {
             bottom: 0,
             left: 0,
             right: 0,
-            height: "1.5px",
-            background: `linear-gradient(90deg, transparent 0%, ${palette.gold}88 30%, ${palette.gold} 50%, ${palette.gold}88 70%, transparent 100%)`,
+            height: "1px",
+            background: `linear-gradient(90deg, transparent 0%, ${palette.gold}66 25%, ${palette.gold} 50%, ${palette.gold}66 75%, transparent 100%)`,
             zIndex: 3,
             pointerEvents: "none",
           },
@@ -241,56 +244,77 @@ export default function PosterBar() {
             top: 0,
             bottom: 0,
             left: 0,
-            width: { xs: 90, sm: 130, md: 160 },
+            width: { xs: 104, sm: 132, md: 168 },
             zIndex: 4,
             pointerEvents: "none",
-            background: `linear-gradient(to right, ${palette.cream} 0%, ${palette.cream} 38%, transparent 100%)`,
             display: "flex",
             alignItems: "center",
-            pl: { xs: 1.5, md: 2.5 },
+            pl: { xs: 1.75, md: 2.75 },
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-            {/* Live dot */}
-            <Box
-              sx={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                bgcolor: palette.primary.main,
-                animation: `${pulse} 2.2s ease-in-out infinite`,
-              }}
-            />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.85,
+              px: 1.25,
+              py: 1,
+              borderRadius: "10px",
+              bgcolor: "rgba(253,248,244,0.92)",
+              border: `1px solid ${palette.gold}33`,
+              boxShadow: "0 4px 14px rgba(45,41,38,0.10)",
+            }}
+          >
+            {/* Live dot + status word */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  bgcolor: palette.primary.main,
+                  flexShrink: 0,
+                  animation: `${pulse} 2.2s ease-in-out infinite`,
+                }}
+              />
+              <Typography
+                sx={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: { xs: "0.6rem", md: "0.66rem" },
+                  fontWeight: 800,
+                  color: palette.primary.main,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  lineHeight: 1,
+                }}
+              >
+                Now
+              </Typography>
+            </Box>
             <Typography
               sx={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: { xs: "0.52rem", md: "0.62rem" },
-                fontWeight: 700,
-                color: palette.primary.dark,
-                letterSpacing: "0.22em",
+                fontSize: { xs: "0.6rem", md: "0.66rem" },
+                fontWeight: 800,
+                color: palette.primary.main,
+                letterSpacing: "0.2em",
                 textTransform: "uppercase",
-                lineHeight: 1.3,
-                writingMode: "horizontal-tb",
+                lineHeight: 1,
               }}
             >
-              Now<br />Showing
+              Showing
             </Typography>
+            {/* Gold accent underline */}
+            <Box
+              sx={{
+                width: 26,
+                height: "2px",
+                borderRadius: "2px",
+                background: `linear-gradient(90deg, ${palette.gold}, ${palette.gold}55)`,
+              }}
+            />
           </Box>
         </Box>
-
-        {/* Right fade */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            right: 0,
-            width: { xs: 64, md: 100 },
-            zIndex: 4,
-            pointerEvents: "none",
-            background: `linear-gradient(to left, ${palette.cream} 0%, transparent 100%)`,
-          }}
-        />
 
         {/* Hidden measurement row */}
         <Box
@@ -316,7 +340,7 @@ export default function PosterBar() {
             width: "max-content",
             willChange: "transform",
             userSelect: "none",
-            pl: { xs: "90px", sm: "130px", md: "160px" },
+            pl: { xs: "104px", sm: "132px", md: "168px" },
           }}
         >
           {posterItems(repeatedPosters, "track", true)}

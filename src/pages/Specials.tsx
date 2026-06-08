@@ -256,6 +256,34 @@ export default function Specials() {
     }, 650);
   };
 
+  // Keyboard navigation (a11y): ←/→ rotate dishes, ↑/↓ switch categories.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault();
+          navigateItem("prev");
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          navigateItem("next");
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          navigateCategory("prev");
+          break;
+        case "ArrowDown":
+          e.preventDefault();
+          navigateCategory("next");
+          break;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigateItem, navigateCategory]);
+
   // Derive roles within the current active category (3 items total)
   const getRole = (index: number) => {
     if (index === activeItemIndex) return 'center';
@@ -459,16 +487,42 @@ export default function Specials() {
         </div>
 
         {/* Carousel Layer */}
-        <div className="absolute inset-0 z-3">
+        <div
+          className="absolute inset-0 z-3"
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="Daily specials — use the left and right arrow keys to browse dishes, up and down to change category"
+        >
           {SPECIALS_DATA[CATEGORIES[activeCategoryIndex].id].map((item, i) => {
             const role = getRole(i);
             const style = getRoleStyles(role);
             if (role === 'hidden') return null;
 
+            const isSide = role === 'left' || role === 'right';
+            // Conditionally spread interactive a11y props only onto the
+            // clickable side cards (keeps the center/back cards inert).
+            const interactiveProps = isSide
+              ? {
+                  role: 'button' as const,
+                  tabIndex: 0,
+                  'aria-label':
+                    role === 'left'
+                      ? `Previous dish: ${item.title}`
+                      : `Next dish: ${item.title}`,
+                  onKeyDown: (e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigateItem(role === 'left' ? 'prev' : 'next');
+                    }
+                  },
+                }
+              : {};
+
             return (
               <div
                 key={item.title}
                 className="absolute"
+                {...interactiveProps}
                 onClick={() => {
                   if (role === 'left') navigateItem('prev');
                   if (role === 'right') navigateItem('next');

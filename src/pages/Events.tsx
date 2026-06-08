@@ -11,11 +11,11 @@ import {
   Tabs,
   Tab,
   Stack,
-  CircularProgress,
   Alert,
 } from "@mui/material";
+import EventBusyOutlinedIcon from "@mui/icons-material/EventBusyOutlined";
 import { Link as RouterLink } from "react-router-dom";
-import { PageHero } from "../components";
+import { PageHero, CardGridSkeleton, EmptyState } from "../components";
 import { palette } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
 import { fetchEvents, type ApiEvent } from "../services/api";
@@ -143,11 +143,7 @@ export default function Events() {
 
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: palette.background.default }}>
         <Container>
-          {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-              <CircularProgress color="primary" />
-            </Box>
-          )}
+          {loading && <CardGridSkeleton count={6} columns={{ xs: 12, sm: 6, md: 4 }} imageHeight={200} />}
 
           {error && (
             <Alert severity="error" sx={{ mb: 4 }}>
@@ -317,14 +313,12 @@ export default function Events() {
               </Grid>
 
               {filtered.length === 0 && !loading && (
-                <Box sx={{ textAlign: "center", py: 6 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{ color: palette.text.secondary }}
-                  >
-                    No events in this category right now. Check back soon!
-                  </Typography>
-                </Box>
+                <EmptyState
+                  icon={<EventBusyOutlinedIcon />}
+                  title="No events here just yet"
+                  description="There's nothing scheduled in this category right now — check back soon, or get in touch about hosting your own."
+                  action={{ label: "Plan a Private Event", to: "/contact" }}
+                />
               )}
             </>
           )}
