@@ -286,7 +286,7 @@ img {
 
 /* Spotlight dimming (dims non-hovered cards when user hovers over grid) */
 .gallery-grid:hover .gallery-item-animated {
-  opacity: 0.4;
+  opacity: 0.68;
 }
 
 .gallery-grid .gallery-item-animated:hover {

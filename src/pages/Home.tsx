@@ -85,7 +85,7 @@ const NAV_TILE_DEFAULTS: Record<string, string> = {
   nav_family_meals: "/restaurant/family-meal-takeout.jpeg",
   nav_party_menus: "/restaurant/catering-dessert-display.jpeg",
   nav_events: "/restaurant/menu-spread.jpeg",
-  nav_gallery: "/restaurant/seafood-linguine.jpeg",
+  nav_gallery: "/restaurant/menu-spread.jpeg",
   nav_contact: "/restaurant/antipasto-platter.jpeg",
 };
 
@@ -1720,10 +1720,10 @@ export default function Home() {
             {(galleryImages.length > 0
               ? galleryImages
               : [
-                "/orrdos/exterior-building.jpg",
-                "/orrdos/interior-upstairs.jpg",
-                "/orrdos/interior-booths.jpg",
-                "/orrdos/exterior-patio.jpg",
+                "/orrdos/interior-wide.jpg",
+                "/restaurant/menu-spread.jpeg",
+                "/orrdos/interior-main-dining.jpg",
+                "/restaurant/chef-pizza-oven.jpeg",
               ]
             ).map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>

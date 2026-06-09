@@ -15,6 +15,7 @@ interface PageHeroProps {
   overlay?: number;
   parallax?: boolean;
   kenBurns?: boolean;
+  titleSx?: object;
 }
 
 export default function PageHero({
@@ -27,6 +28,7 @@ export default function PageHero({
   overlay = 0.55,
   parallax = false,
   kenBurns = false,
+  titleSx = {},
 }: PageHeroProps) {
   const reducedMotion = useReducedMotion();
   // Determine if we use the dual-layer background (for parallax/Ken Burns) or single-layer
@@ -102,6 +104,7 @@ export default function PageHero({
             fontSize: { xs: "2.1rem", sm: "2.6rem", md: "3.1rem", lg: "3.9rem" },
             textShadow: "0 2px 20px rgba(0,0,0,0.35)",
             letterSpacing: "-0.005em",
+            ...titleSx,
           }}
         >
           {formatAmpersand(title)}

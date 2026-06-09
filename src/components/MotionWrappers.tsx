@@ -716,7 +716,7 @@ export function ShatterPortalOverlay({
     >
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.78, 1] }}
+        animate={{ opacity: [0, 0.75, 1] }}
         transition={{
           duration: 1.15,
           delay: 0.35,
@@ -726,9 +726,9 @@ export function ShatterPortalOverlay({
         style={{
           position: "absolute",
           inset: 0,
-          background: "rgba(255, 255, 255, 0.28)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
+          background: "rgba(6, 5, 4, 0.75)",
+          backdropFilter: "blur(32px)",
+          WebkitBackdropFilter: "blur(32px)",
           zIndex: 1,
         }}
       />
@@ -799,9 +799,9 @@ export function ShatterPortalOverlay({
               position: "absolute",
               inset: -24,
               borderRadius: "50%",
-              border: "1.5px solid rgba(255, 255, 255, 0.45)",
-              background: "rgba(255, 255, 255, 0.04)",
-              boxShadow: "0 0 40px rgba(255, 255, 255, 0.1)",
+              border: "1.5px solid rgba(201, 169, 110, 0.3)",
+              background: "rgba(12, 10, 9, 0.06)",
+              boxShadow: "0 0 40px rgba(190, 89, 83, 0.15)",
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
@@ -813,9 +813,9 @@ export function ShatterPortalOverlay({
               position: "absolute",
               inset: 0,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 35%, rgba(255, 255, 255, 0.03) 65%, rgba(255, 255, 255, 0.25) 100%)",
-              border: "3.5px solid rgba(255, 255, 255, 0.7)",
-              boxShadow: "0 0 160px rgba(255, 255, 255, 0.45), inset 0 0 80px rgba(255, 255, 255, 0.3)",
+              background: "linear-gradient(135deg, rgba(201, 169, 110, 0.12) 0%, rgba(6, 5, 4, 0.75) 35%, rgba(6, 5, 4, 0.88) 65%, rgba(190, 89, 83, 0.1) 100%)",
+              border: "3.5px solid rgba(201, 169, 110, 0.4)",
+              boxShadow: "0 0 120px rgba(190, 89, 83, 0.25), inset 0 0 60px rgba(12, 10, 9, 0.5)",
               backdropFilter: "blur(35px)",
               WebkitBackdropFilter: "blur(35px)",
             }}
@@ -827,7 +827,7 @@ export function ShatterPortalOverlay({
               position: "absolute",
               inset: 0,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%)",
+              background: "linear-gradient(135deg, rgba(201, 169, 110, 0.1) 0%, transparent 50%)",
               pointerEvents: "none",
             }}
           />
