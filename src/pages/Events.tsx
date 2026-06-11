@@ -280,18 +280,18 @@ export default function Events() {
               mt: 10,
               py: { xs: 6, md: 8 },
               px: { xs: 4, md: 6 },
-              background: "linear-gradient(135deg, #2D2926 0%, #1A1816 100%)", // Rich solid charcoal gradient
-              border: `1px solid rgba(201, 169, 110, 0.15)`, // Accent gold border
+              background: "linear-gradient(135deg, #FAF0ED 0%, #FFFDFD 50%, #FAF0ED 100%)", // Premium light blush gradient
+              border: `1px solid rgba(190, 89, 83, 0.12)`, // Subtle brand red border
               borderRadius: "16px",
               textAlign: "center",
-              color: "#fff",
+              color: palette.charcoal,
               position: "relative",
               overflow: "hidden",
-              boxShadow: "0 24px 64px rgba(0,0,0,0.35)",
+              boxShadow: "0 20px 48px rgba(190, 89, 83, 0.08)",
             }}
           >
-            {/* Soft subtle glowing orbs, opacity lowered to 0.12 */}
-            <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.12} blur={80} />
+            {/* Soft subtle glowing orbs, opacity lowered to 0.06 for light theme */}
+            <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
 
             <Box sx={{ position: "relative", zIndex: 2 }}>
               <Typography
@@ -301,17 +301,17 @@ export default function Events() {
                   mb: 2,
                   fontSize: { xs: "1.8rem", md: "2.5rem" },
                   fontFamily: fonts.display,
-                  color: "#fff",
+                  color: palette.primary.dark,
                   letterSpacing: "-0.01em",
                 }}
               >
-                <SplitWordReveal text="Planning a Private Event?" delay={0.05} stagger={0.06} style={{ color: "#fff" }} />
+                <SplitWordReveal text="Planning a Private Event?" delay={0.05} stagger={0.06} style={{ color: palette.primary.dark }} />
               </Typography>
               
               <Typography
                 variant="body1"
                 sx={{
-                  color: "rgba(255, 255, 255, 0.8)",
+                  color: palette.text.secondary,
                   mb: 4,
                   maxWidth: 600,
                   mx: "auto",
@@ -341,12 +341,12 @@ export default function Events() {
                     sx={{
                       px: 2,
                       py: 0.75,
-                      bgcolor: "rgba(255, 255, 255, 0.04)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      bgcolor: "rgba(190, 89, 83, 0.04)",
+                      border: "1px solid rgba(190, 89, 83, 0.12)",
                       borderRadius: "6px",
                       fontSize: "0.75rem",
                       fontWeight: 600,
-                      color: palette.gold,
+                      color: palette.primary.main,
                       letterSpacing: "0.05em",
                       textTransform: "uppercase",
                     }}
@@ -376,10 +376,10 @@ export default function Events() {
                       py: 1.6,
                       borderRadius: "8px",
                       textTransform: "none",
-                      boxShadow: `0 8px 20px rgba(190, 89, 83, 0.3)`,
+                      boxShadow: `0 6px 16px rgba(190, 89, 83, 0.2)`,
                       "&:hover": {
                         bgcolor: palette.primary.dark,
-                        boxShadow: `0 12px 28px rgba(190, 89, 83, 0.4)`,
+                        boxShadow: `0 10px 24px rgba(190, 89, 83, 0.3)`,
                       },
                     }}
                   >
@@ -394,16 +394,16 @@ export default function Events() {
                     to="/contact"
                     size="large"
                     sx={{
-                      borderColor: "rgba(255, 255, 255, 0.3)",
-                      color: "#fff",
+                      borderColor: "rgba(190, 89, 83, 0.3)",
+                      color: palette.primary.main,
                       fontWeight: 600,
                       px: 4,
                       py: 1.6,
                       borderRadius: "8px",
                       textTransform: "none",
                       "&:hover": {
-                        borderColor: "#fff",
-                        bgcolor: "rgba(255, 255, 255, 0.05)",
+                        borderColor: palette.primary.dark,
+                        bgcolor: "rgba(190, 89, 83, 0.04)",
                       },
                     }}
                   >

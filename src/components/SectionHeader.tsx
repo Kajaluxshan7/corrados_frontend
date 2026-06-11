@@ -32,17 +32,32 @@ export default function SectionHeader({
         }}
       >
         {subtitle && (
-          <Typography
-            variant="subtitle2"
-            sx={{
-              color: light ? palette.gold : palette.primary.main,
-              mb: 1,
-              fontSize: "0.8rem",
-              letterSpacing: "0.15em",
-            }}
-          >
-            {formatAmpersand(subtitle)}
-          </Typography>
+          <>
+            <Box
+              sx={{
+                color: palette.gold,
+                fontSize: "1.4rem",
+                mb: 0.8,
+                display: "flex",
+                justifyContent: align === "center" ? "center" : "flex-start",
+                lineHeight: 1,
+              }}
+            >
+              ⚜
+            </Box>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                color: light ? palette.gold : palette.primary.main,
+                mb: 1,
+                fontSize: "0.8rem",
+                letterSpacing: "0.15em",
+                fontWeight: 700,
+              }}
+            >
+              {formatAmpersand(subtitle)}
+            </Typography>
+          </>
         )}
         <Typography
           component="div"

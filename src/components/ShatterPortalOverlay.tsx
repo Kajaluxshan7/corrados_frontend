@@ -125,21 +125,37 @@ export default function ShatterPortalOverlay({
       }}
     >
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.78, 1] }}
+        initial={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
+        animate={{ opacity: 1, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
         transition={{
-          duration: 1.15,
-          delay: 0.35,
-          times: [0, 0.5, 1],
-          ease: "easeInOut" as const,
+          duration: 0.8,
+          ease: "easeOut",
         }}
         style={{
           position: "absolute",
           inset: 0,
-          background: "rgba(255, 255, 255, 0.28)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
+          background: "rgba(12, 10, 9, 0.5)",
           zIndex: 1,
+        }}
+      />
+
+      {/* Cinematic Full-screen Lens Flare Flash Shockwave */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.75,
+          delay: 0.35,
+          times: [0, 0.2, 1],
+          ease: "easeOut",
+        }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(circle at center, #ffffff 0%, rgba(255, 255, 255, 0.95) 25%, rgba(201, 169, 110, 0.35) 60%, transparent 100%)",
+          mixBlendMode: "screen",
+          zIndex: 14,
+          pointerEvents: "none",
         }}
       />
 
@@ -174,6 +190,30 @@ export default function ShatterPortalOverlay({
           overflow: "visible",
         }}
       >
+        {/* Central Expanding Light Ring Shockwave */}
+        <motion.div
+          initial={{ scale: 0.1, opacity: 1 }}
+          animate={{ scale: 4.5, opacity: 0 }}
+          transition={{
+            duration: 0.95,
+            delay: 0,
+            ease: [0.1, 0.8, 0.1, 1],
+          }}
+          style={{
+            position: "absolute",
+            left: rect.width / 2,
+            top: rect.height / 2,
+            width: 500,
+            height: 500,
+            marginLeft: -250,
+            marginTop: -250,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, #ffffff 0%, #C9A96E 30%, rgba(201, 169, 110, 0.6) 55%, rgba(201, 169, 110, 0) 80%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+
         <motion.div
           initial={{ scale: 0, opacity: 0, rotate: 0 }}
           animate={{
@@ -359,9 +399,9 @@ export default function ShatterPortalOverlay({
                   style={{
                     position: "absolute",
                     inset: 12,
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    border: "1px solid rgba(201, 169, 110, 0.6)", // Fine gold accent outline
                     borderRadius: "6px",
-                    opacity: 0.45,
+                    opacity: 0.6,
                   }}
                 />
                 <div

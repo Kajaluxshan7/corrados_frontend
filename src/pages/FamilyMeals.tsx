@@ -1046,23 +1046,24 @@ export default function FamilyMeals() {
                 mt: 8,
                 py: 6,
                 px: 4,
-                bgcolor: palette.charcoal,
-                color: '#fff',
+                background: 'linear-gradient(135deg, #FAF0ED 0%, #FFFDFD 50%, #FAF0ED 100%)', // Premium light blush gradient
+                border: '1px solid rgba(190, 89, 83, 0.12)', // Delicate brand red border
+                color: palette.charcoal,
                 borderRadius: '20px',
                 textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden',
-                boxShadow: '0 16px 36px rgba(45, 41, 38, 0.15)',
+                boxShadow: '0 20px 48px rgba(190, 89, 83, 0.08)',
               }}
             >
-              <FloatingOrbs colors={['#BE5953', '#2C5530', '#C9A96E']} count={2} opacity={0.25} blur={90} />
+              <FloatingOrbs colors={['#BE5953', '#2C5530', '#C9A96E']} count={2} opacity={0.06} blur={90} />
               <GrainOverlay opacity={0.05} />
               
               <Box sx={{ position: 'relative', zIndex: 2 }}>
                 <Typography
                   variant="overline"
                   sx={{
-                    color: palette.gold,
+                    color: palette.primary.main,
                     fontFamily: fonts.display,
                     fontWeight: 800,
                     letterSpacing: '0.15em',
@@ -1079,7 +1080,7 @@ export default function FamilyMeals() {
                     fontFamily: fonts.display,
                     fontWeight: 900,
                     fontSize: { xs: '1.75rem', md: '2.4rem' },
-                    color: '#fff',
+                    color: palette.primary.dark,
                     mb: 2,
                   }}
                 >
@@ -1088,7 +1089,7 @@ export default function FamilyMeals() {
                 <Typography
                   variant="body1"
                   sx={{
-                    color: 'rgba(255,255,255,0.75)',
+                    color: palette.text.secondary,
                     fontFamily: fonts.body,
                     fontSize: '0.95rem',
                     mb: 4,
@@ -1117,8 +1118,10 @@ export default function FamilyMeals() {
                       py: 1.5,
                       borderRadius: '8px',
                       width: { xs: '100%', sm: 'auto' },
+                      boxShadow: `0 6px 16px rgba(190, 89, 83, 0.2)`,
                       '&:hover': {
                         bgcolor: palette.primary.dark,
+                        boxShadow: `0 10px 24px rgba(190, 89, 83, 0.3)`,
                       },
                     }}
                   >
@@ -1130,8 +1133,8 @@ export default function FamilyMeals() {
                     href={`tel:${businessInfo.phone}`}
                     id="call-cta-main"
                     sx={{
-                      borderColor: 'rgba(255,255,255,0.4)',
-                      color: '#fff',
+                      borderColor: 'rgba(190, 89, 83, 0.3)',
+                      color: palette.primary.main,
                       fontWeight: 700,
                       textTransform: 'none',
                       px: 5,
@@ -1139,8 +1142,8 @@ export default function FamilyMeals() {
                       borderRadius: '8px',
                       width: { xs: '100%', sm: 'auto' },
                       '&:hover': {
-                        borderColor: '#fff',
-                        bgcolor: 'rgba(255,255,255,0.08)',
+                        borderColor: palette.primary.dark,
+                        bgcolor: 'rgba(190, 89, 83, 0.04)',
                       },
                     }}
                   >

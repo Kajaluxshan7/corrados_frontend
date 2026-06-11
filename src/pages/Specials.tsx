@@ -1,44 +1,52 @@
 import { useState, useEffect, useCallback } from "react";
-import { Box, Container, Typography, Button } from "@mui/material";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { businessInfo } from "../data";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { PageHero } from "../components";
+import { useSiteImages } from "../hooks/useSiteImages";
+import { palette } from "../theme";
 
 // Data
 const CATEGORIES = [
   {
     id: 'Daily',
     bg: '#8E3830', // Terracotta Dark
+    bgLight: palette.background.default, // Warm ivory from events/contact theme
     panel: '#A6463C',
     description: 'Fresh handmade pasta, rich marinara sauces, and traditional chef-crafted comfort food prepared daily.',
   },
   {
     id: 'Everyday',
     bg: '#A3463E', // Warm Clay Red
+    bgLight: palette.background.default, // Warm ivory from events/contact theme
     panel: '#B8554D',
     description: 'Our signature wood-fired stone oven pizzas, prepared fresh every day keeping old-world Italian traditions alive.',
   },
   {
     id: 'Weekend',
     bg: '#722F37', // Deep Wine Red
+    bgLight: palette.background.default, // Warm ivory from events/contact theme
     panel: '#8F3F4A',
     description: 'Premium weekend dinner selections featuring fresh coastal catch and slow-simmered regional seafood specialties.',
   },
   {
     id: 'Game Time',
     bg: '#A25330', // Burnt Copper / Rust Orange
+    bgLight: palette.background.default, // Warm ivory from events/contact theme
     panel: '#B96A47',
     description: 'Perfect shareable platters, stone-baked pizzas, and savory appetizers designed to elevate your game day experience.',
   },
   {
     id: 'Daytime',
     bg: '#AE544E', // Dusty Terracotta Red
+    bgLight: palette.background.default, // Warm ivory from events/contact theme
     panel: '#C66962',
     description: 'Light, satisfying lunch features and mid-day combinations crafted for active afternoons.',
   },
   {
     id: "Chef's Special",
     bg: '#631C24', // Deep Black-Cherry Wine Red
+    bgLight: palette.background.default, // Warm ivory from events/contact theme
     panel: '#7B2E37',
     description: 'Exclusive culinary creations, fine wine pairings, and hand-crafted seasonal masterworks directly from our head chef.',
   },
@@ -197,6 +205,8 @@ export default function Specials() {
     description: "Don't miss Corrado's rotating daily specials — chef's features, game-time deals, daytime offers, and seasonal highlights. Great Italian food at even better prices, every day of the week.",
     ogImage: "/restaurant/ravioli-mushroom-spinach.jpeg",
   });
+
+  const { getImage } = useSiteImages();
 
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
@@ -412,12 +422,31 @@ export default function Specials() {
   };
 
   return (
-    <div className="w-full flex flex-col bg-stone-950">
-      {/* 1. Specials Showcase Hero Section */}
-      <div
+    <>
+      <PageHero
+        title="Our Specials"
+        subtitle="Rotating daily features, stone-baked oven pizzas, and signature creations from our chef."
+        backgroundImage={getImage(
+          "hero_specials",
+          "/restaurant/specials-hero-light.png"
+        )}
+        kenBurns
+        parallax
+        overlay={0.3}
+        titleSx={{
+          background: "linear-gradient(135deg, #FFF 0%, #D4AF37 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          filter: "drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.35))",
+        }}
+      />
+
+      <div className="w-full flex flex-col" style={{ backgroundColor: palette.background.default }}>
+        {/* 1. Specials Showcase Hero Section */}
+        <div
         className="relative w-full h-[calc(100vh-64px)] lg:h-[calc(100vh-100px)] overflow-hidden transition-all duration-[650ms] cubic-bezier(0.4,0,0.2,1)"
         style={{
-          backgroundColor: CATEGORIES[activeCategoryIndex].bg,
+          backgroundColor: CATEGORIES[activeCategoryIndex].bgLight,
           fontFamily: "'Inter', sans-serif",
         }}
       >
@@ -425,8 +454,7 @@ export default function Specials() {
         <div
           className="absolute inset-x-0 top-0 h-24 pointer-events-none z-10"
           style={{
-            background: `linear-gradient(to bottom, #BE5953 0%, rgba(190, 89, 83, 0) 100%)`,
-            opacity: 0.75,
+            background: `linear-gradient(to bottom, rgba(45, 41, 38, 0.05) 0%, rgba(45, 41, 38, 0) 100%)`,
           }}
         />
 
@@ -446,9 +474,9 @@ export default function Specials() {
           style={{
             top: '11%',
             fontFamily: "'Inter', sans-serif",
-            fontSize: 'clamp(50px, 12vw, 180px)',
-            color: 'white',
-            opacity: 0.07,
+            fontSize: 'clamp(32px, 9vw, 140px)',
+            color: CATEGORIES[activeCategoryIndex].bg,
+            opacity: 0.08,
             letterSpacing: '0.04em',
             whiteSpace: 'nowrap',
             lineHeight: 1,
@@ -471,13 +499,19 @@ export default function Specials() {
                 {/* Visual Line Indicator */}
                 <span
                   className={`h-[2px] transition-all duration-500 ${
-                    isActive ? 'w-10 bg-[#C9A96E]' : 'w-4 bg-white/20 group-hover:w-8 group-hover:bg-white/50'
+                    isActive 
+                      ? 'w-10' 
+                      : 'w-4 bg-[#2D2926]/30 group-hover:w-8 group-hover:bg-[#2D2926]/60'
                   }`}
+                  style={isActive ? { backgroundColor: CATEGORIES[activeCategoryIndex].bg } : {}}
                 />
                 <span
                   className={`text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300 ${
-                    isActive ? 'text-white scale-105' : 'text-white/40 group-hover:text-white/85'
+                    isActive 
+                      ? 'scale-105' 
+                      : 'text-[#2D2926]/60 group-hover:text-[#2D2926]/90'
                   }`}
+                  style={isActive ? { color: CATEGORIES[activeCategoryIndex].bg } : {}}
                 >
                   {cat.id}
                 </span>
@@ -594,7 +628,7 @@ export default function Specials() {
         </div>
 
         {/* Bottom Left Content */}
-        <div className="absolute bottom-4 sm:bottom-8 lg:bottom-12 left-1/2 lg:left-16 -translate-x-1/2 lg:translate-x-0 w-[90vw] lg:w-auto max-w-[420px] z-30 text-center lg:text-left flex flex-col items-center lg:items-start text-white">
+        <div className="absolute bottom-4 sm:bottom-8 lg:bottom-12 left-1/2 lg:left-16 -translate-x-1/2 lg:translate-x-0 w-[90vw] lg:w-auto max-w-[420px] z-30 text-center lg:text-left flex flex-col items-center lg:items-start text-[#2D2926]">
           {/* Mobile/Tablet Category Tabs */}
           <div className="lg:hidden flex items-center justify-center gap-4 overflow-x-auto scrollbar-none py-1 mb-3 max-w-full w-full">
             {CATEGORIES.map((cat, idx) => {
@@ -605,8 +639,9 @@ export default function Specials() {
                   disabled={isAnimating}
                   onClick={() => handleTabClick(idx)}
                   className={`relative whitespace-nowrap pb-1 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer ${
-                    isActive ? 'text-white' : 'text-white/40 hover:text-white/70'
+                    isActive ? '' : 'text-[#2D2926]/60 hover:text-[#2D2926]/85'
                   }`}
+                  style={isActive ? { color: CATEGORIES[activeCategoryIndex].bg } : {}}
                 >
                   {cat.id}
                   <span
@@ -614,7 +649,7 @@ export default function Specials() {
                       isActive ? 'scale-x-100' : 'scale-x-0'
                     }`}
                     style={{
-                      backgroundColor: '#C9A96E', // Gold indicator line
+                      backgroundColor: CATEGORIES[activeCategoryIndex].bg,
                     }}
                   />
                 </button>
@@ -622,11 +657,14 @@ export default function Specials() {
             })}
           </div>
 
-          <span className="hidden lg:block text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#C9A96E]">
+          <span 
+            className="hidden lg:block text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]"
+            style={{ color: CATEGORIES[activeCategoryIndex].bg }}
+          >
             {getCategoryLabel(CATEGORIES[activeCategoryIndex].id)}
           </span>
           <div className="h-3 sm:h-4" /> {/* Spacer for proper gap between heading/tabs and description */}
-          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-white leading-relaxed font-semibold tracking-wide max-w-[340px] sm:max-w-[420px]">
+          <p className="text-[11px] sm:text-xs md:text-sm lg:text-base text-[#2D2926] leading-relaxed font-semibold tracking-wide max-w-[340px] sm:max-w-[420px]">
             “{CATEGORIES[activeCategoryIndex].description}”
           </p>
           <div className="h-3 lg:h-7" /> {/* Spacer for proper gap above arrows */}
@@ -637,7 +675,19 @@ export default function Specials() {
               type="button"
               onClick={() => navigateCategory('prev')}
               aria-label="Previous category"
-              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
+              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 hover:scale-[1.08] transition-all duration-200 cursor-pointer"
+              style={{
+                borderColor: `${CATEGORIES[activeCategoryIndex].bg}50`,
+                color: CATEGORIES[activeCategoryIndex].bg,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = CATEGORIES[activeCategoryIndex].bg;
+                e.currentTarget.style.backgroundColor = `${CATEGORIES[activeCategoryIndex].bg}10`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = `${CATEGORIES[activeCategoryIndex].bg}50`;
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
                <ArrowLeft className="w-4 h-4 sm:w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.25} />
             </button>
@@ -645,7 +695,19 @@ export default function Specials() {
               type="button"
               onClick={() => navigateCategory('next')}
               aria-label="Next category"
-              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 border-white/40 text-white hover:scale-[1.08] hover:border-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-200 cursor-pointer"
+              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 flex items-center justify-center rounded-full bg-transparent border-2 hover:scale-[1.08] transition-all duration-200 cursor-pointer"
+              style={{
+                borderColor: `${CATEGORIES[activeCategoryIndex].bg}50`,
+                color: CATEGORIES[activeCategoryIndex].bg,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = CATEGORIES[activeCategoryIndex].bg;
+                e.currentTarget.style.backgroundColor = `${CATEGORIES[activeCategoryIndex].bg}10`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = `${CATEGORIES[activeCategoryIndex].bg}50`;
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               <ArrowRight className="w-4 h-4 sm:w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.25} />
             </button>
@@ -658,12 +720,13 @@ export default function Specials() {
             href={businessInfo.orderUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-white opacity-70 hover:opacity-100 hover:scale-[1.02] active:scale-98 transition-all duration-300 uppercase tracking-tight no-underline"
+            className="flex items-center gap-2 opacity-85 hover:opacity-100 hover:scale-[1.02] active:scale-98 transition-all duration-300 uppercase tracking-tight no-underline"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: 'clamp(20px, 3.5vw, 52px)',
-              fontWeight: 400,
+              fontWeight: 600,
               lineHeight: 1,
+              color: CATEGORIES[activeCategoryIndex].bg,
             }}
           >
             ORDER NOW
@@ -671,65 +734,7 @@ export default function Specials() {
           </a>
         </div>
       </div>
-
-      {/* 2. Don't Miss Out Callout Block */}
-      <Box
-        sx={{
-          bgcolor: "#FAF8F5", // Creamy off-white
-          py: { xs: 8, md: 10 },
-          px: 3,
-        }}
-      >
-        <Container maxWidth="md">
-          <div className="text-center max-w-xl mx-auto flex flex-col items-center gap-3">
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 800,
-                color: "#1c1917", // warm charcoal
-                fontSize: { xs: "1.75rem", md: "2.5rem" },
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Ready to Taste the Best?
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{
-                color: "#57534e", // muted warm slate
-                fontSize: { xs: "0.95rem", md: "1.1rem" },
-                lineHeight: 1.6,
-                mb: 2,
-              }}
-            >
-              Our chef's specialties and game-day platters are available for dine-in, fast pickup, and door-to-door delivery. Order online now to secure your table or meal.
-            </Typography>
-            <Button
-              variant="contained"
-              href={businessInfo.orderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                bgcolor: "#BE5953", // brand terracotta red
-                color: "#fff",
-                fontWeight: 700,
-                px: 5,
-                py: 1.75,
-                borderRadius: 999,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                boxShadow: "0 10px 25px -5px rgba(190, 89, 83, 0.4)",
-                "&:hover": {
-                  bgcolor: "#8E3830", // brand terracotta dark
-                  boxShadow: "0 12px 30px -5px rgba(190, 89, 83, 0.5)",
-                },
-              }}
-            >
-              Order Online Now
-            </Button>
-          </div>
-        </Container>
-      </Box>
     </div>
+    </>
   );
 }

@@ -37,20 +37,19 @@ import ShopIcon from "@mui/icons-material/Shop";
 import {
   SectionHeader,
   NewsletterSignup,
-  BlurText,
   TiltCard,
   ParallaxImage,
   SpotlightCard,
   InfiniteMarquee,
   ScrollRotate3D,
-  TextReveal,
   Magnet,
-  CinematicReveal,
   MouseMoveSpotlight,
+  FloatingOrbs,
+  GrainOverlay,
 } from "../components";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { testimonials } from "../data";
-import { palette } from "../theme";
+import { palette, fonts } from "../theme";
 import { formatAmpersand } from "../utils/formatAmpersand";
 import {
   fetchSpecials,
@@ -281,31 +280,60 @@ function formatEventDateRange(start: string): string {
   return `${dateStr} · ${timeStr}`;
 }
 
-const bentoContainerVariants = {
+const floatUp = keyframes`
+  0% { transform: translateY(0px) translateZ(40px); }
+  50% { transform: translateY(-12px) translateZ(40px); }
+  100% { transform: translateY(0px) translateZ(40px); }
+`;
+
+const floatDown = keyframes`
+  0% { transform: translateY(0px) translateZ(60px); }
+  50% { transform: translateY(10px) translateZ(60px); }
+  100% { transform: translateY(0px) translateZ(60px); }
+`;
+
+const fadeInUpVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1] as const,
+      delay: i * 0.08,
+    },
+  }),
+};
+
+const bentoContainerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
+      staggerChildren: 0.05,
+      delayChildren: 0.08,
     },
   },
 };
 
-const bentoTileVariants = {
+const bentoTileVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 35,
-    scale: 0.96,
-    filter: "blur(6px) saturate(0.8)",
+    y: 60,
+    scale: 0.92,
+    rotateX: 15,
+    filter: "blur(8px) saturate(0.6) brightness(0.7)",
   },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    filter: "blur(0px) saturate(1)",
+    rotateX: 0,
+    filter: "blur(0px) saturate(1) brightness(1)",
     transition: {
-      duration: 0.85,
-      ease: [0.19, 1, 0.22, 1] as const,
+      type: "spring" as const,
+      stiffness: 90,
+      damping: 18,
+      mass: 0.8,
     },
   },
 };
@@ -967,17 +995,18 @@ export default function Home() {
                     borderRadius: "16px",
                     height: "100%",
                     transformStyle: "preserve-3d",
-                    bgcolor: "#161413",
-                    border: "1px solid rgba(45,41,38,0.08)",
-                    boxShadow: "0 8px 28px rgba(45,41,38,0.16), 0 2px 8px rgba(45,41,38,0.10)",
+                    bgcolor: "rgba(22, 20, 19, 0.95)",
+                    backdropFilter: "blur(8px)",
+                    border: "1px solid rgba(201, 169, 110, 0.16)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
                     transition: "box-shadow 0.5s ease, border-color 0.5s ease, transform 0.5s ease",
                     "&:focus-visible": {
                       outline: `2px solid #C9A96E`,
                       outlineOffset: 4,
                     },
                     "&:hover, &:focus-visible": {
-                      borderColor: "rgba(201,169,110,0.55)",
-                      boxShadow: "0 24px 56px rgba(45,41,38,0.22), 0 0 0 1px rgba(201,169,110,0.45)",
+                      borderColor: "rgba(201, 169, 110, 0.65)",
+                      boxShadow: "0 24px 56px rgba(190, 89, 83, 0.18), 0 0 0 1px rgba(201, 169, 110, 0.55)",
                     },
                     "&:hover .tile-img, &:focus-visible .tile-img": {
                       "--tile-scale": "1.12",
@@ -991,8 +1020,8 @@ export default function Home() {
                       color: palette.gold,
                     },
                     "&:hover .tile-badge, &:focus-visible .tile-badge": {
-                      bgcolor: "rgba(201,169,110,0.18)",
-                      borderColor: "rgba(201,169,110,0.45)",
+                      bgcolor: "rgba(201, 169, 110, 0.22)",
+                      borderColor: "rgba(201, 169, 110, 0.6)",
                       color: palette.gold,
                     },
                   }}
@@ -1028,12 +1057,30 @@ export default function Home() {
                     sx={{
                       position: "absolute",
                       inset: 0,
-                      zIndex: 3,
+                      zIndex: 2.5,
                       opacity: 0.18,
                       backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E")`,
                       backgroundSize: "200px 200px",
                       backgroundRepeat: "repeat",
                       pointerEvents: "none",
+                    }}
+                  />
+                  {/* Subtle hover/active overlay highlight for depth */}
+                  <Box
+                    className="tile-highlight"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      zIndex: 3,
+                      borderRadius: "16px",
+                      border: "1px solid transparent",
+                      background: "linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 50%)",
+                      opacity: 0,
+                      transition: "opacity 0.5s ease, border-color 0.5s ease",
+                      ".cinematic-tile:hover &": {
+                        opacity: 1,
+                        borderColor: "rgba(201, 169, 110, 0.25)",
+                      }
                     }}
                   />
                   {/* Gold sheen sweep */}
@@ -1066,23 +1113,25 @@ export default function Home() {
                       gap: 0.75,
                     }}
                   >
-                    {/* Gold pill badge — matches Specials card badge */}
+                    {/* Gold pill badge — Floating glass capsule */}
                     <Box
                       className="tile-badge"
                       sx={{
                         display: "inline-flex",
                         width: "fit-content",
-                        px: 1.25,
-                        py: 0.3,
+                        px: 1.5,
+                        py: 0.5,
                         borderRadius: "999px",
-                        border: "1px solid rgba(201,169,110,0.25)",
-                        bgcolor: "rgba(201,169,110,0.10)",
-                        transition: "bgcolor 0.3s ease, borderColor 0.3s ease, color 0.3s ease",
+                        border: "1px solid rgba(255, 255, 255, 0.25)",
+                        bgcolor: "rgba(255, 255, 255, 0.08)",
+                        backdropFilter: "blur(12px)",
+                        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255,255,255,0.2)",
+                        transition: "all 0.3s ease",
                       }}
                     >
                       <Typography sx={{
                         color: palette.gold,
-                        fontSize: "0.52rem",
+                        fontSize: "0.55rem",
                         fontWeight: 700,
                         letterSpacing: "0.18em",
                         textTransform: "uppercase",
@@ -1127,88 +1176,153 @@ export default function Home() {
       </MouseMoveSpotlight>
 
       {/* ─── INTRO / ABOUT TEASER ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <CinematicReveal
-                type="clip-slide-right"
-                duration={1.1}
-                style={{
-                  width: "100%",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                }}
-                className="h-[300px] md:h-[400px]"
-              >
-                <ParallaxImage
-                  src={getImage(
-                    "home_about_owner",
-                    "/restaurant/owner_and_logo.jpg",
-                  )}
-                  alt="Corrado's owner with the restaurant logo"
-                  speed={0.15}
+              <Box sx={{ position: "relative", px: { xs: 1, md: 2 } }}>
+                {/* Premium gold double frame behind/overlapping */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: -12,
+                    border: "1.5px solid rgba(201, 169, 110, 0.25)",
+                    borderRadius: "24px",
+                    zIndex: 0,
+                    pointerEvents: "none",
+                    boxShadow: "inset 0 0 20px rgba(201, 169, 110, 0.1)",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      inset: 4,
+                      border: "1px solid rgba(201, 169, 110, 0.12)",
+                      borderRadius: "20px",
+                    }
+                  }}
                 />
-              </CinematicReveal>
+                <Box
+                  sx={{
+                    width: "100%",
+                    borderRadius: "24px", // Polished border radius
+                    overflow: "hidden",
+                    border: "1px solid rgba(255, 255, 255, 0.5)", // Polished border stroke
+                    boxShadow: "0 30px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(201, 169, 110, 0.1)", // Soft shadow
+                    height: { xs: "300px", md: "400px" },
+                    position: "relative",
+                    zIndex: 1,
+                    transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                    "&:hover": {
+                      transform: "translateY(-6px) scale(1.01)",
+                      boxShadow: `0 32px 64px rgba(190, 89, 83, 0.18), 0 0 0 1px rgba(201, 169, 110, 0.2)`,
+                    }
+                  }}
+                >
+                  <ParallaxImage
+                    src={getImage(
+                      "home_about_owner",
+                      "/restaurant/owner_and_logo.jpg",
+                    )}
+                    alt="Corrado's owner with the restaurant logo"
+                    speed={0.15}
+                  />
+                </Box>
+              </Box>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <CinematicReveal type="slide-up-skew" delay={0.15}>
+              <Box>
+                <Box sx={{ color: palette.gold, fontSize: "1.4rem", mb: 0.8, display: "flex", lineHeight: 1 }}>⚜</Box>
                 <Typography
                   variant="subtitle2"
                   sx={{
                     color: palette.primary.main,
                     mb: 1,
                     letterSpacing: "0.15em",
+                    fontWeight: 700,
                   }}
                 >
                   OUR STORY
                 </Typography>
                 <Typography
                   variant="h3"
-                  component="div"
                   sx={{
                     mb: 3,
-                    fontWeight: 700,
+                    fontWeight: 900,
                     fontSize: { xs: "1.75rem", md: "2.25rem" },
+                    fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif",
+                    color: palette.text.primary,
                   }}
                 >
-                  <BlurText text="A Taste of Italy in Whitby" align="left" />
+                  A Taste of Italy in Whitby
                 </Typography>
-                <Box sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}>
-                  <TextReveal
-                    text="Since 2010, Corrado's has been the neighbourhood's favourite destination for authentic Italian cuisine. From our family to yours, we prepare every dish with fresh ingredients, time-honoured recipes, and a genuine passion for hospitality."
-                    delay={0.1}
-                  />
-                </Box>
-                <Box sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
-                  <TextReveal
-                    text="Whether you're here for a casual weeknight dinner, a special celebration, or cheering on your team during the big game — there's always a seat at our table for you."
-                    delay={0.2}
-                  />
-                </Box>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: palette.text.secondary,
+                    mb: 2.5,
+                    lineHeight: 1.8,
+                    fontSize: "0.98rem",
+                  }}
+                >
+                  Since 2010, Corrado's has been the neighbourhood's favourite destination for authentic Italian cuisine. From our family to yours, we prepare every dish with fresh ingredients, time-honoured recipes, and a genuine passion for hospitality.
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: palette.text.secondary,
+                    mb: 4,
+                    lineHeight: 1.8,
+                    fontSize: "0.98rem",
+                  }}
+                >
+                  Whether you're here for a casual weeknight dinner, a special celebration, or cheering on your team during the big game — there's always a seat at our table for you.
+                </Typography>
                 <Button
-                  variant="outlined"
-                  color="primary"
+                  variant="contained"
                   component={RouterLink}
                   to="/about"
                   endIcon={<ArrowForwardIcon />}
+                  sx={{
+                    transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)", 
+                    px: 4.5, 
+                    py: 1.8,
+                    borderRadius: "30px", // Normal premium pill button shape
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    bgcolor: "#C85A4E", // Sleek terracotta
+                    color: "#fff",
+                    boxShadow: "0 8px 28px rgba(201, 169, 110, 0.35), 0 4px 10px rgba(200, 90, 78, 0.2)",
+                    "&:hover": { 
+                      transform: "translateY(-3px)",
+                      bgcolor: "#B64B40",
+                      boxShadow: "0 14px 36px rgba(201, 169, 110, 0.5), 0 6px 16px rgba(200, 90, 78, 0.35)",
+                    }
+                  }}
                 >
                   Our Story
                 </Button>
-              </CinematicReveal>
+              </Box>
             </Grid>
           </Grid>
         </Container>
       </Box>
 
       {/* ─── FEATURED MENU CATEGORIES ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
-        <SectionHeader
-          subtitle="OUR MENU"
-          title="Explore Our Kitchen"
-          description="From handmade pasta to stone-oven pizza, our menu celebrates the best of Italian cuisine with a Canadian twist."
-        />
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
+          <SectionHeader
+            subtitle="OUR MENU"
+            title="Explore Our Kitchen"
+            description="From handmade pasta to stone-oven pizza, our menu celebrates the best of Italian cuisine with a Canadian twist."
+          />
           <Grid container spacing={3}>
             {[
               {
@@ -1241,7 +1355,14 @@ export default function Home() {
               },
             ].map((cat, i) => (
               <Grid key={cat.label} size={{ xs: 12, sm: 6, md: 3 }}>
-                <CinematicReveal type="wipe-gold" delay={i * 0.12} duration={0.8} style={{ height: "100%" }}>
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  variants={fadeInUpVariants}
+                  custom={i}
+                  style={{ height: "100%" }}
+                >
                   <TiltCard>
                     <Card
                       component={RouterLink}
@@ -1252,11 +1373,16 @@ export default function Home() {
                         display: "flex",
                         flexDirection: "column",
                         overflow: "hidden",
-                        border: "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
-                        transition: "box-shadow 0.3s ease",
+                        borderRadius: "16px",
+                        bgcolor: "rgba(255, 255, 255, 0.85)", // Premium frosted glass look
+                        backdropFilter: "blur(12px)",
+                        border: "1px solid rgba(201, 169, 110, 0.2)",
+                        boxShadow: "0 8px 24px rgba(45,41,38,0.04)",
+                        transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s ease",
                         "&:hover": {
-                          boxShadow: "0 20px 44px rgba(45,41,38,0.16)",
+                          transform: "translateY(-6px)",
+                          borderColor: "rgba(201, 169, 110, 0.5)",
+                          boxShadow: "0 20px 48px rgba(190, 89, 83, 0.08), 0 0 22px rgba(201, 169, 110, 0.15)",
                         },
                         "&:hover .category-image": {
                           transform: "scale(1.08)",
@@ -1278,22 +1404,32 @@ export default function Home() {
                           }}
                         />
                       </Box>
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 700, color: palette.charcoal }}
-                        >
-                          {cat.label}
-                        </Typography>
+                      <CardContent sx={{ p: 2.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <span style={{ color: palette.gold, fontSize: "0.95rem" }}>⚜</span>
+                          <Typography
+                            variant="h6"
+                            sx={{ 
+                              fontWeight: 900, 
+                              color: palette.charcoal,
+                              fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif",
+                              fontSize: "1.25rem",
+                              letterSpacing: "0.02em",
+                            }}
+                          >
+                            {cat.label}
+                          </Typography>
+                        </Box>
+                        <ArrowForwardIcon sx={{ color: palette.gold, fontSize: 18 }} />
                       </CardContent>
                     </Card>
                   </TiltCard>
-                </CinematicReveal>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <CinematicReveal type="fade-in" delay={0.35} duration={0.6}>
+            <Box>
               <Button
                 variant="contained"
                 color="primary"
@@ -1301,37 +1437,66 @@ export default function Home() {
                 to="/menus"
                 endIcon={<ArrowForwardIcon />}
                 size="large"
+                sx={{
+                  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                  px: 4, 
+                  py: 1.5,
+                  borderRadius: "30px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  boxShadow: "0 6px 20px rgba(190, 89, 83, 0.25)",
+                  "&:hover": { 
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 10px 25px rgba(190, 89, 83, 0.35)",
+                  }
+                }}
               >
                 View Full Menu
               </Button>
-            </CinematicReveal>
+            </Box>
           </Box>
         </Container>
       </Box>
 
       {/* ─── DAILY SPECIALS PREVIEW ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
-        <SectionHeader
-          subtitle="DAILY SPECIALS"
-          title="Something Special Every Day"
-          description="Take advantage of our rotating daily deals — great food at even better prices."
-        />
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
+          <SectionHeader
+            subtitle="DAILY SPECIALS"
+            title="Something Special Every Day"
+            description="Take advantage of our rotating daily deals — great food at even better prices."
+          />
           <Grid container spacing={3}>
             {featuredSpecials.map((special, i) => (
               <Grid key={special.id} size={{ xs: 12, md: 4 }}>
-                <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
-                  <SpotlightCard glowColor="rgba(190, 89, 83, 0.12)" style={{ height: "100%", borderRadius: "8px" }}>
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  variants={fadeInUpVariants}
+                  custom={i}
+                  style={{ height: "100%" }}
+                >
+                  <SpotlightCard glowColor="rgba(190, 89, 83, 0.12)" style={{ height: "100%", borderRadius: "16px" }}>
                     <Card
                       sx={{
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
-                        border: "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
-                        transition: "box-shadow 0.3s ease",
+                        borderRadius: "16px",
+                        background: "linear-gradient(135deg, #FFF8F6 0%, #F5DDD8 100%)", // Blush-terracotta gradient
+                        border: "1px solid rgba(201, 169, 110, 0.18)",
+                        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)",
+                        transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s ease",
                         "&:hover": {
-                          boxShadow: "0 20px 44px rgba(45,41,38,0.14)",
+                          transform: "translateY(-6px)",
+                          borderColor: "rgba(201, 169, 110, 0.5)",
+                          boxShadow: "0 24px 56px rgba(190, 89, 83, 0.12), 0 0 24px rgba(201, 169, 110, 0.15)",
                         },
                       }}
                     >
@@ -1378,14 +1543,22 @@ export default function Home() {
                             size="small"
                             variant="outlined"
                             sx={{
-                              borderColor: palette.gold,
-                              color: palette.gold,
+                              borderColor: "rgba(190, 89, 83, 0.3)",
+                              color: palette.primary.main,
                               fontWeight: 600,
                               fontSize: "0.7rem",
                             }}
                           />
                         </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{ 
+                            fontWeight: 900, 
+                            mb: 1.5,
+                            fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif",
+                            color: palette.charcoal,
+                          }}
+                        >
                           {formatAmpersand(special.title)}
                         </Typography>
                         <Typography
@@ -1401,22 +1574,36 @@ export default function Home() {
                       </CardContent>
                     </Card>
                   </SpotlightCard>
-                </CinematicReveal>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <CinematicReveal type="fade-in" delay={0.3} duration={0.6}>
+            <Box>
               <Button
                 variant="outlined"
                 color="primary"
                 component={RouterLink}
                 to="/specials"
                 endIcon={<ArrowForwardIcon />}
+                sx={{
+                  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                  px: 4, 
+                  py: 1.5,
+                  borderRadius: "30px",
+                  fontWeight: 750,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  borderWidth: "1.5px",
+                  "&:hover": { 
+                    transform: "translateY(-2px)",
+                    borderWidth: "1.5px",
+                  }
+                }}
               >
                 View All Specials
               </Button>
-            </CinematicReveal>
+            </Box>
           </Box>
         </Container>
       </Box>
@@ -1432,7 +1619,11 @@ export default function Home() {
           borderBottom: `1px solid ${palette.warmGray}`,
         }}
       >
-        <Box sx={{ position: "relative", zIndex: 1 }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Box sx={{ position: "relative", zIndex: 2 }}>
           <SectionHeader
             subtitle="FAMILY MEALS"
             title="Share the Table, Share the Love"
@@ -1441,195 +1632,367 @@ export default function Home() {
           <Container>
             <Grid container spacing={3}>
               {liveFamilyMeals
-                .filter((m) => m.mealType === "combo")
-                .slice(0, 3)
-                .map((meal, i) => (
-                  <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
-                    <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
-                      <ScrollRotate3D style={{ height: "100%" }}>
-                        <Card
-                          sx={{
-                            height: "100%",
-                            bgcolor: "#fff",
-                            border: "1px solid rgba(45,41,38,0.06)",
-                            boxShadow: "0 8px 24px rgba(45,41,38,0.08)",
-                            transition: "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
-                            "&:hover": {
-                              transform: "translateY(-6px)",
-                              borderColor: "rgba(201,169,110,0.45)",
-                              boxShadow: "0 24px 56px rgba(45,41,38,0.16), 0 0 22px rgba(201,169,110,0.12)",
-                            },
-                          }}
-                        >
-                          <CardContent sx={{ p: 3 }}>
-                            <Typography
-                              variant="h6"
-                              fontWeight={700}
-                              sx={{ mb: 1, color: palette.charcoal }}
-                            >
-                              {formatAmpersand(meal.name)}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.7 }}
-                            >
-                              {meal.description}
-                            </Typography>
+              .filter((m) => m.mealType === "combo")
+              .slice(0, 3)
+              .map((meal, i) => (
+                <Grid key={meal.id} size={{ xs: 12, md: 4 }}>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-60px" }}
+                    variants={fadeInUpVariants}
+                    custom={i}
+                    style={{ height: "100%" }}
+                  >
+                    <ScrollRotate3D style={{ height: "100%" }}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          background: "linear-gradient(135deg, #FFF8F6 0%, #F5DDD8 100%)", // Blush-terracotta gradient
+                          borderRadius: "16px",
+                          border: "1px solid rgba(201, 169, 110, 0.18)",
+                          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)",
+                          transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s ease",
+                          "&:hover": {
+                            transform: "translateY(-6px)",
+                            borderColor: "rgba(201, 169, 110, 0.5)",
+                            boxShadow: "0 24px 56px rgba(190, 89, 83, 0.12), 0 0 24px rgba(201, 169, 110, 0.15)",
+                          },
+                        }}
+                      >
+                        <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%" }}>
+                          <Typography
+                            variant="h6"
+                            sx={{ 
+                              mb: 1, 
+                              fontWeight: 900,
+                              color: palette.charcoal,
+                              fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif",
+                              fontSize: "1.25rem",
+                            }}
+                          >
+                            {formatAmpersand(meal.name)}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: palette.text.secondary, mb: 2.5, lineHeight: 1.7, flexGrow: 1 }}
+                          >
+                            {meal.description}
+                          </Typography>
+                          <Box sx={{ mt: "auto" }}>
                             <Chip
                               label={`Serves ${meal.serves}`}
                               size="small"
                               sx={{
                                 mr: 1,
                                 mb: 1,
-                                bgcolor: "rgba(190,89,83,0.10)",
+                                bgcolor: "rgba(201, 169, 110, 0.15)",
                                 color: palette.primary.main,
-                                fontWeight: 600,
+                                border: "1px solid rgba(201, 169, 110, 0.25)",
+                                fontWeight: 700,
+                                fontSize: "0.68rem",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.05em",
                               }}
                             />
                             <Typography
                               variant="h5"
                               sx={{
-                                color: palette.primary.main,
-                                fontWeight: 700,
-                                mt: 2,
+                                color: palette.charcoal,
+                                fontWeight: 900,
+                                fontFamily: "'Playfair Display', 'Didot', serif",
+                                mt: 2.5,
+                                fontSize: "1.5rem",
+                                display: "flex",
+                                alignItems: "baseline",
                               }}
                             >
-                              {`$${Number(meal.basePrice).toFixed(2)}${meal.priceLabel}`}
+                              <span style={{ color: palette.gold, fontSize: "1.05rem", fontWeight: 700, marginRight: 2, fontFamily: "'Inter', sans-serif" }}>$</span>
+                              {Number(meal.basePrice).toFixed(2)}
+                              {meal.priceLabel && (
+                                <span style={{ fontSize: "0.82rem", color: palette.text.secondary, fontWeight: 500, marginLeft: 6, fontFamily: "'Inter', sans-serif" }}>
+                                  {meal.priceLabel}
+                                </span>
+                              )}
                             </Typography>
-                          </CardContent>
-                        </Card>
-                      </ScrollRotate3D>
-                    </CinematicReveal>
-                  </Grid>
-                ))}
-            </Grid>
-            <Box sx={{ textAlign: "center", mt: 4 }}>
-              <CinematicReveal type="fade-in" delay={0.35} duration={0.6}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  component={RouterLink}
-                  to="/family-meals"
-                  endIcon={<ArrowForwardIcon />}
-                  size="large"
-                >
-                  View Family Meals
-                </Button>
-              </CinematicReveal>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </ScrollRotate3D>
+                  </motion.div>
+                </Grid>
+              ))}
+          </Grid>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Box>
+              <Button
+                variant="contained"
+                color="primary"
+                component={RouterLink}
+                to="/family-meals"
+                endIcon={<ArrowForwardIcon />}
+                size="large"
+                sx={{
+                  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                  px: 4, 
+                  py: 1.5,
+                  borderRadius: "30px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  boxShadow: "0 6px 20px rgba(190, 89, 83, 0.25)",
+                  "&:hover": { 
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 10px 25px rgba(190, 89, 83, 0.35)",
+                  }
+                }}
+              >
+                View Family Meals
+              </Button>
             </Box>
+          </Box>
           </Container>
         </Box>
       </Box>
 
+
+
       {/* ─── PARTY / CATERING HIGHLIGHT ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <CinematicReveal type="slide-up-skew" duration={0.8}>
+              <Box>
+                <Box sx={{ color: palette.gold, fontSize: "1.4rem", mb: 0.8, display: "flex", lineHeight: 1 }}>⚜</Box>
                 <Typography
                   variant="subtitle2"
                   sx={{
                     color: palette.primary.main,
                     mb: 1,
                     letterSpacing: "0.15em",
+                    fontWeight: 700,
                   }}
                 >
                   PRIVATE EVENTS & CATERING
                 </Typography>
                 <Typography
                   variant="h3"
-                  component="div"
                   sx={{
-                    mb: 3,
-                    fontWeight: 700,
+                    mb: 3.5,
+                    fontWeight: 900,
                     fontSize: { xs: "1.75rem", md: "2.25rem" },
+                    fontFamily: fonts.display,
+                    color: palette.text.primary,
                   }}
                 >
-                  <BlurText text="Host Your Next Event at Corrado's" align="left" />
+                  Host Your Next Event at Corrado's
                 </Typography>
-                <Box sx={{ color: palette.text.secondary, mb: 2, lineHeight: 1.8 }}>
-                  <TextReveal
-                    text="From intimate gatherings to large celebrations, we have the perfect space and menu for your event. Birthday parties, corporate dinners, sports viewing parties, and more."
-                    delay={0.1}
-                  />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: palette.text.secondary,
+                    mb: 4,
+                    lineHeight: 1.8,
+                    fontSize: "0.98rem",
+                  }}
+                >
+                  From intimate gatherings to large celebrations, we have the perfect space and menu for your event.
+                </Typography>
+
+                {/* Redesigned details list as a luxury menu board */}
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.5)",
+                    border: "1px solid rgba(201, 169, 110, 0.25)",
+                    borderRadius: "16px",
+                    p: { xs: 3, md: 4 },
+                    mb: 4.5,
+                    boxShadow: "inset 0 0 24px rgba(201, 169, 110, 0.04), 0 10px 30px rgba(0,0,0,0.02)",
+                  }}
+                >
+                  <Stack spacing={2.5}>
+                    {[
+                      { label: "Capacity", val: "Up to 80 Guests (Upstairs Dining & Patio)" },
+                      { label: "Menus", val: "Custom Buffet, Plated, or Cocktail Reception" },
+                      { label: "A/V Setup", val: "High-Definition Screens & Built-in Sound" },
+                      { label: "Pricing", val: "Starting at just $25.00 per guest" },
+                      { label: "Booking Policy", val: "No room rental fee (minimum spends apply)" },
+                    ].map((row, i) => (
+                      <Box 
+                        key={i} 
+                        sx={{ 
+                          display: "flex", 
+                          justifyContent: "space-between", 
+                          alignItems: "center",
+                          borderBottom: i === 4 ? "none" : "1px dashed rgba(201, 169, 110, 0.3)", 
+                          pb: 2, 
+                          gap: 3,
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            bgcolor: "rgba(201, 169, 110, 0.03)",
+                            px: 1.5,
+                            mx: -1.5,
+                            borderRadius: "8px",
+                          }
+                        }}
+                      >
+                        <Typography sx={{ color: palette.primary.main, fontWeight: 800, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.1em", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 1.25 }}>
+                          <span style={{ color: palette.gold, fontSize: "1.05rem", filter: "drop-shadow(0 1px 2px rgba(201,169,110,0.3))" }}>⚜</span> {row.label}
+                        </Typography>
+                        <Typography sx={{ color: palette.charcoal, textAlign: "right", fontSize: "0.92rem", fontWeight: 600, fontFamily: fonts.body }}>
+                          {row.val}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Stack>
                 </Box>
-                <Box sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
-                  <TextReveal
-                    text="Our dedicated event coordinator will work with you to customize every detail, from menu selection to seating arrangement. Starting at just $25 per person."
-                    delay={0.2}
-                  />
-                </Box>
+ 
                 <Stack direction="row" spacing={2} sx={{ flexWrap: { xs: "wrap", sm: "nowrap" } }}>
                   <Button
                     variant="contained"
-                    color="primary"
                     component={RouterLink}
                     to="/party-menus"
                     endIcon={<ArrowForwardIcon />}
+                    sx={{
+                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                      px: 4, 
+                      py: 1.5,
+                      borderRadius: "30px",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      bgcolor: palette.primary.main,
+                      boxShadow: "0 8px 24px rgba(190, 89, 83, 0.3), 0 4px 12px rgba(201, 169, 110, 0.15)",
+                      "&:hover": { 
+                        transform: "translateY(-2px)",
+                        bgcolor: palette.primary.dark,
+                        boxShadow: "0 12px 32px rgba(190, 89, 83, 0.4), 0 6px 18px rgba(201, 169, 110, 0.25)",
+                      }
+                    }}
                   >
                     Party Menus
                   </Button>
                   <Button
                     variant="outlined"
-                    color="primary"
                     component={RouterLink}
                     to="/contact"
+                    sx={{
+                      transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                      px: 4, 
+                      py: 1.5,
+                      borderRadius: "30px",
+                      fontWeight: 750,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      borderWidth: "1.5px",
+                      borderColor: "rgba(190, 89, 83, 0.3)",
+                      color: palette.primary.main,
+                      "&:hover": { 
+                        transform: "translateY(-2px)",
+                        borderWidth: "1.5px",
+                        borderColor: palette.primary.dark,
+                        bgcolor: "rgba(190, 89, 83, 0.04)",
+                      }
+                    }}
                   >
                     Get in Touch
                   </Button>
                 </Stack>
-              </CinematicReveal>
+              </Box>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <CinematicReveal
-                type="clip-slide-left"
-                delay={0.15}
-                duration={1.1}
-                style={{
-                  width: "100%",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                }}
-                className="h-[300px] md:h-[400px]"
-              >
-                <ParallaxImage
-                  src={getImage(
-                    "home_private_events",
-                    "/orrdos/interior-upstairs.jpg",
-                  )}
-                  alt="Corrado's upstairs dining room — perfect for private events"
-                  speed={-0.12}
+              <Box sx={{ position: "relative", px: { xs: 1, md: 2 } }}>
+                {/* Premium gold double frame behind/overlapping */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: -12,
+                    border: "1px solid rgba(201, 169, 110, 0.3)",
+                    borderRadius: "16px",
+                    zIndex: 0,
+                    pointerEvents: "none",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      inset: 4,
+                      border: "1px dashed rgba(201, 169, 110, 0.18)",
+                      borderRadius: "12px",
+                    }
+                  }}
                 />
-              </CinematicReveal>
+                <Box
+                  sx={{
+                    width: "100%",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    boxShadow: "0 12px 36px rgba(0,0,0,0.08)",
+                    height: { xs: "300px", md: "400px" },
+                    position: "relative",
+                    zIndex: 1,
+                    transition: "transform 0.5s ease, box-shadow 0.5s ease",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: `0 20px 48px rgba(190, 89, 83, 0.12)`,
+                    }
+                  }}
+                >
+                  <ParallaxImage
+                    src={getImage(
+                      "home_private_events",
+                      "/orrdos/interior-upstairs.jpg",
+                    )}
+                    alt="Corrado's upstairs dining room — perfect for private events"
+                    speed={-0.12}
+                  />
+                </Box>
+              </Box>
             </Grid>
           </Grid>
         </Container>
       </Box>
 
+
       {/* ─── EVENTS TEASER ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
-        <SectionHeader
-          subtitle="UPCOMING EVENTS"
-          title="What's Happening at Corrado's"
-          description="Live music, sports nights, wine tastings, and more — there's always something exciting going on."
-        />
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
+          <SectionHeader
+            subtitle="UPCOMING EVENTS"
+            title="What's Happening at Corrado's"
+            description="Live music, sports nights, wine tastings, and more — there's always something exciting going on."
+          />
           <Grid container spacing={3}>
             {featuredEvents.map((event, i) => (
               <Grid key={event.id} size={{ xs: 12, md: 4 }}>
-                <CinematicReveal type="slide-up-skew" delay={i * 0.1} style={{ height: "100%" }}>
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  variants={fadeInUpVariants}
+                  custom={i}
+                  style={{ height: "100%" }}
+                >
                   <TiltCard>
                     <Card
                       sx={{
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
-                        border: "1px solid rgba(0,0,0,0.06)",
-                        boxShadow: "0 6px 22px rgba(45,41,38,0.06)",
-                        transition: "box-shadow 0.3s ease",
+                        borderRadius: "16px",
+                        border: "1px solid rgba(201, 169, 110, 0.16)",
+                        boxShadow: "0 8px 24px rgba(45,41,38,0.04)",
+                        transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s ease",
                         "&:hover": {
-                          boxShadow: "0 20px 44px rgba(45,41,38,0.14)",
+                          transform: "translateY(-6px)",
+                          borderColor: "rgba(201, 169, 110, 0.45)",
+                          boxShadow: "0 20px 48px rgba(190, 89, 83, 0.08), 0 0 22px rgba(201, 169, 110, 0.08)",
                         },
                         "&:hover .event-image": {
                           transform: "scale(1.06)",
@@ -1688,34 +2051,52 @@ export default function Home() {
                       </CardContent>
                     </Card>
                   </TiltCard>
-                </CinematicReveal>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <CinematicReveal type="fade-in" delay={0.3} duration={0.6}>
+            <Box>
               <Button
                 variant="outlined"
                 color="primary"
                 component={RouterLink}
                 to="/events"
                 endIcon={<ArrowForwardIcon />}
+                sx={{
+                  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                  px: 4, 
+                  py: 1.5,
+                  borderRadius: "30px",
+                  fontWeight: 750,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  borderWidth: "1.5px",
+                  "&:hover": { 
+                    transform: "translateY(-2px)",
+                    borderWidth: "1.5px",
+                  }
+                }}
               >
                 View All Events
               </Button>
-            </CinematicReveal>
+            </Box>
           </Box>
         </Container>
       </Box>
 
       {/* ─── GALLERY TEASER ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
-        <SectionHeader
-          subtitle="GALLERY"
-          title="A Glimpse Inside Corrado's"
-          description="Explore our beautiful space, delicious dishes, and memorable events."
-        />
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
+          <SectionHeader
+            subtitle="GALLERY"
+            title="A Glimpse Inside Corrado's"
+            description="Explore our beautiful space, delicious dishes, and memorable events."
+          />
           <Grid container spacing={2}>
             {(galleryImages.length > 0
               ? galleryImages
@@ -1728,27 +2109,25 @@ export default function Home() {
             ).map((src, i) => (
               <Grid key={i} size={{ xs: 6, md: 3 }}>
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.85, rotate: i % 2 === 0 ? -3 : 3, y: 35 }}
-                  whileInView={{ opacity: 1, scale: 1, rotate: 0, y: 0 }}
+                  initial="hidden"
+                  whileInView="visible"
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 90,
-                    damping: 15,
-                    delay: i * 0.08,
-                  }}
+                  variants={fadeInUpVariants}
+                  custom={i}
                 >
                   <Box
                     sx={{
                       width: "100%",
                       height: { xs: 160, md: 220 },
-                      borderRadius: 2,
+                      borderRadius: "16px",
+                      border: "1px solid rgba(201, 169, 110, 0.16)",
                       overflow: "hidden",
-                      boxShadow: "0 6px 22px rgba(45,41,38,0.07)",
-                      transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                      boxShadow: "0 8px 24px rgba(45,41,38,0.04)",
+                      transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s ease",
                       "&:hover": {
-                        boxShadow: "0 18px 40px rgba(45,41,38,0.15)",
-                        transform: "translateY(-4px)",
+                        transform: "translateY(-6px)",
+                        borderColor: "rgba(201, 169, 110, 0.45)",
+                        boxShadow: "0 20px 48px rgba(190, 89, 83, 0.08), 0 0 22px rgba(201, 169, 110, 0.08)",
                       },
                     }}
                   >
@@ -1763,64 +2142,80 @@ export default function Home() {
             ))}
           </Grid>
           <Box sx={{ textAlign: "center", mt: 4 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-            >
+            <Box>
               <Button
                 variant="outlined"
                 color="primary"
                 component={RouterLink}
                 to="/gallery"
                 endIcon={<ArrowForwardIcon />}
+                sx={{
+                  transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)", 
+                  px: 4, 
+                  py: 1.5,
+                  borderRadius: "30px",
+                  fontWeight: 750,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  borderWidth: "1.5px",
+                  "&:hover": { 
+                    transform: "translateY(-2px)",
+                    borderWidth: "1.5px",
+                  }
+                }}
               >
                 View Full Gallery
               </Button>
-            </motion.div>
+            </Box>
           </Box>
         </Container>
       </Box>
 
       {/* ─── MOBILE APPS SECTION ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default }}>
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
-              >
+              <Box>
+                <Box sx={{ color: palette.gold, fontSize: "1.4rem", mb: 0.8, display: "flex", lineHeight: 1 }}>⚜</Box>
                 <Typography
                   variant="subtitle2"
                   sx={{
                     color: palette.primary.main,
                     mb: 1,
                     letterSpacing: "0.15em",
+                    fontWeight: 700,
                   }}
                 >
                   MOBILE APP
                 </Typography>
                 <Typography
                   variant="h3"
-                  component="div"
                   sx={{
                     mb: 3,
-                    fontWeight: 700,
+                    fontWeight: 900,
                     fontSize: { xs: "1.75rem", md: "2.25rem" },
+                    fontFamily: "'Playfair Display', 'Didot', 'Georgia', serif",
+                    color: palette.text.primary,
                   }}
                 >
-                  <BlurText text="Order From Anywhere" align="left" />
+                  Order From Anywhere
                 </Typography>
-                <Box sx={{ color: palette.text.secondary, mb: 3, lineHeight: 1.8 }}>
-                  <TextReveal
-                    text="Download the Corrado's app and get your favourite Italian dishes delivered right to your door. Browse our full menu, customize your order, track delivery, and earn rewards with every purchase."
-                    delay={0.1}
-                  />
-                </Box>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: palette.text.secondary,
+                    mb: 4,
+                    lineHeight: 1.8,
+                    fontSize: "0.98rem",
+                  }}
+                >
+                  Download the Corrado's app and get your favourite Italian dishes delivered right to your door. Browse our full menu, customize your order, track delivery, and earn rewards with every purchase.
+                </Typography>
                 <Stack direction="row" spacing={2}>
                   <Tooltip
                     title="Coming soon — stay tuned!"
@@ -1915,7 +2310,7 @@ export default function Home() {
                     </span>
                   </Tooltip>
                 </Stack>
-              </motion.div>
+              </Box>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <ScrollRotate3D>
@@ -1935,16 +2330,26 @@ export default function Home() {
                     sx={{
                       width: 200,
                       height: 380,
-                      bgcolor: "#222",
-                      borderRadius: "24px",
-                      border: "4px solid #444",
+                      bgcolor: "#000",
+                      borderRadius: "32px",
+                      border: "6px solid #1c1a1a",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       position: "relative",
                       overflow: "hidden",
-                      boxShadow: "0 28px 60px rgba(0,0,0,0.3)",
+                      boxShadow: "0 28px 64px -12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)",
                       transformStyle: "preserve-3d",
+                      "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        top: 8,
+                        width: 65,
+                        height: 14,
+                        bgcolor: "#000",
+                        borderRadius: "10px",
+                        zIndex: 10,
+                      }
                     }}
                   >
                     <Box
@@ -1961,15 +2366,13 @@ export default function Home() {
                     />
                   </Box>
                   {/* Floating elements to enhance the 3D parallax effect */}
-                  <motion.div
-                    animate={{ y: [0, -12, 0] }}
-                    transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                    style={{
+                  <Box
+                    sx={{
                       position: "absolute",
                       top: "15%",
                       left: "12%",
                       zIndex: 2,
-                      transform: "translateZ(40px)",
+                      animation: `${floatUp} 4s ease-in-out infinite`,
                     }}
                   >
                     <Box
@@ -1986,16 +2389,14 @@ export default function Home() {
                     >
                       <LocalPizzaIcon />
                     </Box>
-                  </motion.div>
-                  <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                    style={{
+                  </Box>
+                  <Box
+                    sx={{
                       position: "absolute",
                       bottom: "20%",
                       right: "12%",
                       zIndex: 2,
-                      transform: "translateZ(60px)",
+                      animation: `${floatDown} 3.5s ease-in-out infinite`,
                     }}
                   >
                     <Box
@@ -2012,7 +2413,7 @@ export default function Home() {
                     >
                       <StarIcon />
                     </Box>
-                  </motion.div>
+                  </Box>
                 </Box>
               </ScrollRotate3D>
             </Grid>
@@ -2021,90 +2422,129 @@ export default function Home() {
       </Box>
 
       {/* ─── WHY CHOOSE US ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream }}>
-        <SectionHeader
-          subtitle="WHY CORRADO'S"
-          title="What Makes Us Special"
-          description="There are many reasons families in Whitby and Oshawa choose Corrado's for dining, takeout, and events."
-        />
-        <Container>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.cream, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Container sx={{ position: "relative", zIndex: 2 }}>
+          <SectionHeader
+            subtitle="WHY CORRADO'S"
+            title="What Makes Us Special"
+            description="There are many reasons families in Whitby and Oshawa choose Corrado's for dining, takeout, and events."
+          />
           <Grid container spacing={3}>
             {[
               {
                 icon: <LocalPizzaIcon />,
                 title: "Authentic Italian",
                 text: "Handmade pasta, stone-oven pizza, and traditional recipes crafted with the freshest ingredients",
+                grid: { xs: 12, sm: 6, md: 6 },
               },
               {
                 icon: <GroupsIcon />,
                 title: "Family Dining",
                 text: "Warm booths downstairs, spacious upstairs seating — a welcoming atmosphere for the whole family",
+                grid: { xs: 12, sm: 6, md: 6 },
               },
               {
                 icon: <CelebrationIcon />,
                 title: "Private Events",
                 text: "Upstairs dining room and patio available for birthdays, corporate dinners, and celebrations",
+                grid: { xs: 12, sm: 6, md: 4 },
               },
               {
                 icon: <WineBarIcon />,
                 title: "Wine & Cocktails",
                 text: "Extensive Italian and international wines, craft cocktails, and the best Espresso Martini in town",
+                grid: { xs: 12, sm: 6, md: 4 },
               },
               {
                 icon: <SportsBarIcon />,
                 title: "Sports Viewing",
                 text: "Multiple screens throughout — the perfect spot to cheer on your team during the big game",
+                grid: { xs: 12, sm: 6, md: 4 },
               },
               {
                 icon: <DeckIcon />,
                 title: "Beautiful Patio",
                 text: "Enjoy al fresco dining on our charming outdoor patio in the warmer months",
+                grid: { xs: 12, sm: 6, md: 3 },
               },
               {
                 icon: <ChildCareIcon />,
                 title: "Kids' Menu",
                 text: "Child-friendly options the little ones will love, with fast service so no one waits long",
+                grid: { xs: 12, sm: 6, md: 3 },
               },
               {
                 icon: <StarIcon />,
                 title: "Exceptional Value",
                 text: "Generous portions, quality ingredients, and great prices — consistently rated 5 stars",
+                grid: { xs: 12, sm: 6, md: 3 },
               },
               {
                 icon: <LocalParkingIcon />,
                 title: "Easy to Find",
                 text: "Located right off Baldwin with ample street parking and a welcoming entrance",
+                grid: { xs: 12, sm: 6, md: 3 },
               },
               {
                 icon: <WifiIcon />,
                 title: "Free WiFi",
                 text: "Stay connected while you dine with complimentary high-speed WiFi",
+                grid: { xs: 12, sm: 6, md: 6 },
               },
               {
                 icon: <AccessibleIcon />,
                 title: "Fully Accessible",
                 text: "Wheelchair accessible space so every guest feels welcome and comfortable",
+                grid: { xs: 12, sm: 6, md: 6 },
               },
             ].map((feature, i) => (
-              <Grid key={i} size={{ xs: 6, sm: 4, md: 3 }}>
+              <Grid key={i} size={feature.grid}>
                 <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial="hidden"
+                  whileInView="visible"
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 15,
-                    delay: (i % 4) * 0.08,
-                  }}
+                  variants={fadeInUpVariants}
+                  custom={i % 4}
+                  style={{ height: "100%" }}
                 >
-                  <Box sx={{ textAlign: "center", p: 2 }}>
+                  <Box
+                    sx={{
+                      height: "100%",
+                      p: 3.5,
+                      borderRadius: "18px",
+                      border: "1px solid rgba(255, 255, 255, 0.4)",
+                      bgcolor: "rgba(255, 255, 255, 0.45)", // Frosted glass panel
+                      backdropFilter: "blur(20px)",
+                      boxShadow: "0 8px 32px rgba(45, 41, 38, 0.02)",
+                      transition: "transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), bgcolor 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      textAlign: "left",
+                      "&:hover": {
+                        transform: "translateY(-6px)",
+                        bgcolor: "rgba(255, 255, 255, 0.85)",
+                        borderColor: "rgba(201, 169, 110, 0.35)",
+                        boxShadow: "0 24px 50px rgba(201, 169, 110, 0.15), 0 0 30px rgba(201, 169, 110, 0.08)", // Dynamic hover glow
+                      },
+                      "&:hover .liquid-glass": {
+                        bgcolor: palette.primary.main,
+                        color: "#fff",
+                        borderColor: palette.primary.main,
+                        boxShadow: "0 0 20px rgba(190, 89, 83, 0.45)",
+                      },
+                    }}
+                  >
                     <Box
                       sx={{
                         color: palette.primary.main,
-                        mb: 1.5,
+                        mb: 2,
                         display: "flex",
-                        justifyContent: "center",
+                        justifyContent: "flex-start",
                       }}
                     >
                       <Magnet strength={4} padding={40}>
@@ -2114,19 +2554,16 @@ export default function Home() {
                             color: palette.primary.main,
                             p: 2,
                             borderRadius: "50%",
-                            bgcolor: "rgba(255, 255, 255, 0.5)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
+                            bgcolor: "rgba(201, 169, 110, 0.1)", // Soft glowing gold circular background
+                            border: "1px solid rgba(201, 169, 110, 0.25)",
+                            boxShadow: "0 0 15px rgba(201, 169, 110, 0.2)", // Soft glow
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            width: 68,
-                            height: 68,
-                            "& svg": { fontSize: 32 },
-                            transition: "background-color 0.3s, color 0.3s, transform 0.3s",
-                            "&:hover": {
-                              bgcolor: palette.primary.main,
-                              color: "#fff",
-                            },
+                            width: 56,
+                            height: 56,
+                            "& svg": { fontSize: 26 },
+                            transition: "all 0.35s ease",
                           }}
                         >
                           {feature.icon}
@@ -2135,13 +2572,13 @@ export default function Home() {
                     </Box>
                     <Typography
                       variant="h6"
-                      sx={{ fontWeight: 700, fontSize: "1rem", mb: 0.5 }}
+                      sx={{ fontWeight: 800, fontSize: "1.05rem", mb: 1, color: palette.charcoal, letterSpacing: "0.01em" }}
                     >
                       {feature.title}
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{ color: palette.text.secondary }}
+                      sx={{ color: palette.text.secondary, lineHeight: 1.6, fontSize: "0.85rem" }}
                     >
                       {feature.text}
                     </Typography>
@@ -2154,12 +2591,17 @@ export default function Home() {
       </Box>
 
       {/* ─── TESTIMONIALS ─── */}
-      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, overflow: "hidden" }}>
-        <SectionHeader
-          subtitle="WHAT OUR GUESTS SAY"
-          title="Loved by Families Across Whitby"
-        />
-        <Box sx={{ width: "100%" }}>
+      <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: palette.background.default, position: "relative", overflow: "hidden" }}>
+        {/* Ambient blurred gradient orbs & grain texture */}
+        <FloatingOrbs colors={["#BE5953", "#D4817C", "#C9A96E"]} count={3} opacity={0.06} blur={80} />
+        <GrainOverlay opacity={0.03} />
+
+        <Box sx={{ position: "relative", zIndex: 2, width: "100%" }}>
+          <SectionHeader
+            subtitle="WHAT OUR GUESTS SAY"
+            title="Loved by Families Across Whitby"
+          />
+          <Box sx={{ width: "100%" }}>
           <InfiniteMarquee speed={45} direction="left" pauseOnHover={true}>
             {testimonials.map((t) => (
               <Box
@@ -2233,6 +2675,7 @@ export default function Home() {
               </Box>
             ))}
           </InfiniteMarquee>
+        </Box>
         </Box>
       </Box>
 
