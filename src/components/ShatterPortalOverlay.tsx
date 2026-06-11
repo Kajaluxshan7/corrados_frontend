@@ -125,8 +125,8 @@ export default function ShatterPortalOverlay({
       }}
     >
       <motion.div
-        initial={{ opacity: 0, backdropFilter: "blur(0px)", WebkitBackdropFilter: "blur(0px)" }}
-        animate={{ opacity: 1, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
+        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+        animate={{ opacity: 1, backdropFilter: "blur(20px)" }}
         transition={{
           duration: 0.8,
           ease: "easeOut",
