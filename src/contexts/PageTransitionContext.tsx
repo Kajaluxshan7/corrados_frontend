@@ -77,7 +77,6 @@ export function PageTransitionProvider({ children }: { children: React.ReactNode
   //   animating  → 0 (invisible; shatter animation is visible)
   //   covered    → 1 (instant black; masks the unmount flash)
   //   revealing  → 0 with CSS transition (smooth reveal of new page)
-  const coverOpacity = !state || state.phase === 'animating' ? 0 : 0;
   const coverVisible = state !== null;
 
   return (
