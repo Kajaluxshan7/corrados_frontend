@@ -8,6 +8,7 @@ import { ScrollProgressButton, PosterBar } from "../components";
 import { WebSocketProvider } from "../contexts/WebSocketContext";
 import { useWs } from "../hooks/useWebSocket";
 import { SiteImagesProvider } from "../contexts/SiteImagesContext";
+import { PageTransitionProvider } from "../contexts/PageTransitionContext";
 
 function WsStatusBanner() {
   const { connected } = useWs();
@@ -72,7 +73,9 @@ export default function MainLayout() {
   return (
     <WebSocketProvider>
       <SiteImagesProvider>
-        <LayoutContent />
+        <PageTransitionProvider>
+          <LayoutContent />
+        </PageTransitionProvider>
       </SiteImagesProvider>
     </WebSocketProvider>
   );

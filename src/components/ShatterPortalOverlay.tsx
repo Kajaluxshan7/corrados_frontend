@@ -159,23 +159,6 @@ export default function ShatterPortalOverlay({
         }}
       />
 
-      {/* Charcoal Cross-fade Plate (cross-fades the white glass haze to theme charcoal in the final 350ms) */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0, 1] }}
-        transition={{
-          duration: 1.5,
-          times: [0, 0.76, 1],
-          ease: "easeInOut" as const,
-        }}
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "#0C0A09",
-          zIndex: 15,
-          pointerEvents: "none",
-        }}
-      />
 
       <div
         style={{

@@ -1,5 +1,5 @@
 import { keyframes } from "@emotion/react";
-import { useEffect, useState, useRef, useCallback, lazy, Suspense } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Container,
@@ -16,7 +16,8 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { usePageTransition } from "../contexts/PageTransitionContext";
 import LocalPizzaIcon from "@mui/icons-material/LocalPizza";
 import WifiIcon from "@mui/icons-material/Wifi";
 import LocalParkingIcon from "@mui/icons-material/LocalParking";
@@ -72,9 +73,6 @@ import {
   SPECIAL_POPUP_FALLBACK_IMAGES,
 } from "../constants/menus";
 
-// Heavy click-transition effect — lazy-loaded so it stays out of the initial
-// Home bundle and only downloads when a tile is actually clicked (Phase 3).
-const ShatterPortalOverlay = lazy(() => import("../components/ShatterPortalOverlay"));
 
 // navTiles defaults used as fallbacks when admin hasn't set a custom image
 const NAV_TILE_DEFAULTS: Record<string, string> = {
@@ -359,17 +357,12 @@ export default function Home() {
 
   // Stagger reveal trigger synced with splash screen
   const [animateEntrance, setAnimateEntrance] = useState(false);
-  const navigate = useNavigate();
+  const { trigger: triggerTransition, isTransitioning } = usePageTransition();
 
   const bentoGridRef = useRef<HTMLDivElement>(null);
   const [zoomOrigin, setZoomOrigin] = useState("50% 50%");
   const [activeShatter, setActiveShatter] = useState<{
-    rect: DOMRect;
     path: string;
-    image: string;
-    label: string;
-    tagline: string;
-    previewImages: string[];
   } | null>(null);
 
   useEffect(() => {
@@ -391,7 +384,7 @@ export default function Home() {
       return;
     }
     e.preventDefault();
-    if (activeShatter) return;
+    if (isTransitioning) return;
 
     const gridEl = bentoGridRef.current;
     const cardEl = e.currentTarget;
@@ -404,20 +397,15 @@ export default function Home() {
     }
 
     const rect = cardEl.getBoundingClientRect();
-    setActiveShatter({
-      rect,
+    setActiveShatter({ path: tile.path });
+    triggerTransition({
       path: tile.path,
+      rect,
       image: tile.image,
       label: tile.label,
       tagline: tile.tagline,
       previewImages: tile.previewImages,
     });
-  };
-
-  const handleZoomComplete = () => {
-    if (activeShatter) {
-      navigate(activeShatter.path);
-    }
   };
 
   // Build navTiles with dynamic images and preview lists at render time
@@ -2682,20 +2670,6 @@ export default function Home() {
       {/* ─── NEWSLETTER SIGNUP ─── */}
       <NewsletterSignup />
 
-      {/* ─── PORTAL ZOOM OVERLAY (lazy-loaded on tile click) ─── */}
-      {activeShatter && (
-        <Suspense fallback={null}>
-          <ShatterPortalOverlay
-            rect={activeShatter.rect}
-            image={activeShatter.image}
-            label={activeShatter.label}
-            tagline={activeShatter.tagline}
-            previewImages={activeShatter.previewImages}
-            isTriggered={!!activeShatter}
-            onComplete={handleZoomComplete}
-          />
-        </Suspense>
-      )}
     </>
   );
 }
